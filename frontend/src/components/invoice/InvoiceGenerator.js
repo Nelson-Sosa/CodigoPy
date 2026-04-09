@@ -27,41 +27,54 @@ export const generateInvoiceHTML = async (sale) => {
     }
     const date = new Date(sale.createdAt);
     const formattedDate = date.toLocaleDateString('es-PY', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    const formattedTime = date.toLocaleTimeString('es-PY', { hour: '2-digit', minute: '2-digit' });
-    const taxAmount = sale.subtotal * (settings.taxRate / 100);
     const exchangeRate = 6600;
-    const formatGs = (price) => {
-        return (price * exchangeRate).toLocaleString("es-PY");
+    const totalGs = Math.round(sale.total * exchangeRate);
+    const formatGs = (amount) => {
+        return Math.round(amount * exchangeRate).toLocaleString("es-PY");
     };
+    const numberToWords = (num) => {
+        const unidades = ["", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve"];
+        const decenas = ["", "diez", "veinte", "treinta", "cuarenta", "cincuenta", "sesenta", "setenta", "ochenta", "noventa"];
+        if (num === 0)
+            return "cero";
+        const miles = Math.floor(num / 1000);
+        const resto = num % 1000;
+        let result = "";
+        if (miles > 0) {
+            if (miles === 1)
+                result = "un mil";
+            else
+                result = (miles < 20 ? unidades[miles] : decenas[Math.floor(miles / 10)] + (miles % 10 > 0 ? " y " + unidades[miles % 10] : "")) + " mil";
+        }
+        if (resto > 0) {
+            if (miles > 0)
+                result += " ";
+            if (resto < 20) {
+                result += unidades[resto];
+            }
+            else {
+                result += decenas[Math.floor(resto / 10)];
+                if (resto % 10 > 0) {
+                    result += " y " + unidades[resto % 10];
+                }
+            }
+        }
+        return result;
+    };
+    const totalEnLetras = numberToWords(totalGs);
     const getPaymentLabel = (method) => {
         const labels = {
-            cash: "EFECTIVO",
-            card: "TARJETA DÉBITO/CRÉDITO",
-            transfer: "TRANSFERENCIA BANCARIA",
-            credit: "CRÉDITO",
+            cash: "Efectivo",
+            card: "Tarjeta",
+            transfer: "Transferencia",
+            credit: "Credito",
         };
         return labels[method] || method;
-    };
-    const getPaymentCondition = (method) => {
-        if (method === "cash")
-            return "AL CONTADO";
-        if (method === "credit")
-            return "A CRÉDITO";
-        return "";
     };
     const clientName = sale.client?.name || sale.clientName || "CONSUMIDOR FINAL";
     const clientIdentifier = sale.client?.ruc || sale.clientRuc || "";
     const clientPhone = sale.client?.phone || "";
-    const clientAddress = sale.client?.address || "";
-    const itemsHTML = sale.items.map((item, index) => `
-    <tr>
-      <td style="padding: 6px 8px; border-bottom: 1px solid #e5e7eb; text-align: center; font-size: 10px;">${index + 1}</td>
-      <td style="padding: 6px 8px; border-bottom: 1px solid #e5e7eb; font-size: 11px;">${item.productName}</td>
-      <td style="padding: 6px 8px; border-bottom: 1px solid #e5e7eb; text-align: center; font-size: 10px;">${item.quantity}</td>
-      <td style="padding: 6px 8px; border-bottom: 1px solid #e5e7eb; text-align: right; font-size: 10px;">${settings.currencySymbol}${item.unitPrice.toFixed(2)}</td>
-      <td style="padding: 6px 8px; border-bottom: 1px solid #e5e7eb; text-align: right; font-size: 10px;">${settings.currencySymbol}${item.subtotal.toFixed(2)}</td>
-    </tr>
-  `).join("");
+    const clientAddress = sale.client?.address || settings.address || "";
     const formatInvoiceNumber = () => {
         const num = String(settings.currentInvoiceNumber || 0).padStart(7, '0');
         return `${settings.invoiceEstablishment}-${settings.invoicePoint}-${num}`;
@@ -72,263 +85,311 @@ export const generateInvoiceHTML = async (sale) => {
         const d = new Date(dateStr);
         return d.toLocaleDateString('es-PY', { day: '2-digit', month: '2-digit', year: 'numeric' });
     };
-    const timbradoSection = settings.timbradoNumber ? `
-    <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b; border-radius: 8px; padding: 12px 16px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
-      <div>
-        <span style="font-size: 9px; color: #92400e; text-transform: uppercase; font-weight: bold;">Timbrado N°</span>
-        <p style="font-size: 16px; font-weight: bold; color: #78350f; margin: 2px 0;">${settings.timbradoNumber}</p>
-      </div>
-      <div style="text-align: center;">
-        <span style="font-size: 9px; color: #92400e; text-transform: uppercase; font-weight: bold;">Establecimiento</span>
-        <p style="font-size: 14px; font-weight: bold; color: #78350f; margin: 2px 0;">${settings.invoiceEstablishment}</p>
-      </div>
-      <div style="text-align: center;">
-        <span style="font-size: 9px; color: #92400e; text-transform: uppercase; font-weight: bold;">Punto de Expedición</span>
-        <p style="font-size: 14px; font-weight: bold; color: #78350f; margin: 2px 0;">${settings.invoicePoint}</p>
-      </div>
-      <div style="text-align: right;">
-        <span style="font-size: 9px; color: #92400e; text-transform: uppercase; font-weight: bold;">Validez</span>
-        <p style="font-size: 11px; font-weight: bold; color: #78350f; margin: 2px 0;">${formatDate(settings.timbradoFrom)} al ${formatDate(settings.timbradoTo)}</p>
-      </div>
-    </div>
-  ` : '';
+    const iva5 = Math.round(sale.subtotal * 0.05);
+    const iva10 = Math.round(sale.subtotal * 0.10);
+    const totalIva = iva5 + iva10;
+    const itemsHTML = sale.items.map((item) => `
+    <tr>
+      <td style="padding: 5px 8px; border: 1px solid #000; text-align: center; font-size: 11px;">${item.quantity}</td>
+      <td style="padding: 5px 8px; border: 1px solid #000; text-align: left; font-size: 11px;">${item.productName}</td>
+      <td style="padding: 5px 8px; border: 1px solid #000; text-align: right; font-size: 11px;">${item.unitPrice.toFixed(2)}</td>
+      <td style="padding: 5px 8px; border: 1px solid #000; text-align: right; font-size: 11px;">0</td>
+      <td style="padding: 5px 8px; border: 1px solid #000; text-align: right; font-size: 11px;">0</td>
+      <td style="padding: 5px 8px; border: 1px solid #000; text-align: right; font-size: 11px;">${item.subtotal.toFixed(2)}</td>
+    </tr>
+  `).join("");
     const html = `
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Factura ${sale.invoiceNumber}</title>
+  <title>Factura ${formatInvoiceNumber()}</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 12px; color: #1f2937; padding: 20px; background: #fff; }
-    .invoice-container { max-width: 800px; margin: 0 auto; }
+    body { font-family: Arial, sans-serif; font-size: 12px; color: #000; padding: 10px; }
+    .invoice-container { max-width: 850px; margin: 0 auto; }
     
     /* Header */
     .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 20px;
-      padding-bottom: 15px;
-      border-bottom: 3px solid #1e40af;
+      display: table;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 5px;
     }
-    .company-info h1 { 
-      font-size: 24px; 
-      color: #1e40af; 
-      margin-bottom: 5px; 
-      font-weight: 700;
-      letter-spacing: -0.5px;
+    .header-left {
+      display: table-cell;
+      width: 55%;
+      vertical-align: top;
+      padding-right: 10px;
     }
-    .company-info p { font-size: 11px; color: #6b7280; line-height: 1.6; }
-    .company-info .ruc { font-weight: 600; color: #374151; }
+    .header-right {
+      display: table-cell;
+      width: 45%;
+      vertical-align: top;
+    }
+    
+    .company-name {
+      font-size: 20px;
+      font-weight: bold;
+      color: #000;
+      margin-bottom: 5px;
+    }
+    .company-detail {
+      font-size: 10px;
+      line-height: 1.4;
+    }
+    
+    .timbrado-box {
+      border: 1px solid #000;
+      padding: 8px;
+    }
+    .timbrado-title {
+      background: #000;
+      color: #fff;
+      text-align: center;
+      padding: 3px;
+      font-weight: bold;
+      font-size: 11px;
+      margin-bottom: 5px;
+    }
+    .timbrado-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 10px;
+    }
+    .timbrado-table td {
+      padding: 2px 5px;
+      border: 1px solid #000;
+    }
+    .timbrado-table td:first-child {
+      font-weight: bold;
+      background: #f0f0f0;
+      width: 40%;
+    }
     
     .invoice-title {
-      text-align: right;
-    }
-    .invoice-title h2 { 
-      font-size: 28px; 
-      color: #1e40af; 
-      font-weight: 800;
-      letter-spacing: 2px;
-      margin-bottom: 5px;
-    }
-    .invoice-title .number { 
-      font-size: 14px; 
-      font-weight: 700; 
-      color: #1f2937;
-      background: #dbeafe;
-      padding: 5px 12px;
-      border-radius: 4px;
-      display: inline-block;
-      margin-bottom: 5px;
-    }
-    .invoice-title .date { font-size: 11px; color: #6b7280; }
-    .invoice-title .condition { 
-      font-size: 12px; 
-      font-weight: 700; 
-      color: #059669; 
+      background: #000;
+      color: #fff;
+      text-align: center;
+      padding: 8px;
+      font-weight: bold;
+      font-size: 16px;
       margin-top: 5px;
     }
     
-    /* Timbrado */
-    .timbrado-box {
-      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-      border: 2px solid #f59e0b;
-      border-radius: 8px;
-      padding: 12px 16px;
-      margin-bottom: 20px;
-      display: flex;
-      justify-content: space-between;
-    }
-    .timbrado-item { text-align: center; }
-    .timbrado-label { font-size: 8px; color: #92400e; text-transform: uppercase; font-weight: 700; }
-    .timbrado-value { font-size: 14px; font-weight: 700; color: #78350f; margin-top: 2px; }
-    
-    /* Client Section */
+    /* Client */
     .client-section {
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 15px;
-      margin-bottom: 20px;
+      border: 1px solid #000;
+      padding: 8px;
+      margin: 5px 0;
     }
     .client-title {
+      background: #f0f0f0;
+      padding: 3px 8px;
+      font-weight: bold;
+      font-size: 11px;
+      margin-bottom: 5px;
+      border-bottom: 1px solid #000;
+    }
+    .client-grid {
+      display: table;
+      width: 100%;
       font-size: 10px;
-      color: #6b7280;
-      text-transform: uppercase;
-      font-weight: 700;
-      margin-bottom: 8px;
-      padding-bottom: 5px;
-      border-bottom: 1px solid #e5e7eb;
     }
-    .client-info {
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr 1.5fr;
-      gap: 10px;
+    .client-row {
+      display: table-row;
     }
-    .client-item label { font-size: 9px; color: #9ca3af; display: block; }
-    .client-item span { font-size: 12px; font-weight: 500; color: #1f2937; }
-    .client-item.name span { font-weight: 700; font-size: 14px; }
+    .client-label {
+      display: table-cell;
+      font-weight: bold;
+      padding: 2px 5px;
+      width: 15%;
+      border: 1px solid #000;
+      background: #f5f5f5;
+    }
+    .client-value {
+      display: table-cell;
+      padding: 2px 5px;
+      width: 35%;
+      border: 1px solid #000;
+    }
+    .client-value.wide {
+      width: 85%;
+    }
+    .client-value.medium {
+      width: 35%;
+    }
     
-    /* Table */
+    /* Items Table */
     .items-table {
       width: 100%;
       border-collapse: collapse;
-      margin-bottom: 20px;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    .items-table thead {
-      background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-      color: white;
+      margin: 5px 0;
+      font-size: 11px;
     }
     .items-table th {
-      padding: 10px 8px;
-      font-size: 10px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      background: #f0f0f0;
+      border: 1px solid #000;
+      padding: 5px;
+      font-weight: bold;
+      text-align: center;
     }
-    .items-table th:nth-child(1) { width: 5%; text-align: center; }
-    .items-table th:nth-child(2) { width: 45%; }
-    .items-table th:nth-child(3) { width: 10%; text-align: center; }
-    .items-table th:nth-child(4) { width: 20%; text-align: right; }
-    .items-table th:nth-child(5) { width: 20%; text-align: right; }
-    .items-table tbody tr:nth-child(even) { background: #f9fafb; }
-    .items-table td { padding: 8px; font-size: 11px; }
+    .items-table td {
+      border: 1px solid #000;
+      padding: 5px;
+    }
+    .items-table th:nth-child(1) { width: 8%; }
+    .items-table th:nth-child(2) { width: 32%; text-align: left; }
+    .items-table th:nth-child(3) { width: 15%; }
+    .items-table th:nth-child(4) { width: 15%; }
+    .items-table th:nth-child(5) { width: 15%; }
+    .items-table th:nth-child(6) { width: 15%; }
     
     /* Totals */
     .totals-section {
-      display: flex;
-      justify-content: flex-end;
-      margin-bottom: 20px;
+      display: table;
+      width: 100%;
+      border-collapse: collapse;
+      margin: 5px 0;
     }
-    .totals-box {
-      width: 280px;
-      border: 2px solid #e5e7eb;
-      border-radius: 8px;
-      overflow: hidden;
+    .totals-left {
+      display: table-cell;
+      width: 55%;
+      padding-right: 10px;
+      vertical-align: top;
     }
-    .totals-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 8px 15px;
-      font-size: 11px;
-      border-bottom: 1px solid #e5e7eb;
+    .totals-right {
+      display: table-cell;
+      width: 45%;
+      vertical-align: top;
     }
-    .totals-row:last-child { border-bottom: none; }
-    .totals-row.subtotal { background: #f9fafb; }
-    .totals-row.discount { color: #dc2626; }
-    .totals-row.tax { background: #eff6ff; }
-    .totals-row.total { 
-      background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-      color: white;
-      font-weight: 700;
-      font-size: 16px;
-      padding: 12px 15px;
-    }
-    .totals-row.total .amount { font-size: 18px; }
     
-    /* Payment */
-    .payment-section {
-      background: #f0fdf4;
-      border: 1px solid #86efac;
-      border-radius: 8px;
-      padding: 12px 15px;
-      margin-bottom: 20px;
+    .liquidation-box {
+      border: 1px solid #000;
+    }
+    .liquidation-title {
+      background: #f0f0f0;
+      padding: 5px;
+      font-weight: bold;
+      font-size: 11px;
+      border-bottom: 1px solid #000;
       text-align: center;
     }
-    .payment-section span { 
-      font-size: 12px; 
-      font-weight: 700; 
-      color: #166534;
+    .liquidation-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+    .liquidation-table td {
+      padding: 4px 8px;
+      border-bottom: 1px solid #000;
+    }
+    .liquidation-table td:last-child {
+      text-align: right;
+      font-weight: bold;
+    }
+    .liquidation-table tr:last-child td {
+      border-bottom: none;
+    }
+    .liquidation-table .total-row {
+      background: #000;
+      color: #fff;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    .liquidation-table .total-row td {
+      padding: 8px;
+      border-bottom: none;
+    }
+    
+    .total-letras {
+      font-size: 10px;
+      line-height: 1.5;
+      margin-top: 5px;
+      padding: 5px;
+      border: 1px solid #000;
+      min-height: 60px;
+    }
+    .total-letras strong {
+      display: block;
+      margin-bottom: 3px;
     }
     
     /* Footer */
     .footer {
+      margin-top: 10px;
+      padding-top: 5px;
+      border-top: 1px solid #000;
       text-align: center;
-      padding-top: 20px;
-      border-top: 2px solid #e5e7eb;
-    }
-    .footer .thanks {
-      font-size: 14px;
-      font-weight: 600;
-      color: #1e40af;
-      margin-bottom: 5px;
-    }
-    .footer p {
-      font-size: 10px;
-      color: #9ca3af;
-      margin-top: 5px;
+      font-size: 9px;
+      color: #666;
     }
     
     @media print {
       body { padding: 0; }
-      .invoice-container { max-width: 100%; }
     }
   </style>
 </head>
 <body>
   <div class="invoice-container">
     <!-- Header -->
-    <div class="header">
-      <div class="company-info">
-        <h1>${settings.businessName}</h1>
-        <p><span class="ruc">RUC: ${settings.ruc}</span></p>
-        <p>${settings.address}${settings.city ? ', ' + settings.city : ''}</p>
-        <p>Tel: ${settings.phone}${settings.email ? ' | Email: ' + settings.email : ''}</p>
-      </div>
-      <div class="invoice-title">
-        <h2>FACTURA</h2>
-        <div class="number">${formatInvoiceNumber()}</div>
-        <div class="date">Fecha: ${formattedDate} | Hora: ${formattedTime}</div>
-        ${sale.paymentMethod === "cash" ? '<div class="condition">PAGO AL CONTADO</div>' : ''}
-      </div>
-    </div>
+    <table class="header" style="border-collapse: collapse; width: 100%;">
+      <tr>
+        <td style="width: 55%; vertical-align: top; padding-right: 10px;">
+          <div class="company-name">${settings.businessName}</div>
+          <div class="company-detail">
+            RUC: ${settings.ruc}<br>
+            ${settings.address}${settings.city ? '<br>' + settings.city : ''}<br>
+            Tel: ${settings.phone}${settings.email ? ' | Email: ' + settings.email : ''}
+          </div>
+        </td>
+        <td style="width: 45%; vertical-align: top;">
+          <div class="timbrado-box">
+            <div class="timbrado-title">TIMBRADO N°</div>
+            <table class="timbrado-table">
+              <tr>
+                <td>Nro. Timbrado:</td>
+                <td><strong>${settings.timbradoNumber || '-'}</strong></td>
+              </tr>
+              <tr>
+                <td>Nro. Factura:</td>
+                <td>${formatInvoiceNumber()}</td>
+              </tr>
+              <tr>
+                <td>Fecha Inicio:</td>
+                <td>${formatDate(settings.timbradoFrom) || '-'}</td>
+              </tr>
+              <tr>
+                <td>Fecha Vto:</td>
+                <td>${formatDate(settings.timbradoTo) || '-'}</td>
+              </tr>
+            </table>
+          </div>
+        </td>
+      </tr>
+    </table>
     
-    <!-- Timbrado -->
-    ${timbradoSection}
+    <div class="invoice-title">FACTURA</div>
     
     <!-- Client -->
     <div class="client-section">
-      <div class="client-title">Datos del Cliente</div>
-      <div class="client-info">
-        <div class="client-item name">
-          <label>Nombre / Razón Social</label>
-          <span>${clientName}</span>
+      <div class="client-title">DATOS DEL RECEPTOR</div>
+      <div class="client-grid">
+        <div class="client-row">
+          <div class="client-label">Nombre / Razon Social:</div>
+          <div class="client-value wide">${clientName}</div>
         </div>
-        <div class="client-item">
-          <label>RUC / CI</label>
-          <span>${clientIdentifier || 'Consumidor Final'}</span>
+        <div class="client-row">
+          <div class="client-label">RUC / CI:</div>
+          <div class="client-value medium">${clientIdentifier || 'Consumidor Final'}</div>
+          <div class="client-label">Direccion:</div>
+          <div class="client-value medium">${clientAddress || '-'}</div>
         </div>
-        <div class="client-item">
-          <label>Teléfono</label>
-          <span>${clientPhone || '-'}</span>
-        </div>
-        <div class="client-item">
-          <label>Dirección</label>
-          <span>${clientAddress || '-'}</span>
+        <div class="client-row">
+          <div class="client-label">Telefono:</div>
+          <div class="client-value medium">${clientPhone || '-'}</div>
+          <div class="client-label">Fecha:</div>
+          <div class="client-value medium">${formattedDate}</div>
         </div>
       </div>
     </div>
@@ -337,11 +398,12 @@ export const generateInvoiceHTML = async (sale) => {
     <table class="items-table">
       <thead>
         <tr>
-          <th>#</th>
-          <th>Descripción</th>
           <th>Cant.</th>
-          <th style="text-align: right;">P. Unit.</th>
-          <th style="text-align: right;">Subtotal</th>
+          <th style="text-align: left;">Descripcion</th>
+          <th>Precio Unit.</th>
+          <th>Exenta</th>
+          <th>Grav. 5%</th>
+          <th>Grav. 10%</th>
         </tr>
       </thead>
       <tbody>
@@ -350,40 +412,47 @@ export const generateInvoiceHTML = async (sale) => {
     </table>
     
     <!-- Totals -->
-    <div class="totals-section">
-      <div class="totals-box">
-        <div class="totals-row subtotal">
-          <span>Subtotal:</span>
-          <span>${settings.currencySymbol}${sale.subtotal.toFixed(2)}</span>
-        </div>
-        ${sale.discount > 0 ? `
-        <div class="totals-row discount">
-          <span>Descuento:</span>
-          <span>-${settings.currencySymbol}${sale.discount.toFixed(2)}</span>
-        </div>
-        ` : ""}
-        ${settings.taxRate > 0 ? `
-        <div class="totals-row tax">
-          <span>${settings.taxName} (${settings.taxRate}%):</span>
-          <span>${settings.currencySymbol}${taxAmount.toFixed(2)}</span>
-        </div>
-        ` : ""}
-        <div class="totals-row total">
-          <span>TOTAL A PAGAR:</span>
-          <span class="amount">${settings.currencySymbol}${sale.total.toFixed(2)} (Gs. ${formatGs(sale.total)})</span>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Payment -->
-    <div class="payment-section">
-      <span>Forma de Pago: ${getPaymentLabel(sale.paymentMethod)} ${getPaymentCondition(sale.paymentMethod)}</span>
-    </div>
+    <table class="totals-section">
+      <tr>
+        <td style="width: 55%; vertical-align: top; padding-right: 10px;">
+          <div class="total-letras">
+            <strong>Son: Gs. ${formatGs(sale.total)} (${totalEnLetras})</strong>
+          </div>
+        </td>
+        <td style="width: 45%; vertical-align: top;">
+          <div class="liquidation-box">
+            <div class="liquidation-title">LIQUIDACION</div>
+            <table class="liquidation-table">
+              <tr>
+                <td>Subtotal:</td>
+                <td>Gs. ${formatGs(sale.subtotal)}</td>
+              </tr>
+              <tr>
+                <td>Total a Pagar:</td>
+                <td><strong>Gs. ${formatGs(sale.total)}</strong></td>
+              </tr>
+              <tr>
+                <td>IVA 5%:</td>
+                <td>Gs. ${formatGs(iva5)}</td>
+              </tr>
+              <tr>
+                <td>IVA 10%:</td>
+                <td>Gs. ${formatGs(iva10)}</td>
+              </tr>
+              <tr class="total-row">
+                <td>TOTAL IVA:</td>
+                <td>Gs. ${formatGs(totalIva)}</td>
+              </tr>
+            </table>
+          </div>
+        </td>
+      </tr>
+    </table>
     
     <!-- Footer -->
     <div class="footer">
-      <div class="thanks">"${settings.footerMessage}"</div>
-      <p>Este documento puede ser verificado en SET Paraguay | Sistema de Facturación Electrónica</p>
+      <p>Forma de Pago: <strong>${getPaymentLabel(sale.paymentMethod)}</strong></p>
+      <p style="margin-top: 5px;">${settings.footerMessage}</p>
     </div>
   </div>
 </body>
