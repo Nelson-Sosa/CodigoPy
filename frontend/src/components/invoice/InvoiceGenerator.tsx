@@ -12,6 +12,7 @@ interface SaleData {
   invoiceNumber: string;
   client?: ClientData | null;
   clientName: string;
+  clientRuc?: string;
   items: Array<{
     productName: string;
     quantity: number;
@@ -73,16 +74,22 @@ export const generateInvoiceHTML = async (sale: SaleData): Promise<string> => {
   }
 
   const date = new Date(sale.createdAt);
-  const formattedDate = date.toLocaleDateString('es-PY');
+  const formattedDate = date.toLocaleDateString('es-PY', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const formattedTime = date.toLocaleTimeString('es-PY', { hour: '2-digit', minute: '2-digit' });
 
   const taxAmount = sale.subtotal * (settings.taxRate / 100);
+  const exchangeRate = 6600;
+
+  const formatGs = (price: number) => {
+    return (price * exchangeRate).toLocaleString("es-PY");
+  };
 
   const getPaymentLabel = (method: string) => {
     const labels: Record<string, string> = {
-      cash: "Efectivo",
-      card: "Tarjeta",
-      transfer: "Transferencia",
-      credit: "Crédito",
+      cash: "EFECTIVO",
+      card: "TARJETA DÉBITO/CRÉDITO",
+      transfer: "TRANSFERENCIA BANCARIA",
+      credit: "CRÉDITO",
     };
     return labels[method] || method;
   };
@@ -93,17 +100,18 @@ export const generateInvoiceHTML = async (sale: SaleData): Promise<string> => {
     return "";
   };
 
-  const clientIdentifier = sale.client?.ruc || sale.client?.phone || "Consumidor Final";
+  const clientName = sale.client?.name || sale.clientName || "CONSUMIDOR FINAL";
+  const clientIdentifier = sale.client?.ruc || sale.clientRuc || "";
   const clientPhone = sale.client?.phone || "";
   const clientAddress = sale.client?.address || "";
 
   const itemsHTML = sale.items.map((item, index) => `
     <tr>
-      <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: center;">${index + 1}</td>
-      <td style="padding: 8px; border-bottom: 1px solid #eee;">${item.productName}</td>
-      <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
-      <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: right;">${settings.currencySymbol}${item.unitPrice.toFixed(2)}</td>
-      <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: right;">${settings.currencySymbol}${item.subtotal.toFixed(2)}</td>
+      <td style="padding: 6px 8px; border-bottom: 1px solid #e5e7eb; text-align: center; font-size: 10px;">${index + 1}</td>
+      <td style="padding: 6px 8px; border-bottom: 1px solid #e5e7eb; font-size: 11px;">${item.productName}</td>
+      <td style="padding: 6px 8px; border-bottom: 1px solid #e5e7eb; text-align: center; font-size: 10px;">${item.quantity}</td>
+      <td style="padding: 6px 8px; border-bottom: 1px solid #e5e7eb; text-align: right; font-size: 10px;">${settings.currencySymbol}${item.unitPrice.toFixed(2)}</td>
+      <td style="padding: 6px 8px; border-bottom: 1px solid #e5e7eb; text-align: right; font-size: 10px;">${settings.currencySymbol}${item.subtotal.toFixed(2)}</td>
     </tr>
   `).join("");
 
@@ -115,20 +123,26 @@ export const generateInvoiceHTML = async (sale: SaleData): Promise<string> => {
   const formatDate = (dateStr: string) => {
     if (!dateStr) return '';
     const d = new Date(dateStr);
-    return d.toLocaleDateString('es-PY');
+    return d.toLocaleDateString('es-PY', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
   const timbradoSection = settings.timbradoNumber ? `
-    <div style="background: #fffbeb; border: 1px solid #fcd34d; border-radius: 5px; padding: 8px 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+    <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b; border-radius: 8px; padding: 12px 16px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
       <div>
-        <span style="font-size: 10px; color: #92400e;">TIMBRADO N°</span>
-        <p style="font-size: 14px; font-weight: bold; color: #78350f; margin: 0;">${settings.timbradoNumber}</p>
+        <span style="font-size: 9px; color: #92400e; text-transform: uppercase; font-weight: bold;">Timbrado N°</span>
+        <p style="font-size: 16px; font-weight: bold; color: #78350f; margin: 2px 0;">${settings.timbradoNumber}</p>
+      </div>
+      <div style="text-align: center;">
+        <span style="font-size: 9px; color: #92400e; text-transform: uppercase; font-weight: bold;">Establecimiento</span>
+        <p style="font-size: 14px; font-weight: bold; color: #78350f; margin: 2px 0;">${settings.invoiceEstablishment}</p>
+      </div>
+      <div style="text-align: center;">
+        <span style="font-size: 9px; color: #92400e; text-transform: uppercase; font-weight: bold;">Punto de Expedición</span>
+        <p style="font-size: 14px; font-weight: bold; color: #78350f; margin: 2px 0;">${settings.invoicePoint}</p>
       </div>
       <div style="text-align: right;">
-        <span style="font-size: 10px; color: #92400e;">VIGENCIA</span>
-        <p style="font-size: 12px; font-weight: bold; color: #78350f; margin: 0;">
-          ${formatDate(settings.timbradoFrom)} al ${formatDate(settings.timbradoTo)}
-        </p>
+        <span style="font-size: 9px; color: #92400e; text-transform: uppercase; font-weight: bold;">Validez</span>
+        <p style="font-size: 11px; font-weight: bold; color: #78350f; margin: 2px 0;">${formatDate(settings.timbradoFrom)} al ${formatDate(settings.timbradoTo)}</p>
       </div>
     </div>
   ` : '';
@@ -141,115 +155,290 @@ export const generateInvoiceHTML = async (sale: SaleData): Promise<string> => {
   <title>Factura ${sale.invoiceNumber}</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; font-size: 13px; color: #333; padding: 15px; }
-    .invoice-container { max-width: 750px; margin: 0 auto; border: 2px solid #333; padding: 20px; }
-    .header { margin-bottom: 15px; }
-    .company-info { text-align: center; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 10px; }
-    .company-info h1 { font-size: 20px; color: #1a56db; margin-bottom: 3px; }
-    .company-info p { font-size: 10px; color: #666; margin: 0; }
-    .invoice-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
-    .invoice-info { text-align: center; }
-    .invoice-info h2 { font-size: 18px; color: #333; margin-bottom: 5px; }
-    .invoice-number { font-size: 14px; font-weight: bold; color: #1a56db; }
-    .invoice-date { font-size: 11px; color: #666; }
-    .condition { font-size: 12px; font-weight: bold; color: #16a34a; margin-top: 5px; }
-    .client-section { margin-bottom: 12px; padding: 10px; background: #f9fafb; border-radius: 5px; }
-    .client-section h3 { font-size: 10px; color: #666; margin-bottom: 3px; }
-    .client-section p { font-size: 12px; margin: 0; }
-    .client-row { display: flex; gap: 20px; flex-wrap: wrap; }
-    .client-item { margin-bottom: 2px; }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
-    th { background: #1a56db; color: white; padding: 8px 6px; text-align: left; font-size: 11px; }
-    th:nth-child(1) { width: 5%; text-align: center; }
-    th:nth-child(3), th:nth-child(4), th:nth-child(5) { text-align: right; }
-    th:nth-child(3) { text-align: center; }
-    td { padding: 6px; font-size: 11px; }
-    .totals { display: flex; justify-content: flex-end; margin-bottom: 12px; }
-    .totals-table { width: 220px; }
-    .totals-table tr td { padding: 4px 6px; font-size: 11px; }
-    .totals-table tr.total { background: #1a56db; color: white; font-weight: bold; }
-    .totals-table tr.total td { padding: 8px; font-size: 13px; }
-    .totals-table tr.tax-row { background: #f0f9ff; }
-    .footer { margin-top: 20px; text-align: center; padding-top: 10px; border-top: 1px solid #ddd; }
-    .footer p { font-size: 10px; color: #666; margin: 0; }
-    .footer .thanks { font-size: 11px; font-weight: bold; color: #1a56db; margin-top: 5px; }
-    @media print { body { padding: 0; } .invoice-container { border: 1px solid #333; } }
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 12px; color: #1f2937; padding: 20px; background: #fff; }
+    .invoice-container { max-width: 800px; margin: 0 auto; }
+    
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 3px solid #1e40af;
+    }
+    .company-info h1 { 
+      font-size: 24px; 
+      color: #1e40af; 
+      margin-bottom: 5px; 
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .company-info p { font-size: 11px; color: #6b7280; line-height: 1.6; }
+    .company-info .ruc { font-weight: 600; color: #374151; }
+    
+    .invoice-title {
+      text-align: right;
+    }
+    .invoice-title h2 { 
+      font-size: 28px; 
+      color: #1e40af; 
+      font-weight: 800;
+      letter-spacing: 2px;
+      margin-bottom: 5px;
+    }
+    .invoice-title .number { 
+      font-size: 14px; 
+      font-weight: 700; 
+      color: #1f2937;
+      background: #dbeafe;
+      padding: 5px 12px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 5px;
+    }
+    .invoice-title .date { font-size: 11px; color: #6b7280; }
+    .invoice-title .condition { 
+      font-size: 12px; 
+      font-weight: 700; 
+      color: #059669; 
+      margin-top: 5px;
+    }
+    
+    /* Timbrado */
+    .timbrado-box {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border: 2px solid #f59e0b;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .timbrado-item { text-align: center; }
+    .timbrado-label { font-size: 8px; color: #92400e; text-transform: uppercase; font-weight: 700; }
+    .timbrado-value { font-size: 14px; font-weight: 700; color: #78350f; margin-top: 2px; }
+    
+    /* Client Section */
+    .client-section {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    .client-title {
+      font-size: 10px;
+      color: #6b7280;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 8px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .client-info {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1.5fr;
+      gap: 10px;
+    }
+    .client-item label { font-size: 9px; color: #9ca3af; display: block; }
+    .client-item span { font-size: 12px; font-weight: 500; color: #1f2937; }
+    .client-item.name span { font-weight: 700; font-size: 14px; }
+    
+    /* Table */
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .items-table thead {
+      background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+      color: white;
+    }
+    .items-table th {
+      padding: 10px 8px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .items-table th:nth-child(1) { width: 5%; text-align: center; }
+    .items-table th:nth-child(2) { width: 45%; }
+    .items-table th:nth-child(3) { width: 10%; text-align: center; }
+    .items-table th:nth-child(4) { width: 20%; text-align: right; }
+    .items-table th:nth-child(5) { width: 20%; text-align: right; }
+    .items-table tbody tr:nth-child(even) { background: #f9fafb; }
+    .items-table td { padding: 8px; font-size: 11px; }
+    
+    /* Totals */
+    .totals-section {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 20px;
+    }
+    .totals-box {
+      width: 280px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .totals-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 15px;
+      font-size: 11px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .totals-row:last-child { border-bottom: none; }
+    .totals-row.subtotal { background: #f9fafb; }
+    .totals-row.discount { color: #dc2626; }
+    .totals-row.tax { background: #eff6ff; }
+    .totals-row.total { 
+      background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+      color: white;
+      font-weight: 700;
+      font-size: 16px;
+      padding: 12px 15px;
+    }
+    .totals-row.total .amount { font-size: 18px; }
+    
+    /* Payment */
+    .payment-section {
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      border-radius: 8px;
+      padding: 12px 15px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .payment-section span { 
+      font-size: 12px; 
+      font-weight: 700; 
+      color: #166534;
+    }
+    
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding-top: 20px;
+      border-top: 2px solid #e5e7eb;
+    }
+    .footer .thanks {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1e40af;
+      margin-bottom: 5px;
+    }
+    .footer p {
+      font-size: 10px;
+      color: #9ca3af;
+      margin-top: 5px;
+    }
+    
+    @media print {
+      body { padding: 0; }
+      .invoice-container { max-width: 100%; }
+    }
   </style>
 </head>
 <body>
   <div class="invoice-container">
+    <!-- Header -->
     <div class="header">
       <div class="company-info">
         <h1>${settings.businessName}</h1>
-        <p>RUC: ${settings.ruc} | ${settings.address} | ${settings.city}</p>
-        <p>Tel: ${settings.phone} | ${settings.email}</p>
+        <p><span class="ruc">RUC: ${settings.ruc}</span></p>
+        <p>${settings.address}${settings.city ? ', ' + settings.city : ''}</p>
+        <p>Tel: ${settings.phone}${settings.email ? ' | Email: ' + settings.email : ''}</p>
       </div>
-      ${timbradoSection}
-      <div class="invoice-header">
-        <div></div>
-        <div class="invoice-info">
-          <h2>FACTURA</h2>
-          <p class="invoice-number">${formatInvoiceNumber()}</p>
-          <p class="invoice-date">Fecha: ${formattedDate}</p>
-          ${sale.paymentMethod === "cash" ? '<p class="condition">PAGO AL CONTADO</p>' : ''}
-        </div>
-        <div></div>
+      <div class="invoice-title">
+        <h2>FACTURA</h2>
+        <div class="number">${formatInvoiceNumber()}</div>
+        <div class="date">Fecha: ${formattedDate} | Hora: ${formattedTime}</div>
+        ${sale.paymentMethod === "cash" ? '<div class="condition">PAGO AL CONTADO</div>' : ''}
       </div>
     </div>
-
+    
+    <!-- Timbrado -->
+    ${timbradoSection}
+    
+    <!-- Client -->
     <div class="client-section">
-      <h3>CLIENTE</h3>
-      <div class="client-row">
-        <p><strong>${sale.clientName}</strong></p>
-        ${clientIdentifier !== "Consumidor Final" ? `<p>RUC/CI: ${clientIdentifier}</p>` : ''}
-        ${clientPhone ? `<p>Tel: ${clientPhone}</p>` : ''}
+      <div class="client-title">Datos del Cliente</div>
+      <div class="client-info">
+        <div class="client-item name">
+          <label>Nombre / Razón Social</label>
+          <span>${clientName}</span>
+        </div>
+        <div class="client-item">
+          <label>RUC / CI</label>
+          <span>${clientIdentifier || 'Consumidor Final'}</span>
+        </div>
+        <div class="client-item">
+          <label>Teléfono</label>
+          <span>${clientPhone || '-'}</span>
+        </div>
+        <div class="client-item">
+          <label>Dirección</label>
+          <span>${clientAddress || '-'}</span>
+        </div>
       </div>
-      ${clientAddress ? `<p style="margin-top:3px; color:#666; font-size:10px;">${clientAddress}</p>` : ''}
     </div>
-
-    <table>
+    
+    <!-- Items -->
+    <table class="items-table">
       <thead>
         <tr>
           <th>#</th>
           <th>Descripción</th>
           <th>Cant.</th>
-          <th>P. Unit.</th>
-          <th>Subtotal</th>
+          <th style="text-align: right;">P. Unit.</th>
+          <th style="text-align: right;">Subtotal</th>
         </tr>
       </thead>
       <tbody>
         ${itemsHTML}
       </tbody>
     </table>
-
-    <div class="totals">
-      <table class="totals-table">
-        <tr>
-          <td style="text-align: right;">Subtotal:</td>
-          <td style="text-align: right;">${settings.currencySymbol}${sale.subtotal.toFixed(2)}</td>
-        </tr>
+    
+    <!-- Totals -->
+    <div class="totals-section">
+      <div class="totals-box">
+        <div class="totals-row subtotal">
+          <span>Subtotal:</span>
+          <span>${settings.currencySymbol}${sale.subtotal.toFixed(2)}</span>
+        </div>
         ${sale.discount > 0 ? `
-        <tr>
-          <td style="text-align: right; color: #dc2626;">Descuento:</td>
-          <td style="text-align: right; color: #dc2626;">${settings.currencySymbol}${sale.discount.toFixed(2)}</td>
-        </tr>
+        <div class="totals-row discount">
+          <span>Descuento:</span>
+          <span>-${settings.currencySymbol}${sale.discount.toFixed(2)}</span>
+        </div>
         ` : ""}
         ${settings.taxRate > 0 ? `
-        <tr class="tax-row">
-          <td style="text-align: right;">${settings.taxName} (${settings.taxRate}%):</td>
-          <td style="text-align: right;">${settings.currencySymbol}${taxAmount.toFixed(2)}</td>
-        </tr>
+        <div class="totals-row tax">
+          <span>${settings.taxName} (${settings.taxRate}%):</span>
+          <span>${settings.currencySymbol}${taxAmount.toFixed(2)}</span>
+        </div>
         ` : ""}
-        <tr class="total">
-          <td style="text-align: right;">TOTAL:</td>
-          <td style="text-align: right;">${settings.currencySymbol}${sale.total.toFixed(2)}</td>
-        </tr>
-      </table>
+        <div class="totals-row total">
+          <span>TOTAL A PAGAR:</span>
+          <span class="amount">${settings.currencySymbol}${sale.total.toFixed(2)} (Gs. ${formatGs(sale.total)})</span>
+        </div>
+      </div>
     </div>
-
+    
+    <!-- Payment -->
+    <div class="payment-section">
+      <span>Forma de Pago: ${getPaymentLabel(sale.paymentMethod)} ${getPaymentCondition(sale.paymentMethod)}</span>
+    </div>
+    
+    <!-- Footer -->
     <div class="footer">
-      <p>Forma de pago: <strong>${getPaymentLabel(sale.paymentMethod)}</strong> ${getPaymentCondition(sale.paymentMethod)}</p>
-      <p class="thanks">${settings.footerMessage}</p>
+      <div class="thanks">"${settings.footerMessage}"</div>
+      <p>Este documento puede ser verificado en SET Paraguay | Sistema de Facturación Electrónica</p>
     </div>
   </div>
 </body>
@@ -261,14 +450,14 @@ export const generateInvoiceHTML = async (sale: SaleData): Promise<string> => {
 
 export const printInvoice = async (sale: SaleData) => {
   const html = await generateInvoiceHTML(sale);
-  const printWindow = window.open("", "_blank");
+  const printWindow = window.open("", "_blank", "width=900,height=700");
   if (printWindow) {
     printWindow.document.write(html);
     printWindow.document.close();
     printWindow.focus();
     setTimeout(() => {
       printWindow.print();
-    }, 250);
+    }, 300);
   }
 };
 
