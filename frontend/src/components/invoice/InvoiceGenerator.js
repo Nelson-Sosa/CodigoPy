@@ -90,12 +90,12 @@ export const generateInvoiceHTML = async (sale) => {
     const totalIva = iva5 + iva10;
     const itemsHTML = sale.items.map((item) => `
     <tr>
-      <td style="padding: 5px 8px; border: 1px solid #000; text-align: center; font-size: 11px;">${item.quantity}</td>
-      <td style="padding: 5px 8px; border: 1px solid #000; text-align: left; font-size: 11px;">${item.productName}</td>
-      <td style="padding: 5px 8px; border: 1px solid #000; text-align: right; font-size: 11px;">${item.unitPrice.toFixed(2)}</td>
-      <td style="padding: 5px 8px; border: 1px solid #000; text-align: right; font-size: 11px;">0</td>
-      <td style="padding: 5px 8px; border: 1px solid #000; text-align: right; font-size: 11px;">0</td>
-      <td style="padding: 5px 8px; border: 1px solid #000; text-align: right; font-size: 11px;">${item.subtotal.toFixed(2)}</td>
+      <td style="padding: 6px 8px; text-align: center; font-size: 12px;">${item.quantity}</td>
+      <td style="padding: 6px 8px; text-align: left; font-size: 12px;">${item.productName}</td>
+      <td style="padding: 6px 8px; text-align: right; font-size: 12px;">Gs. ${formatGs(item.unitPrice)}</td>
+      <td style="padding: 6px 8px; text-align: right; font-size: 12px;">-</td>
+      <td style="padding: 6px 8px; text-align: right; font-size: 12px;">-</td>
+      <td style="padding: 6px 8px; text-align: right; font-size: 12px;">Gs. ${formatGs(item.subtotal)}</td>
     </tr>
   `).join("");
     const html = `
@@ -106,7 +106,7 @@ export const generateInvoiceHTML = async (sale) => {
   <title>Factura ${formatInvoiceNumber()}</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; font-size: 12px; color: #000; padding: 10px; }
+    body { font-family: Arial, sans-serif; font-size: 12px; color: #333; padding: 10px; }
     .invoice-container { max-width: 850px; margin: 0 auto; }
     
     /* Header */
@@ -116,38 +116,28 @@ export const generateInvoiceHTML = async (sale) => {
       border-collapse: collapse;
       margin-bottom: 5px;
     }
-    .header-left {
-      display: table-cell;
-      width: 55%;
-      vertical-align: top;
-      padding-right: 10px;
-    }
-    .header-right {
-      display: table-cell;
-      width: 45%;
-      vertical-align: top;
-    }
     
     .company-name {
-      font-size: 20px;
+      font-size: 22px;
       font-weight: bold;
-      color: #000;
+      color: #1e40af;
       margin-bottom: 5px;
     }
     .company-detail {
-      font-size: 10px;
-      line-height: 1.4;
+      font-size: 11px;
+      line-height: 1.5;
+      color: #555;
     }
     
     .timbrado-box {
-      border: 1px solid #000;
+      border: 1px solid #ccc;
       padding: 8px;
     }
     .timbrado-title {
-      background: #000;
+      background: #1e40af;
       color: #fff;
       text-align: center;
-      padding: 3px;
+      padding: 4px;
       font-weight: bold;
       font-size: 11px;
       margin-bottom: 5px;
@@ -158,43 +148,43 @@ export const generateInvoiceHTML = async (sale) => {
       font-size: 10px;
     }
     .timbrado-table td {
-      padding: 2px 5px;
-      border: 1px solid #000;
+      padding: 3px 6px;
+      border-bottom: 1px solid #eee;
     }
     .timbrado-table td:first-child {
       font-weight: bold;
-      background: #f0f0f0;
-      width: 40%;
+      color: #666;
+      width: 45%;
     }
     
     .invoice-title {
-      background: #000;
+      background: #1e40af;
       color: #fff;
       text-align: center;
-      padding: 8px;
+      padding: 10px;
       font-weight: bold;
-      font-size: 16px;
+      font-size: 18px;
       margin-top: 5px;
     }
     
     /* Client */
     .client-section {
-      border: 1px solid #000;
-      padding: 8px;
-      margin: 5px 0;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin: 8px 0;
     }
     .client-title {
-      background: #f0f0f0;
-      padding: 3px 8px;
+      color: #1e40af;
+      padding-bottom: 5px;
       font-weight: bold;
       font-size: 11px;
-      margin-bottom: 5px;
-      border-bottom: 1px solid #000;
+      margin-bottom: 8px;
+      border-bottom: 1px solid #eee;
     }
     .client-grid {
       display: table;
       width: 100%;
-      font-size: 10px;
+      font-size: 11px;
     }
     .client-row {
       display: table-row;
@@ -202,60 +192,52 @@ export const generateInvoiceHTML = async (sale) => {
     .client-label {
       display: table-cell;
       font-weight: bold;
-      padding: 2px 5px;
-      width: 15%;
-      border: 1px solid #000;
-      background: #f5f5f5;
+      padding: 3px 8px;
+      width: 18%;
+      color: #666;
     }
     .client-value {
       display: table-cell;
-      padding: 2px 5px;
-      width: 35%;
-      border: 1px solid #000;
-    }
-    .client-value.wide {
-      width: 85%;
-    }
-    .client-value.medium {
-      width: 35%;
+      padding: 3px 8px;
+      width: 32%;
     }
     
     /* Items Table */
     .items-table {
       width: 100%;
       border-collapse: collapse;
-      margin: 5px 0;
-      font-size: 11px;
+      margin: 8px 0;
+      font-size: 12px;
+      border: 1px solid #ccc;
     }
     .items-table th {
-      background: #f0f0f0;
-      border: 1px solid #000;
-      padding: 5px;
+      background: #f5f5f5;
+      padding: 8px;
       font-weight: bold;
       text-align: center;
+      border-bottom: 2px solid #ccc;
     }
     .items-table td {
-      border: 1px solid #000;
-      padding: 5px;
+      padding: 8px;
+      border-bottom: 1px solid #eee;
     }
     .items-table th:nth-child(1) { width: 8%; }
-    .items-table th:nth-child(2) { width: 32%; text-align: left; }
+    .items-table th:nth-child(2) { width: 37%; text-align: left; }
     .items-table th:nth-child(3) { width: 15%; }
-    .items-table th:nth-child(4) { width: 15%; }
-    .items-table th:nth-child(5) { width: 15%; }
-    .items-table th:nth-child(6) { width: 15%; }
+    .items-table th:nth-child(4) { width: 13%; }
+    .items-table th:nth-child(5) { width: 13%; }
+    .items-table th:nth-child(6) { width: 14%; }
     
     /* Totals */
     .totals-section {
       display: table;
       width: 100%;
-      border-collapse: collapse;
-      margin: 5px 0;
+      margin: 8px 0;
     }
     .totals-left {
       display: table-cell;
       width: 55%;
-      padding-right: 10px;
+      padding-right: 15px;
       vertical-align: top;
     }
     .totals-right {
@@ -265,50 +247,41 @@ export const generateInvoiceHTML = async (sale) => {
     }
     
     .liquidation-box {
-      border: 1px solid #000;
+      border: 1px solid #ccc;
     }
     .liquidation-title {
-      background: #f0f0f0;
-      padding: 5px;
+      background: #1e40af;
+      color: #fff;
+      padding: 6px;
       font-weight: bold;
       font-size: 11px;
-      border-bottom: 1px solid #000;
       text-align: center;
     }
     .liquidation-table {
       width: 100%;
-      border-collapse: collapse;
       font-size: 11px;
     }
     .liquidation-table td {
-      padding: 4px 8px;
-      border-bottom: 1px solid #000;
+      padding: 6px 10px;
+      border-bottom: 1px solid #eee;
     }
     .liquidation-table td:last-child {
       text-align: right;
-      font-weight: bold;
-    }
-    .liquidation-table tr:last-child td {
-      border-bottom: none;
     }
     .liquidation-table .total-row {
-      background: #000;
+      background: #1e40af;
       color: #fff;
       font-weight: bold;
       font-size: 14px;
     }
-    .liquidation-table .total-row td {
-      padding: 8px;
-      border-bottom: none;
-    }
     
     .total-letras {
-      font-size: 10px;
-      line-height: 1.5;
+      font-size: 11px;
+      line-height: 1.6;
       margin-top: 5px;
-      padding: 5px;
-      border: 1px solid #000;
-      min-height: 60px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      min-height: 50px;
     }
     .total-letras strong {
       display: block;
@@ -317,12 +290,12 @@ export const generateInvoiceHTML = async (sale) => {
     
     /* Footer */
     .footer {
-      margin-top: 10px;
-      padding-top: 5px;
-      border-top: 1px solid #000;
+      margin-top: 15px;
+      padding-top: 10px;
+      border-top: 1px solid #ccc;
       text-align: center;
-      font-size: 9px;
-      color: #666;
+      font-size: 10px;
+      color: #888;
     }
     
     @media print {
@@ -336,7 +309,7 @@ export const generateInvoiceHTML = async (sale) => {
     <table class="header" style="border-collapse: collapse; width: 100%;">
       <tr>
         <td style="width: 55%; vertical-align: top; padding-right: 10px;">
-          <div class="company-name">${settings.businessName}</div>
+          <div class="company-name">Tech Store Paraguay</div>
           <div class="company-detail">
             RUC: ${settings.ruc}<br>
             ${settings.address}${settings.city ? '<br>' + settings.city : ''}<br>
@@ -428,10 +401,6 @@ export const generateInvoiceHTML = async (sale) => {
                 <td>Gs. ${formatGs(sale.subtotal)}</td>
               </tr>
               <tr>
-                <td>Total a Pagar:</td>
-                <td><strong>Gs. ${formatGs(sale.total)}</strong></td>
-              </tr>
-              <tr>
                 <td>IVA 5%:</td>
                 <td>Gs. ${formatGs(iva5)}</td>
               </tr>
@@ -439,9 +408,13 @@ export const generateInvoiceHTML = async (sale) => {
                 <td>IVA 10%:</td>
                 <td>Gs. ${formatGs(iva10)}</td>
               </tr>
-              <tr class="total-row">
-                <td>TOTAL IVA:</td>
+              <tr>
+                <td>Total IVA:</td>
                 <td>Gs. ${formatGs(totalIva)}</td>
+              </tr>
+              <tr class="total-row">
+                <td>TOTAL A PAGAR:</td>
+                <td>Gs. ${formatGs(sale.total)}</td>
               </tr>
             </table>
           </div>
