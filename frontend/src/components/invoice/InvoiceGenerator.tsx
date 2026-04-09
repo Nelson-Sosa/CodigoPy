@@ -46,6 +46,48 @@ interface Settings {
   footerMessage: string;
 }
 
+const numberToWordsGs = (num: number): string => {
+  const n = Math.floor(num);
+  
+  if (n === 0) return "cero";
+  
+  const unidades = [
+    "", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve",
+    "diez", "once", "doce", "trece", "catorce", "quince", "dieciseis", "diecisiete",
+    "dieciocho", "diecinueve"
+  ];
+  
+  const decenas = [
+    "", "", "veinte", "treinta", "cuarenta", "cincuenta", "sesenta", "setenta", "ochenta", "noventa"
+  ];
+  
+  const cientos = [
+    "", "ciento", "doscientos", "trescientos", "cuatrocientos", "quinientos",
+    "seiscientos", "setecientos", "ochocientos", "novecientos"
+  ];
+  
+  const miles = [
+    "", "mil", "dos mil", "tres mil", "cuatro mil", "cinco mil", "seis mil",
+    "siete mil", "ocho mil", "nueve mil"
+  ];
+  
+  if (n < 20) return unidades[n];
+  if (n < 100) return decenas[Math.floor(n / 10)] + (n % 10 !== 0 ? " y " + unidades[n % 10] : "");
+  if (n < 1000) {
+    const c = Math.floor(n / 100);
+    const r = n % 100;
+    if (n === 100) return "cien";
+    return cientos[c] + (r !== 0 ? " " + numberToWordsGs(r) : "");
+  }
+  if (n < 10000) {
+    const m = Math.floor(n / 1000);
+    const r = n % 1000;
+    return miles[m] + (r !== 0 ? " " + numberToWordsGs(r) : "");
+  }
+  
+  return n.toString();
+};
+
 export const generateInvoiceHTML = async (sale: SaleData): Promise<string> => {
   let settings: Settings = {
     businessName: "Mi Empresa",
@@ -83,47 +125,12 @@ export const generateInvoiceHTML = async (sale: SaleData): Promise<string> => {
     return Math.round(amount * exchangeRate).toLocaleString("es-PY");
   };
 
-  const numberToWords = (num: number): string => {
-    const unidades = ["", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve"];
-    const decenas = ["", "diez", "veinte", "treinta", "cuarenta", "cincuenta", "sesenta", "setenta", "ochenta", "noventa"];
+  const totalEnLetras = numberToWordsGs(totalGs) + " guaranies";
 
-    if (num === 0) return "cero";
-
-    const miles = Math.floor(num / 1000);
-    const resto = num % 1000;
-
-    let result = "";
-
-    if (miles > 0) {
-      if (miles === 1) result = "un mil";
-      else result = (miles < 20 ? unidades[miles] : decenas[Math.floor(miles / 10)] + (miles % 10 > 0 ? " y " + unidades[miles % 10] : "")) + " mil";
-    }
-
-    if (resto > 0) {
-      if (miles > 0) result += " ";
-      if (resto < 20) {
-        result += unidades[resto];
-      } else {
-        result += decenas[Math.floor(resto / 10)];
-        if (resto % 10 > 0) {
-          result += " y " + unidades[resto % 10];
-        }
-      }
-    }
-
-    return result;
-  };
-
-  const totalEnLetras = numberToWords(totalGs);
-
-  const getPaymentLabel = (method: string) => {
-    const labels: Record<string, string> = {
-      cash: "Efectivo",
-      card: "Tarjeta",
-      transfer: "Transferencia",
-      credit: "Credito",
-    };
-    return labels[method] || method;
+  const getPaymentCondition = (method: string) => {
+    if (method === "cash" || method === "card" || method === "transfer") return "CONTADO";
+    if (method === "credit") return "CREDITO";
+    return "CONTADO";
   };
 
   const clientName = sale.client?.name || sale.clientName || "CONSUMIDOR FINAL";
@@ -137,23 +144,36 @@ export const generateInvoiceHTML = async (sale: SaleData): Promise<string> => {
   };
 
   const formatDate = (dateStr: string) => {
-    if (!dateStr) return '';
+    if (!dateStr) return '-';
     const d = new Date(dateStr);
     return d.toLocaleDateString('es-PY', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
-  const iva5 = Math.round(sale.subtotal * 0.05);
-  const iva10 = Math.round(sale.subtotal * 0.10);
-  const totalIva = iva5 + iva10;
+  const exenta = 0;
+  const gravada5 = Math.round(sale.subtotal * 0.05);
+  const gravada10 = Math.round(sale.subtotal * 0.10);
+  const totalIva = gravada5 + gravada10;
 
   const itemsHTML = sale.items.map((item) => `
     <tr>
-      <td style="padding: 6px 8px; text-align: center; font-size: 12px;">${item.quantity}</td>
-      <td style="padding: 6px 8px; text-align: left; font-size: 12px;">${item.productName}</td>
-      <td style="padding: 6px 8px; text-align: right; font-size: 12px;">Gs. ${formatGs(item.unitPrice)}</td>
-      <td style="padding: 6px 8px; text-align: right; font-size: 12px;">-</td>
-      <td style="padding: 6px 8px; text-align: right; font-size: 12px;">-</td>
-      <td style="padding: 6px 8px; text-align: right; font-size: 12px;">Gs. ${formatGs(item.subtotal)}</td>
+      <td style="padding: 4px 6px; text-align: center; font-size: 10pt; border: 1px solid #000;">${item.quantity}</td>
+      <td style="padding: 4px 6px; text-align: left; font-size: 10pt; border: 1px solid #000;">${item.productName}</td>
+      <td style="padding: 4px 6px; text-align: right; font-size: 10pt; border: 1px solid #000;">Gs. ${formatGs(item.unitPrice)}</td>
+      <td style="padding: 4px 6px; text-align: right; font-size: 10pt; border: 1px solid #000;">-</td>
+      <td style="padding: 4px 6px; text-align: right; font-size: 10pt; border: 1px solid #000;">-</td>
+      <td style="padding: 4px 6px; text-align: right; font-size: 10pt; border: 1px solid #000;">Gs. ${formatGs(item.subtotal)}</td>
+    </tr>
+  `).join("");
+
+  const emptyRows = 3;
+  const emptyRowsHTML = Array(emptyRows).fill(`
+    <tr>
+      <td style="padding: 4px 6px; text-align: center; font-size: 10pt; border: 1px solid #000;">&nbsp;</td>
+      <td style="padding: 4px 6px; text-align: left; font-size: 10pt; border: 1px solid #000;">&nbsp;</td>
+      <td style="padding: 4px 6px; text-align: right; font-size: 10pt; border: 1px solid #000;">&nbsp;</td>
+      <td style="padding: 4px 6px; text-align: right; font-size: 10pt; border: 1px solid #000;">&nbsp;</td>
+      <td style="padding: 4px 6px; text-align: right; font-size: 10pt; border: 1px solid #000;">&nbsp;</td>
+      <td style="padding: 4px 6px; text-align: right; font-size: 10pt; border: 1px solid #000;">&nbsp;</td>
     </tr>
   `).join("");
 
@@ -165,196 +185,171 @@ export const generateInvoiceHTML = async (sale: SaleData): Promise<string> => {
   <title>Factura ${formatInvoiceNumber()}</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; font-size: 12px; color: #333; padding: 10px; }
+    body { font-family: Arial, Helvetica, sans-serif; font-size: 11pt; color: #000; padding: 5px; }
     .invoice-container { max-width: 850px; margin: 0 auto; }
     
-    /* Header */
-    .header {
-      display: table;
+    /* Header Table */
+    .header-table {
       width: 100%;
       border-collapse: collapse;
-      margin-bottom: 5px;
+      margin-bottom: 0;
+    }
+    .header-table td {
+      border: 1px solid #000;
+      padding: 8px;
+      vertical-align: top;
+    }
+    .header-left {
+      width: 55%;
+    }
+    .header-right {
+      width: 45%;
     }
     
     .company-name {
-      font-size: 22px;
+      font-size: 16pt;
       font-weight: bold;
-      color: #1e40af;
+      color: #0066cc;
       margin-bottom: 5px;
     }
     .company-detail {
-      font-size: 11px;
-      line-height: 1.5;
-      color: #555;
+      font-size: 9pt;
+      line-height: 1.4;
     }
     
-    .timbrado-box {
-      border: 1px solid #ccc;
-      padding: 8px;
-    }
-    .timbrado-title {
-      background: #1e40af;
-      color: #fff;
-      text-align: center;
-      padding: 4px;
+    .timbrado-header {
+      font-size: 10pt;
       font-weight: bold;
-      font-size: 11px;
-      margin-bottom: 5px;
+      text-align: center;
+      padding: 3px;
+      background: #fff;
     }
     .timbrado-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 10px;
+      font-size: 9pt;
+      margin-top: 5px;
     }
     .timbrado-table td {
-      padding: 3px 6px;
-      border-bottom: 1px solid #eee;
+      padding: 2px 4px;
+      border: 1px solid #000;
     }
     .timbrado-table td:first-child {
       font-weight: bold;
-      color: #666;
       width: 45%;
     }
     
-    .invoice-title {
-      background: #1e40af;
-      color: #fff;
+    .invoice-header-cell {
       text-align: center;
-      padding: 10px;
+      font-size: 14pt;
       font-weight: bold;
-      font-size: 18px;
-      margin-top: 5px;
+      padding: 10px;
     }
     
-    /* Client */
+    /* Client Section */
     .client-section {
-      border: 1px solid #ccc;
-      padding: 10px;
-      margin: 8px 0;
-    }
-    .client-title {
-      color: #1e40af;
-      padding-bottom: 5px;
-      font-weight: bold;
-      font-size: 11px;
-      margin-bottom: 8px;
-      border-bottom: 1px solid #eee;
-    }
-    .client-grid {
-      display: table;
       width: 100%;
-      font-size: 11px;
+      border-collapse: collapse;
+      margin: 0;
     }
-    .client-row {
-      display: table-row;
+    .client-section td {
+      border: 1px solid #000;
+      padding: 5px 8px;
+      font-size: 9pt;
     }
-    .client-label {
-      display: table-cell;
+    .client-section td:first-child {
       font-weight: bold;
-      padding: 3px 8px;
       width: 18%;
-      color: #666;
     }
-    .client-value {
-      display: table-cell;
-      padding: 3px 8px;
-      width: 32%;
+    .invoice-date-cell {
+      text-align: right;
     }
     
     /* Items Table */
     .items-table {
       width: 100%;
       border-collapse: collapse;
-      margin: 8px 0;
-      font-size: 12px;
-      border: 1px solid #ccc;
+      margin: 0;
     }
     .items-table th {
-      background: #f5f5f5;
-      padding: 8px;
+      font-size: 9pt;
       font-weight: bold;
+      padding: 5px 4px;
+      border: 1px solid #000;
       text-align: center;
-      border-bottom: 2px solid #ccc;
+      background: #fff;
     }
     .items-table td {
-      padding: 8px;
-      border-bottom: 1px solid #eee;
+      border: 1px solid #000;
+      padding: 4px;
     }
-    .items-table th:nth-child(1) { width: 8%; }
-    .items-table th:nth-child(2) { width: 37%; text-align: left; }
+    .items-table th:nth-child(1) { width: 6%; }
+    .items-table th:nth-child(2) { width: 34%; text-align: left; }
     .items-table th:nth-child(3) { width: 15%; }
-    .items-table th:nth-child(4) { width: 13%; }
-    .items-table th:nth-child(5) { width: 13%; }
-    .items-table th:nth-child(6) { width: 14%; }
+    .items-table th:nth-child(4) { width: 15%; }
+    .items-table th:nth-child(5) { width: 15%; }
+    .items-table th:nth-child(6) { width: 15%; }
     
-    /* Totals */
-    .totals-section {
-      display: table;
+    /* Totals Section */
+    .totals-table {
       width: 100%;
-      margin: 8px 0;
+      border-collapse: collapse;
+      margin: 0;
     }
-    .totals-left {
-      display: table-cell;
-      width: 55%;
-      padding-right: 15px;
-      vertical-align: top;
+    .totals-table td {
+      border: 1px solid #000;
+      padding: 5px 8px;
+      font-size: 9pt;
     }
-    .totals-right {
-      display: table-cell;
-      width: 45%;
-      vertical-align: top;
-    }
-    
-    .liquidation-box {
-      border: 1px solid #ccc;
-    }
-    .liquidation-title {
-      background: #1e40af;
-      color: #fff;
-      padding: 6px;
+    .totals-table td:first-child {
       font-weight: bold;
-      font-size: 11px;
-      text-align: center;
-    }
-    .liquidation-table {
-      width: 100%;
-      font-size: 11px;
-    }
-    .liquidation-table td {
-      padding: 6px 10px;
-      border-bottom: 1px solid #eee;
-    }
-    .liquidation-table td:last-child {
+      width: 60%;
       text-align: right;
     }
-    .liquidation-table .total-row {
-      background: #1e40af;
-      color: #fff;
+    .totals-table td:last-child {
+      width: 40%;
+      text-align: right;
       font-weight: bold;
-      font-size: 14px;
     }
     
-    .total-letras {
-      font-size: 11px;
-      line-height: 1.6;
-      margin-top: 5px;
-      padding: 10px;
-      border: 1px solid #ccc;
-      min-height: 50px;
-    }
-    .total-letras strong {
-      display: block;
-      margin-bottom: 3px;
+    .son-row td {
+      height: 35px;
+      vertical-align: top;
     }
     
-    /* Footer */
-    .footer {
+    /* Final Total Box */
+    .final-total-section {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0;
+    }
+    .final-total-section td {
+      border: 1px solid #000;
+      padding: 6px 8px;
+      font-size: 9pt;
+    }
+    .final-total-section td:first-child {
+      font-weight: bold;
+      width: 55%;
+      text-align: right;
+    }
+    .final-total-section td:last-child {
+      width: 45%;
+      text-align: right;
+      font-weight: bold;
+    }
+    .total-final-row td {
+      font-size: 12pt;
+      font-weight: bold;
+      background: #fff;
+    }
+    
+    /* Footer copies */
+    .footer-copies {
       margin-top: 15px;
-      padding-top: 10px;
-      border-top: 1px solid #ccc;
+      font-size: 7pt;
       text-align: center;
-      font-size: 10px;
-      color: #888;
+      color: #666;
     }
     
     @media print {
@@ -365,126 +360,129 @@ export const generateInvoiceHTML = async (sale: SaleData): Promise<string> => {
 <body>
   <div class="invoice-container">
     <!-- Header -->
-    <table class="header" style="border-collapse: collapse; width: 100%;">
+    <table class="header-table">
       <tr>
-        <td style="width: 55%; vertical-align: top; padding-right: 10px;">
-          <div class="company-name">Tech Store Paraguay</div>
+        <td class="header-left">
+          <div class="company-name">${settings.businessName}</div>
           <div class="company-detail">
             RUC: ${settings.ruc}<br>
             ${settings.address}${settings.city ? '<br>' + settings.city : ''}<br>
             Tel: ${settings.phone}${settings.email ? ' | Email: ' + settings.email : ''}
           </div>
         </td>
-        <td style="width: 45%; vertical-align: top;">
-          <div class="timbrado-box">
-            <div class="timbrado-title">TIMBRADO N°</div>
-            <table class="timbrado-table">
-              <tr>
-                <td>Nro. Timbrado:</td>
-                <td><strong>${settings.timbradoNumber || '-'}</strong></td>
-              </tr>
-              <tr>
-                <td>Nro. Factura:</td>
-                <td>${formatInvoiceNumber()}</td>
-              </tr>
-              <tr>
-                <td>Fecha Inicio:</td>
-                <td>${formatDate(settings.timbradoFrom) || '-'}</td>
-              </tr>
-              <tr>
-                <td>Fecha Vto:</td>
-                <td>${formatDate(settings.timbradoTo) || '-'}</td>
-              </tr>
-            </table>
-          </div>
+        <td class="header-right">
+          <div class="timbrado-header">TIMBRADO N</div>
+          <table class="timbrado-table">
+            <tr>
+              <td>Nro. Timbrado:</td>
+              <td>${settings.timbradoNumber || '-'}</td>
+            </tr>
+            <tr>
+              <td>Fecha Inicio Vigencia:</td>
+              <td>${formatDate(settings.timbradoFrom)}</td>
+            </tr>
+            <tr>
+              <td>Fecha Fin Vigencia:</td>
+              <td>${formatDate(settings.timbradoTo)}</td>
+            </tr>
+            <tr>
+              <td>RUC:</td>
+              <td>${settings.ruc}</td>
+            </tr>
+          </table>
+          <div class="invoice-header-cell">FACTURA</div>
+          <div style="text-align: center; font-size: 11pt; font-weight: bold;">${formatInvoiceNumber()}</div>
         </td>
       </tr>
     </table>
     
-    <div class="invoice-title">FACTURA</div>
-    
     <!-- Client -->
-    <div class="client-section">
-      <div class="client-title">DATOS DEL RECEPTOR</div>
-      <div class="client-grid">
-        <div class="client-row">
-          <div class="client-label">Nombre / Razon Social:</div>
-          <div class="client-value wide">${clientName}</div>
-        </div>
-        <div class="client-row">
-          <div class="client-label">RUC / CI:</div>
-          <div class="client-value medium">${clientIdentifier || 'Consumidor Final'}</div>
-          <div class="client-label">Direccion:</div>
-          <div class="client-value medium">${clientAddress || '-'}</div>
-        </div>
-        <div class="client-row">
-          <div class="client-label">Telefono:</div>
-          <div class="client-value medium">${clientPhone || '-'}</div>
-          <div class="client-label">Fecha:</div>
-          <div class="client-value medium">${formattedDate}</div>
-        </div>
-      </div>
-    </div>
+    <table class="client-section">
+      <tr>
+        <td>Fecha de Emision:</td>
+        <td style="width: 25%;">${formattedDate}</td>
+        <td style="width: 57%;">&nbsp;</td>
+      </tr>
+      <tr>
+        <td>Razon Social:</td>
+        <td colspan="2">${clientName}</td>
+      </tr>
+      <tr>
+        <td>RUC:</td>
+        <td>${clientIdentifier || 'Consumidor Final'}</td>
+        <td>Condicion de Venta: <strong>${getPaymentCondition(sale.paymentMethod)}</strong></td>
+      </tr>
+      <tr>
+        <td>Direccion:</td>
+        <td colspan="2">${clientAddress || '-'}</td>
+      </tr>
+      <tr>
+        <td>Telefono:</td>
+        <td colspan="2">${clientPhone || '-'}</td>
+      </tr>
+    </table>
     
     <!-- Items -->
     <table class="items-table">
       <thead>
         <tr>
-          <th>Cant.</th>
+          <th>Cant</th>
           <th style="text-align: left;">Descripcion</th>
           <th>Precio Unit.</th>
           <th>Exenta</th>
-          <th>Grav. 5%</th>
-          <th>Grav. 10%</th>
+          <th>Gravadas 5%</th>
+          <th>Gravadas 10%</th>
         </tr>
       </thead>
       <tbody>
         ${itemsHTML}
+        ${emptyRowsHTML}
       </tbody>
     </table>
     
-    <!-- Totals -->
-    <table class="totals-section">
+    <!-- Subtotals -->
+    <table class="totals-table">
       <tr>
-        <td style="width: 55%; vertical-align: top; padding-right: 10px;">
-          <div class="total-letras">
-            <strong>Son: Gs. ${formatGs(sale.total)} (${totalEnLetras})</strong>
-          </div>
-        </td>
-        <td style="width: 45%; vertical-align: top;">
-          <div class="liquidation-box">
-            <div class="liquidation-title">LIQUIDACION</div>
-            <table class="liquidation-table">
-              <tr>
-                <td>Subtotal:</td>
-                <td>Gs. ${formatGs(sale.subtotal)}</td>
-              </tr>
-              <tr>
-                <td>IVA 5%:</td>
-                <td>Gs. ${formatGs(iva5)}</td>
-              </tr>
-              <tr>
-                <td>IVA 10%:</td>
-                <td>Gs. ${formatGs(iva10)}</td>
-              </tr>
-              <tr>
-                <td>Total IVA:</td>
-                <td>Gs. ${formatGs(totalIva)}</td>
-              </tr>
-              <tr class="total-row">
-                <td>TOTAL A PAGAR:</td>
-                <td>Gs. ${formatGs(sale.total)}</td>
-              </tr>
-            </table>
-          </div>
-        </td>
+        <td>SUB TOTAL:</td>
+        <td>Gs. ${formatGs(exenta)}</td>
+      </tr>
+      <tr>
+        <td>SUB TOTAL:</td>
+        <td>Gs. ${formatGs(gravada5)}</td>
+      </tr>
+      <tr>
+        <td>SUB TOTAL:</td>
+        <td>Gs. ${formatGs(gravada10)}</td>
+      </tr>
+      <tr class="son-row">
+        <td>Son Gs: ${formatGs(sale.total)} (${totalEnLetras})</td>
+        <td>&nbsp;</td>
       </tr>
     </table>
     
-    <!-- Footer -->
-    <div class="footer">
-      <p>Forma de Pago: <strong>${getPaymentLabel(sale.paymentMethod)}</strong></p>
-      <p style="margin-top: 5px;">${settings.footerMessage}</p>
+    <!-- Final Total -->
+    <table class="final-total-section">
+      <tr>
+        <td>IVA 5%:</td>
+        <td>Gs. ${formatGs(gravada5)}</td>
+      </tr>
+      <tr>
+        <td>IVA 10%:</td>
+        <td>Gs. ${formatGs(gravada10)}</td>
+      </tr>
+      <tr>
+        <td>Total IVA:</td>
+        <td>Gs. ${formatGs(totalIva)}</td>
+      </tr>
+      <tr class="total-final-row">
+        <td>TOTAL A PAGAR:</td>
+        <td>Gs. ${formatGs(sale.total)}</td>
+      </tr>
+    </table>
+    
+    <!-- Footer copies -->
+    <div class="footer-copies">
+      <span>Original: Cliente</span>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;<span>Duplicado: Archivo Tributario</span>
     </div>
   </div>
 </body>
