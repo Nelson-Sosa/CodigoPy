@@ -1,8 +1,12 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { Truck, LayoutDashboard, Package, Tag, ArrowLeftRight, BarChart3, ShoppingCart, Users, Settings, DollarSign } from "lucide-react";
+import { Truck, LayoutDashboard, Package, Tag, ArrowLeftRight, BarChart3, ShoppingCart, Users, Settings, DollarSign, X } from "lucide-react";
 
-const Sidebar = () => {
+interface SidebarProps {
+  onClose?: () => void;
+}
+
+const Sidebar = ({ onClose }: SidebarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { logout } = useAuth();
@@ -10,6 +14,12 @@ const Sidebar = () => {
   const handleLogout = () => {
     logout();
     navigate("/login");
+    onClose?.();
+  };
+
+  const handleNavigate = (path: string) => {
+    navigate(path);
+    onClose?.();
   };
 
   const menuItems = [
@@ -27,14 +37,20 @@ const Sidebar = () => {
 
   return (
     <div className="w-64 h-screen bg-gray-900 text-white flex flex-col shadow-lg overflow-hidden">
-      {/* Logo */}
-      <div className="p-4 border-b border-gray-700">
+      {/* Logo y botón cerrar móvil */}
+      <div className="p-4 border-b border-gray-700 flex justify-between items-center">
         <h1
           className="text-2xl font-bold cursor-pointer hover:text-gray-300"
-          onClick={() => navigate("/dashboard")}
+          onClick={() => handleNavigate("/dashboard")}
         >
           CodigoPy
         </h1>
+        <button
+          onClick={onClose}
+          className="lg:hidden p-1 hover:bg-gray-700 rounded"
+        >
+          <X size={24} />
+        </button>
       </div>
 
       {/* Menú con scroll */}
@@ -45,13 +61,12 @@ const Sidebar = () => {
           return (
             <button
               key={item.path}
-              onClick={() => navigate(item.path)}
+              onClick={() => handleNavigate(item.path)}
               className={`relative text-left px-4 py-2.5 rounded hover:bg-gray-700 transition-colors duration-200 w-full flex items-center gap-3 ${
                 isActive ? "bg-gray-800 font-semibold" : ""
               }`}
             >
               {Icon && <Icon size={20} />}
-              {/* Barra a la izquierda cuando está activo */}
               {isActive && (
                 <span className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 rounded-r"></span>
               )}
