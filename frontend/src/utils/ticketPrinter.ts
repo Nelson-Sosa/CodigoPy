@@ -202,17 +202,6 @@ export const printTicket = async (sale: TicketData) => {
             font-size: 10px;
             margin-bottom: 4px;
           }
-          .qr-placeholder {
-            width: 60px;
-            height: 60px;
-            border: 1px solid #ccc;
-            margin: 8px auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 8px;
-            color: #999;
-          }
           .cuts {
             border-top: 1px dashed #000;
             margin-top: 8px;
@@ -263,14 +252,8 @@ export const printTicket = async (sale: TicketData) => {
             <div class="section-title">Cliente</div>
             <div class="row">
               <span><strong>Nombre:</strong></span>
-              <span>${sale.clientName || "CONSUMIDOR FINAL"}</span>
+              <span>${sale.clientName || "CONSUMIDOR FINAL"}${sale.clientRuc ? " - " + sale.clientRuc : ""}</span>
             </div>
-            ${sale.clientRuc ? `
-            <div class="row">
-              <span><strong>RUC/CI:</strong></span>
-              <span>${sale.clientRuc}</span>
-            </div>
-            ` : ""}
           </div>
 
           <!-- DETALLE DE PRODUCTOS -->
@@ -324,9 +307,6 @@ export const printTicket = async (sale: TicketData) => {
 
           <!-- FOOTER -->
           <div class="footer">
-            <div class="qr-placeholder">
-              QR
-            </div>
             <div class="footer-message">"${footerMessage}"</div>
           </div>
 
