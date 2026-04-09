@@ -92,16 +92,13 @@ export const generateInvoiceHTML = async (sale) => {
         const d = new Date(dateStr);
         return d.toLocaleDateString('es-PY', { day: '2-digit', month: '2-digit', year: 'numeric' });
     };
-    const exenta = 0;
-    const gravada5 = Math.round(sale.subtotal * 0.05);
     const gravada10 = Math.round(sale.subtotal * 0.10);
-    const totalIva = gravada5 + gravada10;
+    const totalIva = gravada10;
     const itemsHTML = sale.items.map((item) => `
     <tr>
       <td style="padding: 4px 6px; text-align: center; font-size: 10pt; border: 1px solid #000;">${item.quantity}</td>
       <td style="padding: 4px 6px; text-align: left; font-size: 10pt; border: 1px solid #000;">${item.productName}</td>
       <td style="padding: 4px 6px; text-align: right; font-size: 10pt; border: 1px solid #000;">Gs. ${formatGs(item.unitPrice)}</td>
-      <td style="padding: 4px 6px; text-align: right; font-size: 10pt; border: 1px solid #000;">-</td>
       <td style="padding: 4px 6px; text-align: right; font-size: 10pt; border: 1px solid #000;">-</td>
       <td style="padding: 4px 6px; text-align: right; font-size: 10pt; border: 1px solid #000;">Gs. ${formatGs(item.subtotal)}</td>
     </tr>
@@ -111,7 +108,6 @@ export const generateInvoiceHTML = async (sale) => {
     <tr>
       <td style="padding: 4px 6px; text-align: center; font-size: 10pt; border: 1px solid #000;">&nbsp;</td>
       <td style="padding: 4px 6px; text-align: left; font-size: 10pt; border: 1px solid #000;">&nbsp;</td>
-      <td style="padding: 4px 6px; text-align: right; font-size: 10pt; border: 1px solid #000;">&nbsp;</td>
       <td style="padding: 4px 6px; text-align: right; font-size: 10pt; border: 1px solid #000;">&nbsp;</td>
       <td style="padding: 4px 6px; text-align: right; font-size: 10pt; border: 1px solid #000;">&nbsp;</td>
       <td style="padding: 4px 6px; text-align: right; font-size: 10pt; border: 1px solid #000;">&nbsp;</td>
@@ -223,12 +219,11 @@ export const generateInvoiceHTML = async (sale) => {
       border: 1px solid #000;
       padding: 4px;
     }
-    .items-table th:nth-child(1) { width: 6%; }
-    .items-table th:nth-child(2) { width: 34%; text-align: left; }
-    .items-table th:nth-child(3) { width: 15%; }
-    .items-table th:nth-child(4) { width: 15%; }
-    .items-table th:nth-child(5) { width: 15%; }
-    .items-table th:nth-child(6) { width: 15%; }
+    .items-table th:nth-child(1) { width: 8%; }
+    .items-table th:nth-child(2) { width: 42%; text-align: left; }
+    .items-table th:nth-child(3) { width: 18%; }
+    .items-table th:nth-child(4) { width: 14%; }
+    .items-table th:nth-child(5) { width: 18%; }
     
     /* Totals Section */
     .totals-table {
@@ -370,7 +365,6 @@ export const generateInvoiceHTML = async (sale) => {
           <th style="text-align: left;">Descripcion</th>
           <th>Precio Unit.</th>
           <th>Exenta</th>
-          <th>Gravadas 5%</th>
           <th>Gravadas 10%</th>
         </tr>
       </thead>
@@ -384,14 +378,6 @@ export const generateInvoiceHTML = async (sale) => {
     <table class="totals-table">
       <tr>
         <td>SUB TOTAL:</td>
-        <td>Gs. ${formatGs(exenta)}</td>
-      </tr>
-      <tr>
-        <td>SUB TOTAL:</td>
-        <td>Gs. ${formatGs(gravada5)}</td>
-      </tr>
-      <tr>
-        <td>SUB TOTAL:</td>
         <td>Gs. ${formatGs(gravada10)}</td>
       </tr>
       <tr class="son-row">
@@ -403,15 +389,7 @@ export const generateInvoiceHTML = async (sale) => {
     <!-- Final Total -->
     <table class="final-total-section">
       <tr>
-        <td>IVA 5%:</td>
-        <td>Gs. ${formatGs(gravada5)}</td>
-      </tr>
-      <tr>
         <td>IVA 10%:</td>
-        <td>Gs. ${formatGs(gravada10)}</td>
-      </tr>
-      <tr>
-        <td>Total IVA:</td>
         <td>Gs. ${formatGs(totalIva)}</td>
       </tr>
       <tr class="total-final-row">
