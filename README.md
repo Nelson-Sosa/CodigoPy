@@ -1,186 +1,236 @@
-# React + TypeScript + Vite
-📦 CodigoPy
+# 🚀 CodigoPy - Sistema de Gestión de Inventario
 
-CodigoPy es una aplicación web completa de gestión de inventario, desarrollada con React y TypeScript, que incluye autenticación, autorización por roles, dashboard analítico y gestión integral de productos, categorías, movimientos y usuarios.
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
+![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)
 
-🧾 Descripción del proyecto
+> **Sistema completo de gestión de inventario y punto de venta**, diseñado para negocios en Paraguay con soporte para moneda dual (USD/Gs.) y facturación profesional.
 
-CodigoPy permite:
+---
 
-🔐 Autenticación y autorización de usuarios con control de roles
+## 🎯 Características Principales
 
-📊 Dashboard con métricas clave del inventario
+### 💰 Gestión de Caja
+- Apertura y cierre de caja diario
+- Control de efectivo en mano
+- Verificación de cierre con previsualización
+- Reapertura de caja (mismo día)
+- Resumen mensual con ventas reales
+- Conversión automática USD → Guaraníes (Gs. 6.600)
 
-📦 CRUD completo de productos
+### 🛒 Punto de Venta
+- Ventas rápidas con búsqueda de productos
+- Múltiples métodos de pago: Efectivo, Tarjeta, Transferencia, Crédito
+- Descuentos por porcentaje
+- Generación de tickets para impresoras térmicas (80mm)
+- Cancelación de ventas con reversión de stock
 
-🗂️ Gestión de categorías
+### 📦 Inventario
+- CRUD completo de productos
+- Control de stock con alertas de mínimo/máximo
+- Historial de movimientos (entradas, salidas, ajustes)
+- Categorización de productos con colores
+- Búsqueda por SKU, nombre o descripción
 
-🔄 Registro y control de movimientos de stock
+### 👥 Gestión de Clientes y Proveedores
+- Registro completo de clientes y proveedores
+- Historial de compras por cliente
+- Información de contacto y datos fiscales (RUC para Paraguay)
 
-📈 Reportes de inventario
+### 📊 Reportes y Dashboard
+- Dashboard en tiempo real con métricas clave
+- Reporte de ventas por período
+- Productos más vendidos
+- Inventario valorizado
+- Productos con stock bajo
+- Exportación a CSV
 
-👥 Gestión de usuarios (rol administrador)
+### 🔐 Seguridad
+- Autenticación con JWT
+- Roles: Administrador, Supervisor, Operador
+- Rutas protegidas según rol
+- Tokens con expiración automática
 
-El proyecto fue desarrollado cumpliendo estrictamente los Requisitos Funcionales (RF-01 a RF-07) solicitados en la consigna.
-## 🛠️ Tecnologías utilizadas
+### 📱 Responsive Design
+- Interfaz completamente responsive
+- Optimizado para desktop, tablet y móvil
+- Menú lateral adaptable con botón hamburguesa en móviles
 
-| Área                 | Tecnologías           |
-| -------------------- | --------------------- |
-| Frontend             | React, TypeScript     |
-| Estilos              | Tailwind CSS          |
-| Routing              | React Router          |
-| Gráficos             | Recharts              |
-| Comunicación HTTP    | Axios                 |
-| Autenticación        | JWT (simulado / mock) |
-| Backend simulado     | json-server           |
-| Build Tool           | Vite                  |
-| Control de versiones | Git & GitHub          |
+---
 
-## 🔐 RF-01: Autenticación y Autorización
+## 🛠️ Stack Tecnológico
 
-### Funcionalidades implementadas
-- ✅ Login con validación
-- ✅ Registro de usuarios
-- ✅ JWT simulado
-- ✅ Persistencia de sesión
-- ✅ Rutas protegidas
-- ✅ Roles (Admin / Operador/ supervisor)
-- ✅ Logout
-- ✅ Token expirado
+### Frontend
+| Tecnología | Propósito |
+|------------|-----------|
+| React 18 | Librería principal |
+| TypeScript | Tipado estático |
+| Vite | Build tool |
+| Tailwind CSS | Estilos |
+| React Router | Navegación |
+| Axios | Comunicación HTTP |
+| Lucide React | Iconos |
+| date-fns | Formateo de fechas |
 
-### Criterios cumplidos
-- ✔ Redirección a `/login`
-- ✔ Restricción por rol
-- ✔ Manejo de token inválido
-- ✔ Mensajes de error claros
+### Backend
+| Tecnología | Propósito |
+|------------|-----------|
+| Node.js | Runtime |
+| Express | Framework REST API |
+| MongoDB + Mongoose | Base de datos |
+| JWT | Autenticación |
+| bcryptjs | Encriptación de contraseñas |
+| CORS | Seguridad |
 
+### Despliegue
+| Servicio | Uso |
+|----------|-----|
+| Vercel | Frontend (CDN global) |
+| Render | Backend API |
+| MongoDB Atlas | Base de datos en la nube |
 
-## 📊 RF-02: Dashboard Principal
+---
 
-### Métricas implementadas
-- ✅ Total de productos registrados
-- ✅ Productos con stock bajo
-- ✅ Productos sin stock
-- ✅ Valor total del inventario (stock × costo)
-- ✅ Movimientos recientes (día / semana)
-- ✅ Top 5 productos con más movimientos
+## 📁 Estructura del Proyecto
 
-### Componentes visuales
-- Cards de resumen con iconos
-- Gráfico de movimientos (Recharts)
-- Tabla de alertas de stock bajo
-- Lista de últimos movimientos
-## 📦 RF-03: Gestión de Productos (CRUD Completo)
+```
+CodigoPy/
+├── frontend/                 # React + Vite
+│   ├── src/
+│   │   ├── components/      # Componentes reutilizables
+│   │   │   ├── common/      # Componentes comunes (Price, etc.)
+│   │   │   ├── layout/      # Layout principal (Sidebar, Header)
+│   │   │   ├── movements/    # Formulario y tabla de movimientos
+│   │   │   ├── navigation/   # Navegación
+│   │   │   ├── products/     # Gestión de productos
+│   │   │   ├── reports/      # Componentes de reportes
+│   │   │   └── users/        # Gestión de usuarios
+│   │   ├── context/          # Contextos de React (Auth)
+│   │   ├── hooks/            # Hooks personalizados
+│   │   ├── pages/            # Páginas de la aplicación
+│   │   │   ├── Products/     # CRUD de productos
+│   │   │   ├── Categories/  # Gestión de categorías
+│   │   │   └── movements/    # Historial de movimientos
+│   │   ├── router/           # Configuración de rutas
+│   │   ├── services/         # Servicios API (Axios)
+│   │   ├── types/           # Definiciones TypeScript
+│   │   └── utils/           # Utilidades (formatters, ticket printer)
+│   └── package.json
+│
+├── server/                  # Node.js + Express
+│   ├── config/              # Configuración de BD
+│   ├── controllers/         # Lógica de negocio
+│   ├── middleware/          # Auth middleware
+│   ├── models/              # Modelos Mongoose
+│   ├── routes/              # Rutas de la API
+│   └── index.js             # Entry point
+│
+└── package.json             # Scripts para ejecutar ambos
+```
 
-### Listado de productos
-- ✅ Tabla con paginación
-- ✅ Ordenamiento por columnas
-- ✅ Búsqueda por SKU, nombre o descripción
-- ✅ Filtros por categoría, estado y stock bajo
-- ✅ Indicadores visuales de estado de stock
-- ✅ Acciones: ver, editar, eliminar, ajustar stock
+---
 
-### Crear / Editar producto
-- ✅ Formulario dedicado
-- ✅ Validación completa de campos
-- ✅ SKU único
-- ✅ Selector de categoría
-- ✅ Preview de imagen por URL
-- ✅ Confirmación antes de guardar
+## 🚀 Despliegue en Producción
 
-### Detalle de producto
-- ✅ Vista completa del producto
-- ✅ Historial de movimientos
-- ✅ Acciones rápidas
+### Frontend (Vercel)
+- **URL**: https://codigo-py-flax.vercel.app
+- Despliegue automático desde GitHub
 
-### Eliminación
-- ✅ Confirmación previa
-- ✅ Soft delete (status: discontinued)
-## 🗂️ RF-04: Gestión de Categorías
+### Backend (Render)
+- **URL**: https://codigopy-api.onrender.com
+- Base de datos: MongoDB Atlas
 
-- ✅ CRUD completo de categorías
-- ✅ Campos: nombre, descripción, color, icono
-- ✅ Conteo de productos por categoría
-- ✅ Restricción para eliminar categorías con productos asociados
-## 🔄 RF-05: Movimientos de Inventario
+---
 
-### Registro
-- ✅ Entrada / salida / ajuste
-- ✅ Selector de producto
-- ✅ Validación de stock disponible
-- ✅ Motivo obligatorio
-- ✅ Actualización automática del stock
+## 💻 Instalación Local
 
-### Historial
-- ✅ Tabla de movimientos
-- ✅ Filtros por tipo, producto y fecha
-- ✅ Indicadores visuales por tipo
-- ✅ Exportación opcional (CSV)
-## 📈 RF-06: Reportes
-
-- ✅ Reporte de inventario actual
-- ✅ Reporte de productos con stock bajo
-- ✅ Reporte de movimientos por período
-- ✅ Valorización del inventario
-- ✅ Vista previa en pantalla
-- 🟡 Exportación PDF (opcional)
-
-
-🚀 Instalación y ejecución
+```bash
 # Clonar el repositorio
 git clone https://github.com/Nelson-Sosa/CodigoPy.git
-
-# Acceder al directorio del proyecto
 cd CodigoPy
 
-# Instalar dependencias
-npm install
+# Instalar todas las dependencias
+npm run install:all
 
-# Levantar el backend simulado (json-server)
-npx json-server --watch db.json --port 3001
-
-# Ejecutar la aplicación
+# Ejecutar en desarrollo (frontend + backend)
 npm run dev
 
-
-## 📁 Estructura del proyecto
-
-```text
-GESTIONINVENTARIO
-├── inventarypro
-│   ├── public
-│   ├── src
-│   │   ├── assets
-│   │   ├── components
-│   │   ├── context
-│   │   ├── hooks
-│   │   ├── pages
-│   │   ├── router
-│   │   ├── types
-│   │   ├── App.tsx
-│   │   └── main.tsx
-│   ├── db.json
-│   └── package.json
-└── README.md
+# O ejecutar por separado:
+npm run dev:frontend    # Frontend en http://localhost:5173
+npm run dev:backend     # Backend en http://localhost:5000
 ```
-React + TypeScript → escalabilidad y seguridad
 
-Tailwind CSS → consistencia visual
+### Variables de Entorno (Backend)
 
-JWT simulado → control de acceso realista
+Crea un archivo `.env` en la carpeta `server/`:
 
-Arquitectura modular → mantenibilidad
+```env
+PORT=5000
+MONGO_URI=mongodb+srv://tu_usuario:tu_password@cluster.mongodb.net/tu_db
+JWT_SECRET=tu_secreto_jwt
+JWT_EXPIRES_IN=7d
+```
 
-json-server → backend ágil para pruebas técnicas
+---
 
-## 📸 Screenshots
+## 📋 Credenciales de Prueba
 
-![Login](screenshots/login.png)
-![Dashboard](screenshots/dashboard.png)
-![Productos](screenshots/products.png)
-![Categorías](screenshots/categories.png)
-![Movimientos](screenshots/movements.png)
-![Reportes](screenshots/reports1.png)
-![Usuarios](screenshots/users.png)
+El sistema incluye datos de prueba precargados:
 
+| Rol | Email | Contraseña |
+|-----|-------|------------|
+| Administrador | admin@codigopy.com | admin123 |
+| Supervisor | supervisor@codigopy.com | super123 |
+| Operador | operador@codigopy.com | oper123 |
 
+---
+
+## 🎨 Funcionalidades por Rol
+
+| Funcionalidad | Admin | Supervisor | Operador |
+|---------------|-------|------------|----------|
+| Dashboard | ✅ | ✅ | ✅ |
+| Apertura/Cierre de Caja | ✅ | ✅ | ✅ |
+| Ventas | ✅ | ✅ | ✅ |
+| Productos (CRUD) | ✅ | ✅ | ❌ |
+| Movimientos | ✅ | ✅ | ✅ |
+| Categorías | ✅ | ✅ | ❌ |
+| Clientes | ✅ | ✅ | ✅ |
+| Proveedores | ✅ | ✅ | ❌ |
+| Reportes | ✅ | ✅ | ✅ |
+| Configuración | ✅ | ✅ | ❌ |
+| Gestión de Usuarios | ✅ | ❌ | ❌ |
+
+---
+
+## 🔮 Próximas Funcionalidades
+
+- [ ] Módulo de Compras/Órdenes de Compra
+- [ ] Integración con facturación electrónica SET Paraguay (e-Kuatia)
+- [ ] App móvil nativa (React Native)
+- [ ] Notificaciones push
+- [ ] Multi-sucursal
+- [ ] Reportes avanzados con gráficos interactivos
+
+---
+
+## 📝 Licencia
+
+Este proyecto es software propietario. Todos los derechos reservados.
+
+---
+
+## 👨‍💻 Autor
+
+**Nelson Sosa**
+
+- GitHub: [@Nelson-Sosa](https://github.com/Nelson-Sosa)
+- LinkedIn: [Nelson Sosa](https://linkedin.com/in/nelsonsosa)
+
+---
+
+⭐ ¿Te gusta el proyecto? Dale una estrella en GitHub
