@@ -1,0 +1,856 @@
+import { useEffect, useState } from "react";
+import { cashRegisterService, saleService, settingsService } from "../services/api";
+import { DollarSign, Lock, Unlock, ShoppingCart, CreditCard, Banknote, ArrowRightLeft, History, X, Eye } from "lucide-react";
+import { format } from "date-fns";
+import { formatPrice } from "../utils/formatters";
+
+interface SaleItem {
+  productName: string;
+  quantity: number;
+  unitPrice: number;
+  subtotal: number;
+}
+
+interface Sale {
+  _id: string;
+  invoiceNumber: string;
+  clientName: string;
+  items: SaleItem[];
+  total: number;
+  paymentMethod: string;
+  status: string;
+  createdAt: string;
+}
+
+interface CashRegister {
+  _id?: string;
+  status: string;
+  openingAmount: number;
+  closingAmount?: number;
+  expectedAmount?: number;
+  cashSales: number;
+  cardSales: number;
+  transferSales: number;
+  creditSales: number;
+  totalSales: number;
+  totalCash: number;
+  salesCount: number;
+  openedAt?: string;
+  closedAt?: string;
+  reopenedAt?: string;
+  date?: string;
+  user?: { name: string };
+}
+
+interface Summary {
+  todayStatus: string;
+  todayRegister?: CashRegister;
+  monthTotal: number;
+  monthCash: number;
+  monthSalesCount: number;
+}
+
+interface HistoryItem {
+  _id: string;
+  date: string;
+  user: { name: string };
+  openingAmount: number;
+  closingAmount: number;
+  expectedAmount: number;
+  cashSales: number;
+  cardSales: number;
+  transferSales: number;
+  creditSales: number;
+  totalSales: number;
+  status: string;
+  openedAt: string;
+  closedAt: string;
+  salesCount: number;
+}
+
+const CashRegisterPage = () => {
+  const [loading, setLoading] = useState(true);
+  const [summary, setSummary] = useState<Summary | null>(null);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [todaySales, setTodaySales] = useState<Sale[]>([]);
+  const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
+  const [showPreCloseModal, setShowPreCloseModal] = useState(false);
+  const [preCloseClosingAmount, setPreCloseClosingAmount] = useState(0);
+  const [preCloseNotes, setPreCloseNotes] = useState("");
+  const [exchangeRate, setExchangeRate] = useState(6600);
+  const [openingAmount, setOpeningAmount] = useState(0);
+
+  const isOpen = summary?.todayStatus === 'open';
+  const isClosed = summary?.todayStatus === 'closed';
+  const register = summary?.todayRegister;
+
+  const showPrice = (amount: number, className: string = "") => (
+    <span className={`inline-flex items-baseline gap-1 ${className}`}>
+      <span className="font-bold text-green-600">${formatPrice(amount)}</span>
+      <span className="text-gray-400">|</span>
+      <span className="text-gray-500">Gs. {(amount * exchangeRate).toLocaleString("es-PY")}</span>
+    </span>
+  );
+
+  const getPaymentIcon = (method: string) => {
+    switch (method) {
+      case 'cash': return <Banknote size={16} className="text-green-500" />;
+      case 'card': return <CreditCard size={16} className="text-blue-500" />;
+      case 'transfer': return <ArrowRightLeft size={16} className="text-purple-500" />;
+      case 'credit': return <ShoppingCart size={16} className="text-orange-500" />;
+      default: return <DollarSign size={16} />;
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const [summaryRes, historyRes, salesRes, settingsRes] = await Promise.all([
+        cashRegisterService.getSummary(),
+        cashRegisterService.getHistory({ page: 1, limit: 10 }),
+        saleService.getAll(),
+        settingsService.get(),
+      ]);
+      setSummary(summaryRes.data);
+      setHistory(historyRes.data.history || []);
+      setExchangeRate(settingsRes.data?.exchangeRate || 6600);
+      const filteredSales = (salesRes.data.sales || salesRes.data || []).filter(
+        (s: Sale) => new Date(s.createdAt) >= today && s.status !== 'cancelled'
+      );
+      setTodaySales(filteredSales);
+    } catch (err) {
+      console.error("Error fetching data:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOpen = async () => {
+    if (confirm("¿Abrir caja con $ " + openingAmount + "?")) {
+      setActionLoading(true);
+      try {
+        await cashRegisterService.open(openingAmount);
+        alert("Caja abierta exitosamente");
+        fetchData();
+        setOpeningAmount(0);
+      } catch (err: any) {
+        alert(err.response?.data?.message || "Error al abrir caja");
+      } finally {
+        setActionLoading(false);
+      }
+    }
+  };
+
+  const handlePreClose = async () => {
+    setPreCloseClosingAmount(register?.totalCash || 0);
+    setPreCloseNotes("");
+    setShowPreCloseModal(true);
+  };
+
+  const handlePreCloseSubmit = async () => {
+    if (!summary?.todayRegister) return;
+
+    setActionLoading(true);
+    try {
+      await cashRegisterService.close({
+        closingAmount: preCloseClosingAmount,
+        notes: preCloseNotes,
+      });
+      alert("✓ Caja cerrada exitosamente");
+      fetchData();
+      setShowPreCloseModal(false);
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Error al cerrar caja");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleCancelSaleFromModal = async (sale: Sale) => {
+    if (!confirm(`¿Cancelar venta #${sale.invoiceNumber}?\n\nTotal: $${sale.total.toFixed(2)}\n\nEsta acción reversará el stock.`)) {
+      return;
+    }
+    setActionLoading(true);
+    try {
+      await saleService.cancel(sale._id);
+      alert("Venta cancelada");
+      fetchData();
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Error al cancelar venta");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleReopen = async () => {
+    if (!register) {
+      alert("No hay caja para reabrir");
+      return;
+    }
+
+    if (confirm("¿Reabrir caja?\n\nLa caja se reabrirá para continuar operando.\nPodrás cerrarla nuevamente al final del día.")) {
+      setActionLoading(true);
+      try {
+        const res = await cashRegisterService.reopen(openingAmount);
+        alert(res.data.message || "Caja reaberta exitosamente");
+        fetchData();
+        setOpeningAmount(0);
+      } catch (err: any) {
+        alert(err.response?.data?.message || "Error al reabrir caja");
+      } finally {
+        setActionLoading(false);
+      }
+    }
+  };
+
+  const handleCancelSale = async (sale: Sale) => {
+    if (!confirm(`¿Cancelar venta #${sale.invoiceNumber}?\n\nTotal: $${sale.total.toFixed(2)}\n\nEsta acción reversará el stock.`)) {
+      return;
+    }
+    setActionLoading(true);
+    try {
+      await saleService.cancel(sale._id);
+      alert("Venta cancelada exitosamente");
+      fetchData();
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Error al cancelar venta");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="p-6 flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+          <DollarSign className="text-blue-600" size={28} />
+          Caja
+        </h1>
+        <button
+          onClick={() => setShowHistory(!showHistory)}
+          className={`px-4 py-2 rounded-lg flex items-center gap-2 transition ${
+            showHistory ? "bg-gray-700 text-white" : "bg-gray-200 hover:bg-gray-300"
+          }`}
+        >
+          <History size={18} />
+          {showHistory ? "Ver Caja" : "Historial"}
+        </button>
+      </div>
+
+      {showHistory ? (
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <h2 className="text-lg font-bold mb-4">Historial de Cajas</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50">
+                <tr className="text-left">
+                  <th className="p-3">Fecha</th>
+                  <th className="p-3">Usuario</th>
+                  <th className="p-3 text-right">Ventas</th>
+                  <th className="p-3 text-right">Efectivo</th>
+                  <th className="p-3 text-right">Tarjeta</th>
+                  <th className="p-3 text-right">Transfer.</th>
+                  <th className="p-3 text-right">Total</th>
+                  <th className="p-3 text-right">Diferencia</th>
+                  <th className="p-3">Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {history.map((item) => (
+                  <tr key={item._id} className="border-t hover:bg-gray-50">
+                    <td className="p-3">{item.date ? format(new Date(item.date), 'dd/MM/yyyy') : '-'}</td>
+                    <td className="p-3">{item.user?.name}</td>
+                    <td className="p-3 text-right">{item.salesCount}</td>
+                    <td className="p-3 text-right">${item.cashSales.toFixed(2)}</td>
+                    <td className="p-3 text-right">${item.cardSales.toFixed(2)}</td>
+                    <td className="p-3 text-right">${item.transferSales.toFixed(2)}</td>
+                    <td className="p-3 text-right font-bold">${item.totalSales.toFixed(2)}</td>
+                    <td className="p-3 text-right">
+                      {item.closingAmount !== null ? (
+                        <span className={item.closingAmount >= item.expectedAmount ? 'text-green-600' : 'text-red-600'}>
+                          ${(item.closingAmount - item.expectedAmount).toFixed(2)}
+                        </span>
+                      ) : '-'}
+                    </td>
+                    <td className="p-3">
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${
+                        item.status === 'closed' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
+                      }`}>
+                        {item.status === 'closed' ? 'Cerrada' : 'Abierta'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+                {history.length === 0 && (
+                  <tr>
+                    <td colSpan={9} className="p-8 text-center text-gray-400">No hay historial</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className={`p-6 rounded-xl shadow-md ${isOpen ? 'bg-green-50 border-2 border-green-500' : 'bg-white'}`}>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold flex items-center gap-2">
+                  {isOpen ? (
+                    <>
+                      <Unlock className="text-green-500" size={24} />
+                      <span className="text-green-700">Caja Abierta</span>
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="text-gray-400" size={24} />
+                      <span className="text-gray-600">Caja Cerrada</span>
+                    </>
+                  )}
+                </h2>
+                {register && (
+                  <span className="text-sm text-gray-500">
+                    {register.openedAt ? format(new Date(register.openedAt), 'HH:mm') : '-'}
+                  </span>
+                )}
+              </div>
+
+              {!isOpen && !isClosed && (
+                <div className="space-y-4">
+                  <p className="text-gray-600">Ingresa el dinero inicial en caja</p>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Dinero inicial en caja
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">$</span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={openingAmount}
+                        onChange={(e) => setOpeningAmount(Number(e.target.value))}
+                        className="w-full border rounded-lg pl-8 pr-4 py-3 focus:ring-2 focus:ring-green-500"
+                        placeholder="0.00"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleOpen}
+                    disabled={actionLoading}
+                    className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50 transition"
+                  >
+                    {actionLoading ? "Abriendo..." : "Abrir Caja"}
+                  </button>
+                </div>
+              )}
+
+              {isOpen && register && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-white p-4 rounded-lg">
+                      <p className="text-sm text-gray-500">Dinero Inicial</p>
+                      {showPrice(register.openingAmount, "text-xl")}
+                    </div>
+                    <div className="bg-white p-4 rounded-lg">
+                      <p className="text-sm text-gray-500">Ventas en Efectivo</p>
+                      {showPrice(register.cashSales, "text-xl")}
+                    </div>
+                  </div>
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <p className="text-sm text-blue-600">Dinero Esperado en Caja</p>
+                    <div className="text-2xl font-bold text-blue-700">
+                      {showPrice(register.totalCash)}
+                    </div>
+                    <p className="text-xs text-blue-500 mt-1">
+                      = Dinero inicial + Ventas en efectivo
+                    </p>
+                  </div>
+                    <div className="border-t pt-4">
+                    <button
+                      onClick={handlePreClose}
+                      disabled={actionLoading}
+                      className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 transition flex items-center justify-center gap-2"
+                    >
+                      <Eye size={20} />
+                      Verificar Cierre de Caja
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {isClosed && register && (
+                <div className="space-y-4">
+                  <div className="bg-red-50 p-4 rounded-lg text-center">
+                    <p className="text-red-600 font-medium">Caja cerrada a las {register.closedAt ? format(new Date(register.closedAt), 'HH:mm') : '-'}</p>
+                    {register.reopenedAt && (
+                      <p className="text-orange-500 text-sm mt-1">
+                        ⚠️ Fue reopenida a las {register.reopenedAt ? format(new Date(register.reopenedAt), 'HH:mm') : '-'}
+                      </p>
+                    )}
+                  </div>
+                  <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                    <p className="text-orange-700 text-sm mb-3">¿Cerraste la caja por error?</p>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-xs text-gray-600 mb-1">Dinero en caja ahora</label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                          <input
+                            type="number"
+                            min="0"
+                            value={openingAmount}
+                            onChange={(e) => setOpeningAmount(Number(e.target.value))}
+                            className="w-full border border-orange-300 rounded-lg pl-7 pr-3 py-2 text-sm focus:ring-2 focus:ring-orange-500"
+                            placeholder="0.00"
+                          />
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleReopen}
+                        disabled={actionLoading}
+                        className="w-full bg-orange-600 text-white py-2.5 rounded-lg font-semibold hover:bg-orange-700 disabled:opacity-50 transition flex items-center justify-center gap-2"
+                      >
+                        <Unlock size={18} />
+                        {actionLoading ? "Reabriendo..." : "Reabrir Caja"}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="text-gray-500">Dinero Inicial</p>
+                      {showPrice(register.openingAmount)}
+                    </div>
+                    <div>
+                      <p className="text-gray-500">Dinero Real</p>
+                      {showPrice(register.closingAmount || 0)}
+                    </div>
+                    <div>
+                      <p className="text-gray-500">Diferencia</p>
+                      <p className={`font-bold ${(register.closingAmount! - register.expectedAmount!) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        Gs. {((register.closingAmount! - register.expectedAmount!) * exchangeRate).toLocaleString("es-PY")}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">Ventas</p>
+                      <p className="font-bold">{register.salesCount}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-6">
+              <div className="bg-white p-6 rounded-xl shadow-md">
+                <h3 className="font-bold mb-4">Ventas por Método de Pago</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Banknote className="text-green-500" size={20} />
+                      <span>Efectivo</span>
+                    </div>
+                    {showPrice(register?.cashSales || 0)}
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <CreditCard className="text-blue-500" size={20} />
+                      <span>Tarjeta</span>
+                    </div>
+                    {showPrice(register?.cardSales || 0)}
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <ArrowRightLeft className="text-purple-500" size={20} />
+                      <span>Transferencia</span>
+                    </div>
+                    {showPrice(register?.transferSales || 0)}
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <ShoppingCart className="text-orange-500" size={20} />
+                      <span>Crédito</span>
+                    </div>
+                    {showPrice(register?.creditSales || 0)}
+                  </div>
+                  <div className="border-t pt-3 flex items-center justify-between font-bold text-lg bg-green-50 -mx-4 px-4 py-2 rounded">
+                    <span>TOTAL VENTAS</span>
+                    {showPrice(register?.totalSales || 0)}
+                  </div>
+                  <div className="text-center text-gray-500 text-sm">
+                    {register?.salesCount || 0} ventas hoy
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-blue-50 p-6 rounded-xl border border-blue-200">
+                <h3 className="font-bold mb-3 flex items-center gap-2">
+                  <DollarSign className="text-blue-600" size={20} />
+                  Dinero en Caja
+                </h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-blue-700">Dinero Inicial:</span>
+                    <span className="font-bold text-blue-800">${formatPrice(register?.openingAmount || 0)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-blue-700">Ventas en Efectivo:</span>
+                    <span className="font-bold text-blue-800">${formatPrice(register?.cashSales || 0)}</span>
+                  </div>
+                  <div className="border-t border-blue-300 pt-2 flex justify-between items-center">
+                    <span className="text-blue-800 font-medium">Dinero Esperado:</span>
+                    <span className="text-xl font-bold text-blue-700">
+                      <span className="text-green-600">${formatPrice(register?.totalCash || 0)}</span>
+                      <span className="text-gray-400 text-sm ml-1">|</span>
+                      <span className="text-gray-500 text-sm ml-1">Gs. {(register?.totalCash || 0) * exchangeRate}</span>
+                    </span>
+                  </div>
+                  <p className="text-xs text-blue-500 mt-1">
+                    💡 Solo incluye efectivo físico (transferencias van al banco)
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-xl shadow-md">
+                <h3 className="font-bold mb-4">Resumen del Mes</h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span>Total ventas del mes:</span>
+                    {showPrice(summary?.monthTotal || 0)}
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>Total efectivo del mes:</span>
+                    {showPrice(summary?.monthCash || 0)}
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Ventas del mes:</span>
+                    <span className="font-bold">{summary?.monthSalesCount}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {isOpen && (
+              <div className="bg-white rounded-xl shadow-md overflow-hidden">
+                <div className="p-4 border-b flex justify-between items-center bg-gray-50">
+                  <h3 className="font-bold">Ventas del Día</h3>
+                  <span className="text-sm text-gray-500">{todaySales.length} ventas</span>
+                </div>
+                <div className="overflow-x-auto max-h-96">
+                  <table className="w-full text-sm">
+                    <thead className="bg-gray-50 sticky top-0">
+                      <tr className="text-left">
+                        <th className="p-3">N°</th>
+                        <th className="p-3">Hora</th>
+                        <th className="p-3">Cliente</th>
+                        <th className="p-3">Pago</th>
+                        <th className="p-3 text-right">Total</th>
+                        <th className="p-3 text-center">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {todaySales.map((sale) => (
+                        <tr key={sale._id} className="border-t hover:bg-gray-50">
+                          <td className="p-3 font-mono text-xs">{sale.invoiceNumber}</td>
+                          <td className="p-3">{sale.createdAt ? format(new Date(sale.createdAt), 'HH:mm') : '-'}</td>
+                          <td className="p-3">{sale.clientName || 'Consumidor Final'}</td>
+                          <td className="p-3">
+                            <span className="flex items-center gap-1">
+                              {getPaymentIcon(sale.paymentMethod)}
+                              {sale.paymentMethod === 'cash' && 'Efectivo'}
+                              {sale.paymentMethod === 'card' && 'Tarjeta'}
+                              {sale.paymentMethod === 'transfer' && 'Transfer.'}
+                              {sale.paymentMethod === 'credit' && 'Crédito'}
+                            </span>
+                          </td>
+                          <td className="p-3 text-right font-bold">${sale.total.toFixed(2)}</td>
+                          <td className="p-3 text-center">
+                            <div className="flex justify-center gap-2">
+                              <button
+                                onClick={() => setSelectedSale(sale)}
+                                className="p-1.5 bg-blue-100 text-blue-600 rounded hover:bg-blue-200"
+                                title="Ver detalle"
+                              >
+                                <Eye size={16} />
+                              </button>
+                              <button
+                                onClick={() => handleCancelSale(sale)}
+                                disabled={actionLoading}
+                                className="p-1.5 bg-red-100 text-red-600 rounded hover:bg-red-200 disabled:opacity-50"
+                                title="Cancelar venta"
+                              >
+                                <X size={16} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                      {todaySales.length === 0 && (
+                        <tr>
+                          <td colSpan={6} className="p-8 text-center text-gray-400">No hay ventas hoy</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      {selectedSale && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
+            <div className="p-4 border-b flex justify-between items-center bg-gray-50 rounded-t-xl">
+              <h3 className="font-bold">Detalle de Venta</h3>
+              <button onClick={() => setSelectedSale(null)} className="text-gray-500 hover:text-gray-700">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-4 space-y-4">
+              <div className="flex justify-between">
+                <span className="text-gray-500">Factura:</span>
+                <span className="font-mono font-bold">{selectedSale.invoiceNumber}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Fecha/Hora:</span>
+                <span>{selectedSale.createdAt ? format(new Date(selectedSale.createdAt), 'dd/MM/yyyy HH:mm') : '-'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Cliente:</span>
+                <span>{selectedSale.clientName || 'Consumidor Final'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Método de Pago:</span>
+                <span className="flex items-center gap-1">
+                  {getPaymentIcon(selectedSale.paymentMethod)}
+                  {selectedSale.paymentMethod === 'cash' && 'Efectivo'}
+                  {selectedSale.paymentMethod === 'card' && 'Tarjeta'}
+                  {selectedSale.paymentMethod === 'transfer' && 'Transferencia'}
+                  {selectedSale.paymentMethod === 'credit' && 'Crédito'}
+                </span>
+              </div>
+              <div className="border-t pt-4">
+                <h4 className="font-medium mb-2">Productos</h4>
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {selectedSale.items.map((item, idx) => (
+                    <div key={idx} className="flex justify-between text-sm">
+                      <span>{item.quantity}x {item.productName}</span>
+                      <span className="font-medium">${item.subtotal.toFixed(2)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="border-t pt-4 flex justify-between items-center">
+                <span className="font-bold text-lg">Total:</span>
+                <span className="font-bold text-xl text-green-600">${selectedSale.total.toFixed(2)}</span>
+              </div>
+            </div>
+            <div className="p-4 border-t bg-gray-50 rounded-b-xl">
+              <button
+                onClick={() => setSelectedSale(null)}
+                className="w-full bg-gray-200 text-gray-700 py-2 rounded-lg font-medium hover:bg-gray-300 transition"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPreCloseModal && register && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-screen overflow-hidden flex flex-col">
+            <div className="p-4 border-b flex justify-between items-center bg-blue-600 text-white">
+              <h3 className="font-bold text-lg flex items-center gap-2">
+                <Eye size={24} />
+                Verificación de Cierre de Caja
+              </h3>
+              <button 
+                onClick={() => setShowPreCloseModal(false)} 
+                className="text-white hover:text-gray-200"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                <h4 className="font-bold text-green-800 mb-2">Resumen de Ventas del Día</h4>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-sm">
+                  <div className="bg-white p-2 rounded text-center">
+                    <p className="text-gray-500">Efectivo</p>
+                    <p className="font-bold text-green-600">${register.cashSales.toFixed(2)}</p>
+                  </div>
+                  <div className="bg-white p-2 rounded text-center">
+                    <p className="text-gray-500">Tarjeta</p>
+                    <p className="font-bold text-blue-600">${register.cardSales.toFixed(2)}</p>
+                  </div>
+                  <div className="bg-white p-2 rounded text-center">
+                    <p className="text-gray-500">Transferencia</p>
+                    <p className="font-bold text-purple-600">${register.transferSales.toFixed(2)}</p>
+                  </div>
+                  <div className="bg-white p-2 rounded text-center">
+                    <p className="text-gray-500">Crédito</p>
+                    <p className="font-bold text-orange-600">${register.creditSales.toFixed(2)}</p>
+                  </div>
+                  <div className="bg-green-600 text-white p-2 rounded text-center">
+                    <p className="text-green-100">TOTAL</p>
+                    <p className="font-bold">${register.totalSales.toFixed(2)}</p>
+                  </div>
+                </div>
+                <p className="text-center text-sm text-green-700 mt-2">
+                  {register.salesCount} ventas registradas
+                </p>
+              </div>
+
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <h4 className="font-bold text-blue-800 mb-2">Control de Efectivo</h4>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-blue-600">Dinero Inicial:</span>
+                    <span className="font-bold">${register.openingAmount.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-blue-600">Ventas Efectivo:</span>
+                    <span className="font-bold">${register.cashSales.toFixed(2)}</span>
+                  </div>
+                  <div className="col-span-2 border-t border-blue-300 pt-2 flex justify-between">
+                    <span className="text-blue-800 font-bold">Dinero Esperado en Caja:</span>
+                    <span className="font-bold text-blue-700">${register.totalCash.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="flex justify-between items-center mb-3">
+                  <h4 className="font-bold text-gray-800">Detalle de Ventas</h4>
+                  <span className="text-sm text-gray-500">{todaySales.length} ventas</span>
+                </div>
+                <div className="overflow-x-auto max-h-64 overflow-y-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-white sticky top-0">
+                      <tr className="text-left">
+                        <th className="p-2">Factura</th>
+                        <th className="p-2">Hora</th>
+                        <th className="p-2">Cliente</th>
+                        <th className="p-2">Pago</th>
+                        <th className="p-2 text-right">Total</th>
+                        <th className="p-2 text-center">Acción</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {todaySales.map((sale) => (
+                        <tr key={sale._id} className="border-t">
+                          <td className="p-2 font-mono text-xs">{sale.invoiceNumber}</td>
+                          <td className="p-2">{sale.createdAt ? format(new Date(sale.createdAt), 'HH:mm') : '-'}</td>
+                          <td className="p-2">{sale.clientName || 'Consumidor Final'}</td>
+                          <td className="p-2">
+                            <span className="flex items-center gap-1">
+                              {getPaymentIcon(sale.paymentMethod)}
+                              <span className="text-xs">
+                                {sale.paymentMethod === 'cash' && 'Efectivo'}
+                                {sale.paymentMethod === 'card' && 'Tarjeta'}
+                                {sale.paymentMethod === 'transfer' && 'Transfer.'}
+                                {sale.paymentMethod === 'credit' && 'Crédito'}
+                              </span>
+                            </span>
+                          </td>
+                          <td className="p-2 text-right font-bold">${sale.total.toFixed(2)}</td>
+                          <td className="p-2 text-center">
+                            <button
+                              onClick={() => handleCancelSaleFromModal(sale)}
+                              disabled={actionLoading}
+                              className="p-1.5 bg-red-100 text-red-600 rounded hover:bg-red-200 disabled:opacity-50 text-xs"
+                              title="Cancelar venta"
+                            >
+                              <X size={14} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                      {todaySales.length === 0 && (
+                        <tr>
+                          <td colSpan={6} className="p-4 text-center text-gray-400">No hay ventas</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
+                <h4 className="font-bold text-amber-800 mb-3">Confirmar Cierre de Caja</h4>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Dinero REAL en caja
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={preCloseClosingAmount}
+                        onChange={(e) => setPreCloseClosingAmount(Number(e.target.value))}
+                        className="w-full border border-amber-300 rounded-lg pl-7 pr-4 py-2 focus:ring-2 focus:ring-amber-500"
+                        placeholder="0.00"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Diferencia:</span>
+                    <span className={`font-bold ${preCloseClosingAmount >= register.totalCash ? 'text-green-600' : 'text-red-600'}`}>
+                      ${(preCloseClosingAmount - register.totalCash).toFixed(2)}
+                    </span>
+                  </div>
+                  <textarea
+                    value={preCloseNotes}
+                    onChange={(e) => setPreCloseNotes(e.target.value)}
+                    rows={2}
+                    placeholder="Notas del cierre (opcional)"
+                    className="w-full border rounded-lg px-4 py-2 text-sm resize-none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 border-t bg-gray-50 flex gap-3">
+              <button
+                onClick={() => setShowPreCloseModal(false)}
+                className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-300 transition"
+              >
+                Volver
+              </button>
+              <button
+                onClick={handlePreCloseSubmit}
+                disabled={actionLoading}
+                className="flex-1 bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 disabled:opacity-50 transition"
+              >
+                {actionLoading ? "Cerrando..." : "✓ Confirmar Cierre"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CashRegisterPage;
