@@ -229,7 +229,7 @@ Este proyecto es software propietario. Todos los derechos reservados.
 **Nelson Sosa**
 
 - GitHub: [@Nelson-Sosa](https://github.com/Nelson-Sosa)
-- LinkedIn: [Nelson Sosa](https://linkedin.com/in/nelsonsosa)
+- LinkedIn: [Nelson Sosa](https://www.linkedin.com/in/nelson-sosa-b9b901398/?skipRedirect=true)
 
 ---
 
