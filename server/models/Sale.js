@@ -13,6 +13,7 @@ const saleSchema = new mongoose.Schema({
   invoiceNumber: { type: String, unique: true },
   client:        { type: mongoose.Schema.Types.ObjectId, ref: 'Client' },
   clientName:    { type: String, default: 'Cliente General' },
+  clientRuc:     { type: String, default: '' },
   items:         [saleItemSchema],
   subtotal:      { type: Number, required: true },
   discount:      { type: Number, default: 0 },

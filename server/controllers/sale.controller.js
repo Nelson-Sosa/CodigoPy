@@ -33,9 +33,14 @@ exports.getAll = async (req, res) => {
 exports.getById = async (req, res) => {
   try {
     const sale = await Sale.findById(req.params.id)
-      .populate('client')
+      .populate('client', 'name ruc phone email address city')
       .populate('createdBy', 'name email');
     if (!sale) return res.status(404).json({ message: 'Venta no encontrada' });
+    
+    if (sale.client?.ruc) {
+      sale.clientRuc = sale.client.ruc;
+    }
+    
     res.json(sale);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -77,16 +82,21 @@ exports.create = async (req, res) => {
     const total  = subtotal - Number(discount);
     const profit = total - totalCost;
 
-    // Obtener nombre del cliente
+    // Obtener nombre y RUC del cliente
     let clientName = 'Cliente General';
+    let clientRuc = '';
     if (clientId) {
       const clientDoc = await Client.findById(clientId);
-      if (clientDoc) clientName = clientDoc.name;
+      if (clientDoc) {
+        clientName = clientDoc.name;
+        clientRuc = clientDoc.ruc || '';
+      }
     }
 
     const sale = await Sale.create({
       client: clientId || null,
       clientName,
+      clientRuc,
       items: saleItems,
       subtotal,
       discount: Number(discount),
