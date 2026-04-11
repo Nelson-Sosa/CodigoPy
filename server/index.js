@@ -13,9 +13,21 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Health check público (sin auth)
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+// Health check público (sin auth) - verifica API y DB
+app.get('/health', async (req, res) => {
+  try {
+    const mongoose = require('mongoose');
+    const dbState = mongoose.connection.readyState;
+    const dbStatus = dbState === 1 ? 'connected' : 'disconnected';
+    
+    res.json({ 
+      status: 'ok', 
+      database: dbStatus,
+      timestamp: new Date().toISOString() 
+    });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
 });
 
 // RUTAS - primero las rutas
