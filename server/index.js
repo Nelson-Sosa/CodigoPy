@@ -18,19 +18,7 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Manejo de rutas no encontradas
-app.use((req, res, next) => {
-  res.status(404).json({ message: 'Ruta no encontrada' });
-});
-
-// Manejo de errores global
-app.use((err, req, res, next) => {
-  console.error('Error:', err.message);
-  res.status(err.status || 500).json({ 
-    message: err.message || 'Error interno del servidor'
-  });
-});
-
+// RUTAS - primero las rutas
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/products', require('./routes/product.routes'));
 app.use('/api/categories', require('./routes/category.routes'));
@@ -42,6 +30,19 @@ app.use('/api/suppliers', require('./routes/supplier.routes'));
 app.use('/api/purchases', require('./routes/purchase.routes'));
 app.use('/api/settings', require('./routes/settings.routes'));
 app.use('/api/cash-register', require('./routes/cashRegister.routes'));
+
+// Manejo de rutas no encontradas - al final
+app.use((req, res) => {
+  res.status(404).json({ message: 'Ruta no encontrada' });
+});
+
+// Manejo de errores global - al final
+app.use((err, req, res, next) => {
+  console.error('Error:', err.message);
+  res.status(err.status || 500).json({ 
+    message: err.message || 'Error interno del servidor'
+  });
+});
 
 const PORT = process.env.PORT || 5000;
 
