@@ -1,8 +1,8 @@
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { productService } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
-import { Package, ArrowDownCircle, ArrowUpCircle, Settings, Plus, Minus, Lock } from "lucide-react";
+import { Package, ArrowDownCircle, ArrowUpCircle, Settings, Plus, Minus, Lock, Search } from "lucide-react";
 const MOTIVOS_SALIDA = [
     "Devolución a proveedor",
     "Merma/Baja calidad",
@@ -26,6 +26,10 @@ const MovementForm = ({ onMovementSaved }) => {
     const [productLoading, setProductLoading] = useState(true);
     const [error, setError] = useState("");
     const [productId, setProductId] = useState("");
+    const [productSearch, setProductSearch] = useState("");
+    const [showDropdown, setShowDropdown] = useState(false);
+    const productInputRef = useRef(null);
+    const dropdownRef = useRef(null);
     const [type, setType] = useState("entrada");
     const [quantity, setQuantity] = useState("");
     const [reason, setReason] = useState("");
@@ -50,6 +54,24 @@ const MovementForm = ({ onMovementSaved }) => {
         };
         fetchProducts();
     }, []);
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+                setShowDropdown(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+    const filteredProducts = products.filter(p => p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
+        p.sku.toLowerCase().includes(productSearch.toLowerCase())).slice(0, 8);
+    const selectProduct = (product) => {
+        setProductId(product.id);
+        setProductSearch("");
+        setShowDropdown(false);
+        setError("");
+        productInputRef.current?.focus();
+    };
     const selectedProduct = products.find(p => p.id === productId);
     const mapTypeToBackend = (t) => {
         if (t === "entrada")
@@ -105,10 +127,16 @@ const MovementForm = ({ onMovementSaved }) => {
             return MOTIVOS_SALIDA;
         return [...MOTIVOS_ENTRADA, ...MOTIVOS_SALIDA];
     };
-    return (_jsxs("div", { className: "bg-white rounded-lg shadow-md border overflow-hidden", children: [_jsx("div", { className: "bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4", children: _jsxs("h2", { className: "text-xl font-bold text-white flex items-center gap-2", children: [_jsx(Package, { size: 24 }), "Registrar Movimiento de Inventario"] }) }), _jsxs("div", { className: "p-6 space-y-6", children: [error && (_jsx("div", { className: "bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg", children: error })), _jsxs("div", { className: "grid grid-cols-1 lg:grid-cols-2 gap-6", children: [_jsxs("div", { className: "space-y-4", children: [_jsxs("div", { children: [_jsxs("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: ["Producto ", _jsx("span", { className: "text-red-500", children: "*" })] }), productLoading ? (_jsx("div", { className: "border rounded-lg p-3 bg-gray-50 animate-pulse h-12" })) : (_jsxs("select", { value: productId, onChange: e => {
-                                                    setProductId(e.target.value);
-                                                    setError("");
-                                                }, className: "w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500", children: [_jsx("option", { value: "", children: "Seleccione un producto" }), products.map(p => (_jsxs("option", { value: p.id, children: [p.sku, " - ", p.name, " (Stock: ", p.stock, ")"] }, p.id)))] }))] }), selectedProduct && (_jsxs("div", { className: "bg-gray-50 rounded-lg p-4 border", children: [_jsx("h3", { className: "font-semibold text-gray-800 mb-3", children: "Informaci\u00F3n del Producto" }), _jsxs("div", { className: "grid grid-cols-2 gap-3 text-sm", children: [_jsxs("div", { children: [_jsx("span", { className: "text-gray-500", children: "SKU:" }), _jsx("p", { className: "font-medium", children: selectedProduct.sku })] }), _jsxs("div", { children: [_jsx("span", { className: "text-gray-500", children: "Stock Actual:" }), _jsxs("p", { className: "font-bold text-lg", children: [selectedProduct.stock, " unidades"] })] }), _jsxs("div", { children: [_jsx("span", { className: "text-gray-500", children: "Precio Venta:" }), _jsxs("p", { className: "font-medium", children: ["$", selectedProduct.salePrice?.toFixed(2) || "N/A"] })] }), _jsxs("div", { children: [_jsx("span", { className: "text-gray-500", children: "Precio Costo:" }), _jsxs("p", { className: "font-medium", children: ["$", selectedProduct.costPrice?.toFixed(2) || "N/A"] })] })] })] }))] }), _jsxs("div", { className: "space-y-4", children: [_jsxs("div", { children: [_jsxs("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: ["Tipo de Movimiento ", _jsx("span", { className: "text-red-500", children: "*" }), !canManualExit && (_jsx("span", { className: "text-xs text-gray-400 ml-2", children: "(Ventas desde m\u00F3dulo Ventas)" }))] }), _jsxs("div", { className: "grid grid-cols-3 gap-2", children: [_jsxs("button", { type: "button", onClick: () => { setType("entrada"); setReason(""); }, className: `flex flex-col items-center justify-center p-3 rounded-lg border-2 transition-all ${type === "entrada"
+    return (_jsxs("div", { className: "bg-white rounded-lg shadow-md border overflow-hidden", children: [_jsx("div", { className: "bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4", children: _jsxs("h2", { className: "text-xl font-bold text-white flex items-center gap-2", children: [_jsx(Package, { size: 24 }), "Registrar Movimiento de Inventario"] }) }), _jsxs("div", { className: "p-6 space-y-6", children: [error && (_jsx("div", { className: "bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg", children: error })), _jsxs("div", { className: "grid grid-cols-1 lg:grid-cols-2 gap-6", children: [_jsxs("div", { className: "space-y-4", children: [_jsxs("div", { ref: dropdownRef, children: [_jsxs("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: ["Producto ", _jsx("span", { className: "text-red-500", children: "*" })] }), productLoading ? (_jsx("div", { className: "border rounded-lg p-3 bg-gray-50 animate-pulse h-12" })) : (_jsx("div", { className: "relative", children: selectedProduct ? (_jsxs("div", { className: "border border-blue-300 rounded-lg p-3 bg-blue-50 flex items-center justify-between", children: [_jsxs("div", { children: [_jsx("p", { className: "font-medium text-blue-800", children: selectedProduct.name }), _jsxs("p", { className: "text-sm text-blue-600", children: ["SKU: ", selectedProduct.sku, " | Stock: ", selectedProduct.stock] })] }), _jsx("button", { type: "button", onClick: () => {
+                                                                setProductId("");
+                                                                setProductSearch("");
+                                                                setShowDropdown(true);
+                                                                productInputRef.current?.focus();
+                                                            }, className: "text-blue-500 hover:text-blue-700", children: "Cambiar" })] })) : (_jsxs("div", { className: "relative", children: [_jsx(Search, { size: 18, className: "absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" }), _jsx("input", { ref: productInputRef, type: "text", value: productSearch, onChange: e => {
+                                                                setProductSearch(e.target.value);
+                                                                setShowDropdown(true);
+                                                                setError("");
+                                                            }, onFocus: () => setShowDropdown(true), placeholder: "Buscar por nombre o SKU...", className: "w-full border border-gray-300 rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" }), showDropdown && (_jsx("div", { className: "absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-64 overflow-y-auto", children: filteredProducts.length === 0 ? (_jsx("div", { className: "p-3 text-gray-500 text-center", children: "No se encontraron productos" })) : (filteredProducts.map(p => (_jsxs("button", { type: "button", onClick: () => selectProduct(p), className: "w-full text-left px-4 py-3 hover:bg-blue-50 border-b last:border-b-0 transition-colors", children: [_jsx("p", { className: "font-medium text-gray-800", children: p.name }), _jsxs("div", { className: "flex items-center gap-3 text-sm text-gray-500", children: [_jsxs("span", { children: ["SKU: ", p.sku] }), _jsx("span", { children: "|" }), _jsxs("span", { className: p.stock <= 5 ? "text-red-500 font-medium" : "", children: ["Stock: ", p.stock] }), p.category && (_jsxs(_Fragment, { children: [_jsx("span", { children: "|" }), _jsx("span", { children: p.category.name })] }))] })] }, p.id)))) }))] })) }))] }), selectedProduct && (_jsxs("div", { className: "bg-gray-50 rounded-lg p-4 border", children: [_jsx("h3", { className: "font-semibold text-gray-800 mb-3", children: "Informaci\u00F3n del Producto" }), _jsxs("div", { className: "grid grid-cols-2 gap-3 text-sm", children: [_jsxs("div", { children: [_jsx("span", { className: "text-gray-500", children: "SKU:" }), _jsx("p", { className: "font-medium", children: selectedProduct.sku })] }), _jsxs("div", { children: [_jsx("span", { className: "text-gray-500", children: "Stock Actual:" }), _jsxs("p", { className: "font-bold text-lg", children: [selectedProduct.stock, " unidades"] })] }), _jsxs("div", { children: [_jsx("span", { className: "text-gray-500", children: "Precio Venta:" }), _jsxs("p", { className: "font-medium", children: ["$", selectedProduct.salePrice?.toFixed(2) || "N/A"] })] }), _jsxs("div", { children: [_jsx("span", { className: "text-gray-500", children: "Precio Costo:" }), _jsxs("p", { className: "font-medium", children: ["$", selectedProduct.costPrice?.toFixed(2) || "N/A"] })] })] })] }))] }), _jsxs("div", { className: "space-y-4", children: [_jsxs("div", { children: [_jsxs("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: ["Tipo de Movimiento ", _jsx("span", { className: "text-red-500", children: "*" }), !canManualExit && (_jsx("span", { className: "text-xs text-gray-400 ml-2", children: "(Ventas desde m\u00F3dulo Ventas)" }))] }), _jsxs("div", { className: "grid grid-cols-3 gap-2", children: [_jsxs("button", { type: "button", onClick: () => { setType("entrada"); setReason(""); }, className: `flex flex-col items-center justify-center p-3 rounded-lg border-2 transition-all ${type === "entrada"
                                                             ? "border-green-500 bg-green-50 text-green-700"
                                                             : "border-gray-200 hover:border-gray-300 text-gray-600"}`, children: [_jsx(ArrowDownCircle, { size: 24, className: "mb-1" }), _jsx("span", { className: "text-sm font-medium", children: "Entrada" })] }), canManualExit ? (_jsxs("button", { type: "button", onClick: () => { setType("salida"); setReason(""); }, className: `flex flex-col items-center justify-center p-3 rounded-lg border-2 transition-all ${type === "salida"
                                                             ? "border-red-500 bg-red-50 text-red-700"
@@ -126,11 +154,13 @@ const MovementForm = ({ onMovementSaved }) => {
                                                         ? selectedProduct.stock - Number(quantity)
                                                         : Number(quantity) })] })] })] })), _jsxs("div", { className: "flex justify-end gap-3 pt-4 border-t", children: [_jsx("button", { type: "button", onClick: () => {
                                     setProductId("");
+                                    setProductSearch("");
                                     setType("entrada");
                                     setQuantity("");
                                     setReason("");
                                     setNotes("");
                                     setError("");
+                                    setShowDropdown(false);
                                 }, className: "px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors", children: "Limpiar" }), _jsx("button", { onClick: handleSubmit, disabled: loading || !productId || quantity === "" || !reason, className: "px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2", children: loading ? (_jsxs(_Fragment, { children: [_jsxs("svg", { className: "animate-spin h-5 w-5", viewBox: "0 0 24 24", children: [_jsx("circle", { className: "opacity-25", cx: "12", cy: "12", r: "10", stroke: "currentColor", strokeWidth: "4", fill: "none" }), _jsx("path", { className: "opacity-75", fill: "currentColor", d: "M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" })] }), "Guardando..."] })) : (_jsxs(_Fragment, { children: [_jsx(Package, { size: 20 }), "Registrar Movimiento"] })) })] })] })] }));
 };
 export default MovementForm;

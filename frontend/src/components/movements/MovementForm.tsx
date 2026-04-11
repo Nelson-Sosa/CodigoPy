@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { productService } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
-import { Package, ArrowDownCircle, ArrowUpCircle, Settings, Plus, Minus, Lock } from "lucide-react";
+import { Package, ArrowDownCircle, ArrowUpCircle, Settings, Plus, Minus, Lock, Search } from "lucide-react";
 
 interface Props {
   onMovementSaved: () => void;
@@ -15,6 +15,7 @@ interface Product {
   stock: number;
   salePrice?: number;
   costPrice?: number;
+  category?: { name: string };
 }
 
 const MOTIVOS_SALIDA = [
@@ -43,6 +44,11 @@ const MovementForm = ({ onMovementSaved }: Props) => {
   const [error, setError] = useState("");
 
   const [productId, setProductId] = useState("");
+  const [productSearch, setProductSearch] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
+  const productInputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
   const [type, setType] = useState<"entrada" | "salida" | "ajuste">("entrada");
   const [quantity, setQuantity] = useState<number | "">("");
   const [reason, setReason] = useState("");
@@ -68,6 +74,29 @@ const MovementForm = ({ onMovementSaved }: Props) => {
 
     fetchProducts();
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filteredProducts = products.filter(p =>
+    p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
+    p.sku.toLowerCase().includes(productSearch.toLowerCase())
+  ).slice(0, 8);
+
+  const selectProduct = (product: Product) => {
+    setProductId(product.id);
+    setProductSearch("");
+    setShowDropdown(false);
+    setError("");
+    productInputRef.current?.focus();
+  };
 
   const selectedProduct = products.find(p => p.id === productId);
 
@@ -144,28 +173,85 @@ const MovementForm = ({ onMovementSaved }: Props) => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="space-y-4">
-            <div>
+            <div ref={dropdownRef}>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Producto <span className="text-red-500">*</span>
               </label>
               {productLoading ? (
                 <div className="border rounded-lg p-3 bg-gray-50 animate-pulse h-12"></div>
               ) : (
-                <select
-                  value={productId}
-                  onChange={e => {
-                    setProductId(e.target.value);
-                    setError("");
-                  }}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="">Seleccione un producto</option>
-                  {products.map(p => (
-                    <option key={p.id} value={p.id}>
-                      {p.sku} - {p.name} (Stock: {p.stock})
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  {selectedProduct ? (
+                    <div className="border border-blue-300 rounded-lg p-3 bg-blue-50 flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-blue-800">{selectedProduct.name}</p>
+                        <p className="text-sm text-blue-600">SKU: {selectedProduct.sku} | Stock: {selectedProduct.stock}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductId("");
+                          setProductSearch("");
+                          setShowDropdown(true);
+                          productInputRef.current?.focus();
+                        }}
+                        className="text-blue-500 hover:text-blue-700"
+                      >
+                        Cambiar
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="relative">
+                      <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                      <input
+                        ref={productInputRef}
+                        type="text"
+                        value={productSearch}
+                        onChange={e => {
+                          setProductSearch(e.target.value);
+                          setShowDropdown(true);
+                          setError("");
+                        }}
+                        onFocus={() => setShowDropdown(true)}
+                        placeholder="Buscar por nombre o SKU..."
+                        className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                      {showDropdown && (
+                        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+                          {filteredProducts.length === 0 ? (
+                            <div className="p-3 text-gray-500 text-center">
+                              No se encontraron productos
+                            </div>
+                          ) : (
+                            filteredProducts.map(p => (
+                              <button
+                                key={p.id}
+                                type="button"
+                                onClick={() => selectProduct(p)}
+                                className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b last:border-b-0 transition-colors"
+                              >
+                                <p className="font-medium text-gray-800">{p.name}</p>
+                                <div className="flex items-center gap-3 text-sm text-gray-500">
+                                  <span>SKU: {p.sku}</span>
+                                  <span>|</span>
+                                  <span className={p.stock <= 5 ? "text-red-500 font-medium" : ""}>
+                                    Stock: {p.stock}
+                                  </span>
+                                  {p.category && (
+                                    <>
+                                      <span>|</span>
+                                      <span>{p.category.name}</span>
+                                    </>
+                                  )}
+                                </div>
+                              </button>
+                            ))
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               )}
             </div>
 
@@ -354,11 +440,13 @@ const MovementForm = ({ onMovementSaved }: Props) => {
             type="button"
             onClick={() => {
               setProductId("");
+              setProductSearch("");
               setType("entrada");
               setQuantity("");
               setReason("");
               setNotes("");
               setError("");
+              setShowDropdown(false);
             }}
             className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
           >
