@@ -70,6 +70,7 @@ interface HistoryItem {
 
 const CashRegisterPage = () => {
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [summary, setSummary] = useState<Summary | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [showHistory, setShowHistory] = useState(false);
@@ -111,6 +112,7 @@ const CashRegisterPage = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
+      setError(null);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
@@ -127,8 +129,9 @@ const CashRegisterPage = () => {
         (s: Sale) => new Date(s.createdAt) >= today && s.status !== 'cancelled'
       );
       setTodaySales(filteredSales);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error fetching data:", err);
+      setError(err.response?.data?.message || "Error al cargar los datos. Intenta de nuevo.");
     } finally {
       setLoading(false);
     }
@@ -253,6 +256,18 @@ const CashRegisterPage = () => {
           {showHistory ? "Ver Caja" : "Historial"}
         </button>
       </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          <p className="font-medium">{error}</p>
+          <button
+            onClick={fetchData}
+            className="mt-2 text-sm text-red-600 hover:text-red-800 underline"
+          >
+            Reintentar
+          </button>
+        </div>
+      )}
 
       {showHistory ? (
         <div className="bg-white rounded-xl shadow-md p-6">
