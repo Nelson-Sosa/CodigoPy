@@ -286,3 +286,19 @@ exports.reopen = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+exports.fixIndexes = async (req, res) => {
+  try {
+    const CashRegisterModel = require('../models/CashRegister');
+    await CashRegisterModel.collection.dropIndexes();
+    
+    await CashRegisterModel.collection.createIndex({ date: 1, user: 1 });
+    
+    res.json({ 
+      message: 'Índices corregidos exitosamente',
+      success: true 
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
