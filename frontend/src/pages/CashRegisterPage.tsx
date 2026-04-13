@@ -512,8 +512,8 @@ const CashRegisterPage = () => {
                       </div>
                     </div>
                     <CurrencyDisplay amount={register.totalCash} currency="USD" size="lg" />
-                    <CurrencyDisplay amount={register.totalCash * gsRate} currency="PYG" size="sm" showFlag={false} />
-                    <CurrencyDisplay amount={register.totalCash * arsRate} currency="ARS" size="sm" showFlag={false} />
+                    <CurrencyDisplay amount={register.totalCash * gsRate} currency="PYG" size="sm" />
+                    <CurrencyDisplay amount={register.totalCash * arsRate} currency="ARS" size="sm" />
                   </div>
 
                   <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
