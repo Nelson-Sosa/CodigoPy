@@ -3,6 +3,7 @@ export interface CurrencyConfig {
   name: string;
   symbol: string;
   flag: string;
+  flagUrl: string;
   locale: string;
   decimals: number;
 }
@@ -12,7 +13,8 @@ export const currencies: Record<string, CurrencyConfig> = {
     code: 'USD',
     name: 'Dólar',
     symbol: '$',
-    flag: '🇺🇸',
+    flag: 'US',
+    flagUrl: 'https://flagcdn.com/w40/us.png',
     locale: 'en-US',
     decimals: 2,
   },
@@ -20,7 +22,8 @@ export const currencies: Record<string, CurrencyConfig> = {
     code: 'PYG',
     name: 'Guaraní',
     symbol: 'Gs',
-    flag: '🇵🇾',
+    flag: 'PY',
+    flagUrl: 'https://flagcdn.com/w40/py.png',
     locale: 'es-PY',
     decimals: 0,
   },
@@ -28,7 +31,8 @@ export const currencies: Record<string, CurrencyConfig> = {
     code: 'ARS',
     name: 'Peso',
     symbol: 'AR$',
-    flag: '🇦🇷',
+    flag: 'AR',
+    flagUrl: 'https://flagcdn.com/w40/ar.png',
     locale: 'es-AR',
     decimals: 2,
   },
