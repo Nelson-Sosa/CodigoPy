@@ -1,27 +1,33 @@
 const CashRegister = require('../models/CashRegister');
 const Sale = require('../models/Sale');
 
-const getLocalToday = () => {
+const PY_OFFSET_HOURS = -4;
+
+const getPyDate = () => {
   const now = new Date();
-  const local = new Date(now.getTime() - 4 * 60 * 60 * 1000);
-  return new Date(local.getFullYear(), local.getMonth(), local.getDate());
+  return new Date(now.getTime() + PY_OFFSET_HOURS * 60 * 60 * 1000);
 };
 
-const getLocalStartOfDay = (date) => {
-  const local = new Date(date.getTime() - 4 * 60 * 60 * 1000);
-  return new Date(local.getFullYear(), local.getMonth(), local.getDate(), 0, 0, 0, 0);
+const getPyToday = () => {
+  const py = getPyDate();
+  return new Date(py.getUTCFullYear(), py.getUTCMonth(), py.getUTCDate());
 };
 
-const getLocalEndOfDay = (date) => {
-  const local = new Date(date.getTime() - 4 * 60 * 60 * 1000);
-  return new Date(local.getFullYear(), local.getMonth(), local.getDate(), 23, 59, 59, 999);
+const getPyStartOfDay = () => {
+  const py = getPyDate();
+  return new Date(Date.UTC(py.getUTCFullYear(), py.getUTCMonth(), py.getUTCDate(), Math.abs(PY_OFFSET_HOURS), 0, 0, 0));
+};
+
+const getPyEndOfDay = () => {
+  const py = getPyDate();
+  return new Date(Date.UTC(py.getUTCFullYear(), py.getUTCMonth(), py.getUTCDate(), Math.abs(PY_OFFSET_HOURS) + 24, 0, 0, -1));
 };
 
 exports.getToday = async (req, res) => {
   try {
-    const today = getLocalToday();
+    const pyToday = getPyToday();
     let cashRegister = await CashRegister.findOne({ 
-      date: today,
+      date: pyToday,
       user: req.user._id 
     });
 
@@ -38,10 +44,10 @@ exports.getToday = async (req, res) => {
 exports.open = async (req, res) => {
   try {
     const { openingAmount = 0 } = req.body;
-    const today = getLocalToday();
+    const pyToday = getPyToday();
 
     const existingOpen = await CashRegister.findOne({
-      date: today,
+      date: pyToday,
       user: req.user._id,
       status: 'open'
     });
@@ -51,7 +57,7 @@ exports.open = async (req, res) => {
     }
 
     const cashRegister = await CashRegister.create({
-      date: today,
+      date: pyToday,
       user: req.user._id,
       openingAmount,
       status: 'open',
@@ -67,7 +73,7 @@ exports.open = async (req, res) => {
 exports.close = async (req, res) => {
   try {
     const { closingAmount, notes } = req.body;
-    const today = getLocalToday();
+    const pyToday = getPyToday();
 
     const cashRegister = await CashRegister.findOne({
       date: today,
@@ -153,26 +159,28 @@ exports.getHistory = async (req, res) => {
 exports.getSummary = async (req, res) => {
   try {
     const now = new Date();
-    const localDate = new Date(now.getTime() - 4 * 60 * 60 * 1000);
-    const todayYear = localDate.getFullYear();
-    const todayMonth = localDate.getMonth();
-    const todayDay = localDate.getDate();
+    const pyOffset = -4 * 60;
+    const pyDate = new Date(now.getTime() + pyOffset * 60 * 1000);
     
-    const todayStart = new Date(Date.UTC(todayYear, todayMonth, todayDay, 4, 0, 0, 0));
-    const todayEnd = new Date(Date.UTC(todayYear, todayMonth, todayDay, 27, 59, 59, 999));
-    const startOfMonth = new Date(Date.UTC(todayYear, todayMonth, 1, 4, 0, 0, 0));
+    const todayYear = pyDate.getUTCFullYear();
+    const todayMonth = pyDate.getUTCMonth();
+    const todayDay = pyDate.getUTCDate();
     
-    const allTodayRegisters = await CashRegister.find({
+    const todayStart = new Date(Date.UTC(todayYear, todayMonth, todayDay, pyOffset / 60, 0, 0, 0));
+    const todayEnd = new Date(Date.UTC(todayYear, todayMonth, todayDay, pyOffset / 60 + 24, 0, 0, -1));
+    const startOfMonth = new Date(Date.UTC(todayYear, todayMonth, 1, pyOffset / 60, 0, 0, 0));
+    
+    const allRegisters = await CashRegister.find({
       user: req.user._id
-    }).sort({ date: -1 }).lean();
+    }).sort({ createdAt: -1 }).lean();
     
     let todayRegister = null;
-    for (const reg of allTodayRegisters) {
+    for (const reg of allRegisters) {
       const regDate = new Date(reg.date);
-      const regLocalDate = new Date(regDate.getTime() - 4 * 60 * 60 * 1000);
-      if (regLocalDate.getFullYear() === todayYear && 
-          regLocalDate.getMonth() === todayMonth && 
-          regLocalDate.getDate() === todayDay) {
+      const regPyDate = new Date(regDate.getTime() + pyOffset * 60 * 1000);
+      if (regPyDate.getUTCFullYear() === todayYear && 
+          regPyDate.getUTCMonth() === todayMonth && 
+          regPyDate.getUTCDate() === todayDay) {
         todayRegister = reg;
         break;
       }
