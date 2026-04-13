@@ -59,7 +59,7 @@ const ExchangeRateDisplay = ({ isAdmin = false, compact = false }: ExchangeRateD
     switch (source) {
       case 'manual': return 'bg-purple-100 text-purple-700';
       case 'api': return 'bg-blue-100 text-blue-700';
-      default: return 'bg-gray-100 text-gray-700';
+      default: return 'hidden';
     }
   };
 
@@ -162,7 +162,7 @@ const ExchangeRateDisplay = ({ isAdmin = false, compact = false }: ExchangeRateD
                     {getCurrencySymbol(currency)} {rate.toLocaleString('es-PY')}
                   </p>
                   <div className="flex items-center justify-between mt-2">
-                    {rateData?.source && (
+                    {rateData?.source && rateData.source !== 'default' && (
                       <span className={`text-xs px-2 py-0.5 rounded ${getSourceColor(rateData.source)}`}>
                         {rateData.source}
                       </span>
