@@ -1,24 +1,25 @@
 const CashRegister = require('../models/CashRegister');
 const Sale = require('../models/Sale');
 
-const toLocalDate = (date) => {
-  const offset = -4 * 60;
-  return new Date(date.getTime() + offset * 60 * 1000);
-};
-
-const getStartOfDay = (date) => {
-  const local = toLocalDate(date);
+const getLocalToday = () => {
+  const now = new Date();
+  const local = new Date(now.getTime() - 4 * 60 * 60 * 1000);
   return new Date(local.getFullYear(), local.getMonth(), local.getDate());
 };
 
-const getEndOfDay = (date) => {
-  const local = toLocalDate(date);
+const getLocalStartOfDay = (date) => {
+  const local = new Date(date.getTime() - 4 * 60 * 60 * 1000);
+  return new Date(local.getFullYear(), local.getMonth(), local.getDate(), 0, 0, 0, 0);
+};
+
+const getLocalEndOfDay = (date) => {
+  const local = new Date(date.getTime() - 4 * 60 * 60 * 1000);
   return new Date(local.getFullYear(), local.getMonth(), local.getDate(), 23, 59, 59, 999);
 };
 
 exports.getToday = async (req, res) => {
   try {
-    const today = getStartOfDay(new Date());
+    const today = getLocalToday();
     let cashRegister = await CashRegister.findOne({ 
       date: today,
       user: req.user._id 
@@ -37,7 +38,7 @@ exports.getToday = async (req, res) => {
 exports.open = async (req, res) => {
   try {
     const { openingAmount = 0 } = req.body;
-    const today = getStartOfDay(new Date());
+    const today = getLocalToday();
 
     const existing = await CashRegister.findOne({
       date: today,
@@ -65,7 +66,7 @@ exports.open = async (req, res) => {
 exports.close = async (req, res) => {
   try {
     const { closingAmount, notes } = req.body;
-    const today = getStartOfDay(new Date());
+    const today = getLocalToday();
 
     const cashRegister = await CashRegister.findOne({
       date: today,
@@ -77,8 +78,8 @@ exports.close = async (req, res) => {
       return res.status(400).json({ message: 'No hay caja abierta para hoy' });
     }
 
-    const startOfDay = getStartOfDay(new Date());
-    const endOfDay = getEndOfDay(new Date());
+    const startOfDay = getLocalStartOfDay(new Date());
+    const endOfDay = getLocalEndOfDay(new Date());
 
     const sales = await Sale.find({
       createdAt: { $gte: startOfDay, $lte: endOfDay },
@@ -151,15 +152,14 @@ exports.getHistory = async (req, res) => {
 exports.getSummary = async (req, res) => {
   try {
     const now = new Date();
-    
     const localDate = new Date(now.getTime() - 4 * 60 * 60 * 1000);
-    const todayStart = new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate());
-    todayStart.setHours(0, 0, 0, 0);
+    const todayYear = localDate.getFullYear();
+    const todayMonth = localDate.getMonth();
+    const todayDay = localDate.getDate();
     
-    const todayEnd = new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate());
-    todayEnd.setHours(23, 59, 59, 999);
-    
-    const startOfMonth = new Date(todayStart.getFullYear(), todayStart.getMonth(), 1);
+    const todayStart = new Date(todayYear, todayMonth, todayDay, 0, 0, 0, 0);
+    const todayEnd = new Date(todayYear, todayMonth, todayDay, 23, 59, 59, 999);
+    const startOfMonth = new Date(todayYear, todayMonth, 1, 0, 0, 0, 0);
     
     const todayRegister = await CashRegister.findOne({
       date: todayStart,
@@ -167,8 +167,13 @@ exports.getSummary = async (req, res) => {
     }).lean();
     
     let todayStatus = 'not_opened';
-    if (todayRegister) {
+    let openingAmount = 0;
+    
+    if (todayRegister && todayRegister.status) {
       todayStatus = todayRegister.status;
+      openingAmount = todayRegister.openingAmount || 0;
+    } else {
+      todayStatus = 'not_opened';
     }
 
     const todaySales = await Sale.find({
@@ -205,7 +210,6 @@ exports.getSummary = async (req, res) => {
     });
 
     const totalSales = cashSales + cardSales + transferSales + creditSales;
-    const openingAmount = todayRegister?.openingAmount || 0;
     const expectedCash = openingAmount + cashSales;
 
     res.json({
@@ -224,7 +228,6 @@ exports.getSummary = async (req, res) => {
       monthTotal,
       monthCash: monthCashSales,
       monthSalesCount: monthSales.length,
-      serverTime: new Date().toISOString(),
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -234,7 +237,7 @@ exports.getSummary = async (req, res) => {
 exports.reopen = async (req, res) => {
   try {
     const { openingAmount = 0 } = req.body;
-    const today = getStartOfDay(new Date());
+    const today = getLocalToday();
 
     const existing = await CashRegister.findOne({
       date: today,
