@@ -72,38 +72,37 @@ const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
   const styles = sizeStyles[size];
 
   const textColor = darkMode ? 'text-gray-100' : 'text-gray-700';
-  const symbolColor = darkMode ? 'text-gray-400' : 'text-gray-400';
+  const symbolColor = 'text-gray-400';
+
+  // 🔥 SOLUCIÓN CLAVE
+  const flagSrc = `${import.meta.env.BASE_URL}flags/${config.code}.svg`;
 
   return (
-    <div
-      className={`inline-flex items-center ${styles.gap} ${className}`}
-      style={{ display: 'inline-flex', visibility: 'visible' } as React.CSSProperties}
-    >
-      {showFlag !== false && (
-        <div
-          className={`${styles.flag} flex-shrink-0`}
-          style={{ display: 'block', visibility: 'visible' } as React.CSSProperties}
-        >
+    <div className={`inline-flex items-center ${styles.gap} ${className}`}>
+      {showFlag && (
+        <div className={`${styles.flag} flex-shrink-0`}>
           <img
-            src={`/flags/${config.code}.svg`}
+            src={flagSrc}
             alt={config.name}
             title={config.name}
             className="w-full h-full object-contain"
             style={{
-              display: 'block',
-              visibility: 'visible',
               minWidth: '16px',
               minHeight: '12px',
-            } as React.CSSProperties}
+            }}
             onError={(e) => {
-              (e.target as HTMLImageElement).style.display = 'none';
+              const target = e.target as HTMLImageElement;
+              // 🔁 fallback si falla
+              target.src = `${import.meta.env.BASE_URL}flags/us.svg`;
             }}
           />
         </div>
       )}
+
       <span className={`${styles.text} font-semibold ${textColor} whitespace-nowrap`}>
         {formattedAmount}
       </span>
+
       {currency !== 'USD' && (
         <span className={`${styles.text} ${symbolColor} whitespace-nowrap`}>
           {config.symbol}
@@ -131,13 +130,9 @@ export const CurrencyRow: React.FC<CurrencyRowProps> = ({
   const labelColor = darkMode ? 'text-gray-400' : 'text-gray-500';
 
   return (
-    <div
-      className="flex items-center justify-between"
-      style={{ display: 'flex', visibility: 'visible' } as React.CSSProperties}
-    >
-      {label && (
-        <span className={`text-sm ${labelColor}`}>{label}</span>
-      )}
+    <div className="flex items-center justify-between">
+      {label && <span className={`text-sm ${labelColor}`}>{label}</span>}
+
       <CurrencyDisplay
         amount={amount}
         currency={currency}
