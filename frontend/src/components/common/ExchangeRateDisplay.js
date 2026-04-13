@@ -24,13 +24,16 @@ const ExchangeRateDisplay = ({ isAdmin = false, compact = false }) => {
         if (!editingCurrency)
             return;
         setSaving(true);
-        const success = await updateRate(editingCurrency, editValue);
-        setSaving(false);
-        if (success) {
+        try {
+            await updateRate(editingCurrency, editValue);
             setEditingCurrency(null);
         }
-        else {
-            alert('Error al guardar. Intenta de nuevo.');
+        catch (err) {
+            const errorMsg = err?.response?.data?.message || err.message || 'Error al guardar';
+            alert(errorMsg);
+        }
+        finally {
+            setSaving(false);
         }
     };
     const handleCancel = () => {

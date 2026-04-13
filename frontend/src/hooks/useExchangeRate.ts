@@ -79,15 +79,14 @@ export const useExchangeRate = () => {
     }
   };
 
-  const updateRate = async (currency: string, rate: number): Promise<boolean> => {
+  const updateRate = async (currency: string, rate: number): Promise<void> => {
+    setLoading(true);
     try {
-      setLoading(true);
       await exchangeRateService.update({ targetCurrency: currency, rate });
       await fetchRates();
-      return true;
     } catch (err) {
       console.error('Error updating exchange rate:', err);
-      return false;
+      throw err;
     } finally {
       setLoading(false);
     }
