@@ -95,7 +95,8 @@ const CashRegisterPage = () => {
   const { gsRate, arsRate } = useExchangeRate();
 
   const isOpen = summary?.todayStatus === 'open';
-  const isClosed = summary?.todayStatus === 'closed';
+  const isClosedYesterday = summary?.todayStatus === 'closed';
+  const shouldShowOpenCaja = !isOpen && !isClosedYesterday;
   const register = summary?.todayRegister;
 
   const showPrice = (amount: number, className: string = "") => (
@@ -222,27 +223,6 @@ const CashRegisterPage = () => {
       alert(err.response?.data?.message || "Error al cancelar venta");
     } finally {
       setActionLoading(false);
-    }
-  };
-
-  const handleReopen = async () => {
-    if (!register) {
-      alert("No hay caja para reabrir");
-      return;
-    }
-
-    if (confirm("¿Reabrir caja?\n\nLa caja se reabrirá para continuar operando.\nPodrás cerrarla nuevamente al final del día.")) {
-      setActionLoading(true);
-      try {
-        const res = await cashRegisterService.reopen(openingAmount);
-        alert(res.data.message || "Caja reaberta exitosamente");
-        fetchData();
-        setOpeningAmount(0);
-      } catch (err: any) {
-        alert(err.response?.data?.message || "Error al reabrir caja");
-      } finally {
-        setActionLoading(false);
-      }
     }
   };
 
@@ -378,7 +358,7 @@ const CashRegisterPage = () => {
                 )}
               </div>
 
-              {!isOpen && !isClosed && (
+              {shouldShowOpenCaja && (
                 <div className="space-y-4">
                   <p className="text-gray-600">Ingresa el dinero inicial en caja</p>
                   <div>
@@ -441,70 +421,11 @@ const CashRegisterPage = () => {
                 </div>
               )}
 
-              {isClosed && register && (
+              {isClosedYesterday && (
                 <div className="space-y-4">
-                  <div className="bg-red-50 p-4 rounded-lg text-center">
-                    <p className="text-red-600 font-medium">Caja cerrada a las {register.closedAt ? format(new Date(register.closedAt), 'HH:mm') : '-'}</p>
-                    {register.reopenedAt && (
-                      <p className="text-orange-500 text-sm mt-1">
-                        ⚠️ Fue reopenida a las {register.reopenedAt ? format(new Date(register.reopenedAt), 'HH:mm') : '-'}
-                      </p>
-                    )}
-                  </div>
-                  <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
-                    <p className="text-orange-700 text-sm mb-3">¿Cerraste la caja por error?</p>
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-xs text-gray-600 mb-1">Dinero en caja ahora</label>
-                        <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
-                          <input
-                            type="number"
-                            min="0"
-                            value={openingAmount}
-                            onChange={(e) => setOpeningAmount(Number(e.target.value))}
-                            className="w-full border border-orange-300 rounded-lg pl-7 pr-3 py-2 text-sm focus:ring-2 focus:ring-orange-500"
-                            placeholder="0.00"
-                          />
-                        </div>
-                      </div>
-                      <button
-                        onClick={handleReopen}
-                        disabled={actionLoading}
-                        className="w-full bg-orange-600 text-white py-2.5 rounded-lg font-semibold hover:bg-orange-700 disabled:opacity-50 transition flex items-center justify-center gap-2"
-                      >
-                        <Unlock size={18} />
-                        {actionLoading ? "Reabriendo..." : "Reabrir Caja"}
-                      </button>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="text-gray-500">Dinero Inicial</p>
-                      {showPrice(register.openingAmount)}
-                    </div>
-                    <div>
-                      <p className="text-gray-500">Dinero Real</p>
-                      {showPrice(register.closingAmount || 0)}
-                    </div>
-                    <div>
-                      <p className="text-gray-500">Diferencia</p>
-                      <p className={`font-bold ${(register.closingAmount! - register.expectedAmount!) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        <span className="inline-flex items-center gap-1">
-                          <FlagIcon code="py" />
-                          {((register.closingAmount! - register.expectedAmount!) * gsRate).toLocaleString("es-PY")}
-                        </span>
-                        <span className="text-gray-300 mx-2">|</span>
-                        <span className="inline-flex items-center gap-1">
-                          <FlagIcon code="ar" />
-                          {((register.closingAmount! - register.expectedAmount!) * arsRate).toLocaleString("es-AR")}
-                        </span>
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500">Ventas</p>
-                      <p className="font-bold">{register.salesCount}</p>
-                    </div>
+                  <div className="bg-green-50 p-4 rounded-lg text-center border-2 border-green-500">
+                    <p className="text-green-700 font-medium">✓ La caja del día anterior fue cerrada</p>
+                    <p className="text-green-600 text-sm mt-1">Listo para abrir nueva caja</p>
                   </div>
                 </div>
               )}
