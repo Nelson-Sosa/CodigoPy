@@ -27,7 +27,7 @@ const cashRegisterSchema = new mongoose.Schema({
   salesCount: { type: Number, default: 0 },
 }, { timestamps: true });
 
-cashRegisterSchema.index({ date: 1, user: 1 }, { unique: true });
+cashRegisterSchema.index({ date: 1, user: 1 });
 
 cashRegisterSchema.virtual('id').get(function () { return this._id.toString(); });
 cashRegisterSchema.set('toJSON', { virtuals: true });

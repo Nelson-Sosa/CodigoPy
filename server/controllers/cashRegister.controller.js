@@ -40,12 +40,13 @@ exports.open = async (req, res) => {
     const { openingAmount = 0 } = req.body;
     const today = getLocalToday();
 
-    const existing = await CashRegister.findOne({
+    const existingOpen = await CashRegister.findOne({
       date: today,
-      user: req.user._id
+      user: req.user._id,
+      status: 'open'
     });
 
-    if (existing && existing.status === 'open') {
+    if (existingOpen) {
       return res.status(400).json({ message: 'La caja ya está abierta para hoy' });
     }
 
