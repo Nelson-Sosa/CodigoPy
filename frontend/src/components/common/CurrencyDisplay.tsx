@@ -1,5 +1,5 @@
 import React from 'react';
-import { currencies, getCurrencyConfig, formatCurrency } from '../../utils/currencyConfig';
+import { getCurrencyConfig, formatCurrency } from '../../utils/currencyConfig';
 
 interface CurrencyDisplayProps {
   amount: number;
