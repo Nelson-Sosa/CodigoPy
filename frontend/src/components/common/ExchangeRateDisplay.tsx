@@ -10,7 +10,7 @@ interface ExchangeRateDisplayProps {
 const CURRENCIES = [
   {
     code: 'PYG',
-    name: 'Guaraní Paraguayo',
+    name: 'Guaraní',
     symbol: 'Gs.',
     flag: { from: 'us', to: 'py' },
     color: 'emerald',
@@ -26,9 +26,9 @@ const CURRENCIES = [
 
 const FlagIcon = ({ code }: { code: string }) => (
   <img
-    src={`https://flagcdn.com/24x18/${code}.png`}
+    src={`https://flagcdn.com/32x24/${code}.png`}
     alt={code.toUpperCase()}
-    className="inline-block"
+    className="w-8 h-6 rounded-sm shadow-sm"
     onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
   />
 );
@@ -64,7 +64,7 @@ const CurrencyCard = ({
       border: 'border-emerald-100',
       accent: 'text-emerald-600',
       rate: 'text-emerald-700',
-      hover: 'hover:border-emerald-300 hover:shadow-emerald-100',
+      hover: 'hover:border-emerald-300 hover:shadow-emerald-200',
       buttonBg: 'bg-emerald-600',
       buttonHover: 'hover:bg-emerald-700',
       ring: 'focus:ring-emerald-400',
@@ -74,7 +74,7 @@ const CurrencyCard = ({
       border: 'border-amber-100',
       accent: 'text-amber-600',
       rate: 'text-amber-700',
-      hover: 'hover:border-amber-300 hover:shadow-amber-100',
+      hover: 'hover:border-amber-300 hover:shadow-amber-200',
       buttonBg: 'bg-amber-600',
       buttonHover: 'hover:bg-amber-700',
       ring: 'focus:ring-amber-400',
@@ -86,43 +86,39 @@ const CurrencyCard = ({
   const formatDate = (dateStr: string) => {
     if (!dateStr) return 'Sin fecha';
     const date = new Date(dateStr);
-    return date.toLocaleString('es-PY', {
-      day: '2-digit',
-      month: 'short',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    return date.toLocaleDateString('es-PY', { day: '2-digit', month: 'short' });
   };
 
   return (
     <div
-      className={`relative ${c.bg} border-2 ${c.border} rounded-2xl p-6 transition-all duration-300 hover:shadow-lg ${c.hover} group`}
+      className={`
+        relative ${c.bg} border-2 ${c.border} rounded-2xl p-5
+        transition-all duration-200 ease-out
+        hover:shadow-lg ${c.hover} hover:scale-[1.02]
+        group flex flex-col justify-between
+        min-h-[160px] max-h-[180px]
+      `}
     >
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <FlagIcon code={currency.flag.from} />
-          <ArrowRight size={16} className={`${c.accent} transition-transform group-hover:translate-x-1`} />
+          <ArrowRight size={14} className={`${c.accent}`} />
           <FlagIcon code={currency.flag.to} />
         </div>
-        <span className="text-xs text-gray-400 font-medium">USD</span>
-      </div>
-
-      <div className="mb-2">
-        <p className="text-sm text-gray-500 font-medium">{currency.name}</p>
-        <p className="text-xs text-gray-400 font-mono">{currency.code}</p>
+        <span className="text-xs text-gray-400 font-medium uppercase">{currency.code}</span>
       </div>
 
       {isEditing ? (
-        <div className="space-y-3">
+        <div className="space-y-2">
           <div className="relative">
-            <span className={`absolute left-3 top-1/2 -translate-y-1/2 ${c.accent} font-semibold`}>
+            <span className={`absolute left-2 top-1/2 -translate-y-1/2 ${c.accent} font-semibold text-sm`}>
               {currency.symbol}
             </span>
             <input
               type="number"
               value={editValue}
               onChange={(e) => onEditChange(Number(e.target.value))}
-              className={`w-full pl-12 pr-4 py-3 text-2xl font-bold ${c.accent} bg-white border-2 ${c.border} rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 ${c.ring} transition-all`}
+              className={`w-full pl-10 pr-3 py-2 text-xl font-bold ${c.accent} bg-white border-2 ${c.border} rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-1 ${c.ring}`}
               autoFocus
             />
           </div>
@@ -130,39 +126,38 @@ const CurrencyCard = ({
             <button
               onClick={onSave}
               disabled={saving}
-              className={`flex-1 flex items-center justify-center gap-2 ${c.buttonBg} text-white py-2.5 rounded-xl font-medium ${c.buttonHover} transition-colors disabled:opacity-50`}
+              className={`flex-1 flex items-center justify-center gap-1 ${c.buttonBg} text-white py-1.5 rounded-lg text-sm font-medium ${c.buttonHover} disabled:opacity-50`}
             >
-              <Check size={16} />
-              {saving ? 'Guardando...' : 'Guardar'}
+              <Check size={12} />
+              {saving ? '...' : 'Guardar'}
             </button>
             <button
               onClick={onCancel}
-              className="px-4 py-2.5 bg-gray-100 text-gray-600 rounded-xl font-medium hover:bg-gray-200 transition-colors"
+              className="px-3 py-1.5 bg-gray-100 rounded-lg hover:bg-gray-200"
             >
-              <X size={16} />
+              <X size={12} />
             </button>
           </div>
         </div>
       ) : (
         <>
-          <div className="mb-4">
-            <p className={`text-3xl font-bold ${c.rate}`}>
+          <div>
+            <p className={`text-2xl font-bold ${c.rate}`}>
               {currency.symbol} {rate.toLocaleString('es-PY')}
             </p>
-            <p className="text-xs text-gray-400 mt-1">por 1 USD</p>
           </div>
 
-          <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-            <div className="flex items-center gap-1.5 text-xs text-gray-400">
-              <Clock size={12} />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1 text-xs text-gray-400">
+              <Clock size={10} />
               {formatDate(updatedAt)}
             </div>
             {isAdmin && (
               <button
                 onClick={onEdit}
-                className={`flex items-center gap-1 text-sm ${c.accent} hover:underline opacity-0 group-hover:opacity-100 transition-opacity`}
+                className={`flex items-center gap-1 text-xs ${c.accent} hover:underline opacity-0 group-hover:opacity-100 transition-opacity`}
               >
-                <Edit3 size={12} />
+                <Edit3 size={10} />
                 Editar
               </button>
             )}
@@ -207,18 +202,16 @@ const ExchangeRateDisplay = ({ isAdmin = false, compact = false }: ExchangeRateD
   if (compact) {
     return (
       <div className="flex items-center gap-4 text-sm">
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
           <FlagIcon code="us" />
-          <span className="text-gray-500">→</span>
+          <span className="text-gray-400">→</span>
           <FlagIcon code="py" />
-          <span className="text-gray-500">Gs:</span>
           <span className="font-semibold">{gsRate.toLocaleString('es-PY')}</span>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
           <FlagIcon code="us" />
-          <span className="text-gray-500">→</span>
+          <span className="text-gray-400">→</span>
           <FlagIcon code="ar" />
-          <span className="text-gray-500">$a:</span>
           <span className="font-semibold">{arsRate.toLocaleString('es-PY')}</span>
         </div>
         {loading && <RefreshCw size={14} className="animate-spin text-gray-400" />}
@@ -233,14 +226,14 @@ const ExchangeRateDisplay = ({ isAdmin = false, compact = false }: ExchangeRateD
   }));
 
   return (
-    <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-6 border border-slate-200">
-      <div className="flex items-center justify-between mb-6">
+    <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-5 border border-slate-200">
+      <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg shadow-blue-500/20">
-            <DollarSign size={20} className="text-white" />
+          <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg shadow-blue-500/20">
+            <DollarSign size={18} className="text-white" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-slate-800">Tipos de Cambio</h3>
+            <h3 className="text-base font-bold text-slate-800">Tipos de Cambio</h3>
             <p className="text-xs text-slate-500">Configurados manualmente</p>
           </div>
         </div>
@@ -255,7 +248,7 @@ const ExchangeRateDisplay = ({ isAdmin = false, compact = false }: ExchangeRateD
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {currencyData.map((currency) => (
           <CurrencyCard
             key={currency.code}
