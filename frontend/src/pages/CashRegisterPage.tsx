@@ -135,8 +135,9 @@ const CashRegisterPage = () => {
     try {
       setLoading(true);
       setError(null);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      const now = new Date();
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+      const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
 
       const [summaryRes, historyRes, salesRes] = await Promise.all([
         cashRegisterService.getSummary(),
@@ -145,9 +146,11 @@ const CashRegisterPage = () => {
       ]);
       setSummary(summaryRes.data);
       setHistory(historyRes.data.history || []);
-      const filteredSales = (salesRes.data.sales || salesRes.data || []).filter(
-        (s: Sale) => new Date(s.createdAt) >= today && s.status !== 'cancelled'
-      );
+      
+      const filteredSales = (salesRes.data.sales || salesRes.data || []).filter((s: Sale) => {
+        const saleDate = new Date(s.createdAt);
+        return saleDate >= todayStart && saleDate <= todayEnd && s.status !== 'cancelled';
+      });
       setTodaySales(filteredSales);
     } catch (err: any) {
       console.error("Error fetching data:", err);
@@ -500,123 +503,57 @@ const CashRegisterPage = () => {
             </div>
 
             <div className="space-y-6">
-              <div className="bg-white p-6 rounded-xl shadow-md">
-                <h3 className="font-bold mb-4">Ventas por Método de Pago</h3>
-                <div className="space-y-3">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <Banknote className="text-green-500" size={20} />
-                      <span>Efectivo</span>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
-                      <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="us" />
-                        <span className="font-bold text-green-600 text-sm">{formatPrice(register?.cashSales || 0)} US</span>
-                      </span>
-                      <span className="text-gray-300">|</span>
-                      <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="py" />
-                        <span className="text-gray-600">{((register?.cashSales || 0) * gsRate).toLocaleString("es-PY")} Py</span>
-                      </span>
-                      <span className="text-gray-300">|</span>
-                      <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="ar" />
-                        <span className="text-gray-600">{((register?.cashSales || 0) * arsRate).toLocaleString("es-AR")} $a</span>
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <CreditCard className="text-blue-500" size={20} />
-                      <span>Tarjeta</span>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
-                      <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="us" />
-                        <span className="font-bold text-green-600 text-sm">{formatPrice(register?.cardSales || 0)} US</span>
-                      </span>
-                      <span className="text-gray-300">|</span>
-                      <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="py" />
-                        <span className="text-gray-600">{((register?.cardSales || 0) * gsRate).toLocaleString("es-PY")} Py</span>
-                      </span>
-                      <span className="text-gray-300">|</span>
-                      <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="ar" />
-                        <span className="text-gray-600">{((register?.cardSales || 0) * arsRate).toLocaleString("es-AR")} $a</span>
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <ArrowRightLeft className="text-purple-500" size={20} />
-                      <span>Transferencia</span>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
-                      <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="us" />
-                        <span className="font-bold text-green-600 text-sm">{formatPrice(register?.transferSales || 0)} US</span>
-                      </span>
-                      <span className="text-gray-300">|</span>
-                      <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="py" />
-                        <span className="text-gray-600">{((register?.transferSales || 0) * gsRate).toLocaleString("es-PY")} Py</span>
-                      </span>
-                      <span className="text-gray-300">|</span>
-                      <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="ar" />
-                        <span className="text-gray-600">{((register?.transferSales || 0) * arsRate).toLocaleString("es-AR")} $a</span>
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <ShoppingCart className="text-orange-500" size={20} />
-                      <span>Crédito</span>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
-                      <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="us" />
-                        <span className="font-bold text-green-600 text-sm">{formatPrice(register?.creditSales || 0)} US</span>
-                      </span>
-                      <span className="text-gray-300">|</span>
-                      <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="py" />
-                        <span className="text-gray-600">{((register?.creditSales || 0) * gsRate).toLocaleString("es-PY")} Py</span>
-                      </span>
-                      <span className="text-gray-300">|</span>
-                      <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="ar" />
-                        <span className="text-gray-600">{((register?.creditSales || 0) * arsRate).toLocaleString("es-AR")} $a</span>
-                      </span>
-                    </div>
-                  </div>
-                  <div className="border-t pt-3 bg-green-50 -mx-4 px-4 py-2 rounded">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
-                      <span className="font-bold">TOTAL VENTAS</span>
-                      <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
-                        <span className="inline-flex items-center gap-0.5">
+              {isOpen && register && (
+                <div className="bg-white p-6 rounded-xl shadow-md">
+                  <h3 className="font-bold mb-4">Ventas por Método de Pago</h3>
+                  <div className="space-y-3">
+                    {[
+                      { label: 'Efectivo', amount: register.cashSales, color: 'text-green-500', bg: 'bg-green-50' },
+                      { label: 'Tarjeta', amount: register.cardSales, color: 'text-blue-500', bg: 'bg-blue-50' },
+                      { label: 'Transferencia', amount: register.transferSales, color: 'text-purple-500', bg: 'bg-purple-50' },
+                      { label: 'Crédito', amount: register.creditSales, color: 'text-orange-500', bg: 'bg-orange-50' },
+                    ].map((item) => (
+                      <div key={item.label} className={`flex items-center justify-between p-3 rounded-lg ${item.bg}`}>
+                        <div className="flex items-center gap-2">
+                          {item.label === 'Efectivo' && <Banknote size={20} className={item.color} />}
+                          {item.label === 'Tarjeta' && <CreditCard size={20} className={item.color} />}
+                          {item.label === 'Transferencia' && <ArrowRightLeft size={20} className={item.color} />}
+                          {item.label === 'Crédito' && <ShoppingCart size={20} className={item.color} />}
+                          <span className="font-medium text-sm">{item.label}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm font-semibold">
                           <FlagIcon code="us" />
-                          <span className="font-bold text-green-600 text-sm">{formatPrice(register?.totalSales || 0)} US</span>
-                        </span>
-                        <span className="text-gray-400">|</span>
-                        <span className="inline-flex items-center gap-0.5">
+                          <span>{item.amount.toFixed(2)} US</span>
+                          <span className="text-gray-300">|</span>
                           <FlagIcon code="py" />
-                          <span className="text-gray-600">{((register?.totalSales || 0) * gsRate).toLocaleString("es-PY")} Py</span>
-                        </span>
-                        <span className="text-gray-400">|</span>
-                        <span className="inline-flex items-center gap-0.5">
+                          <span>{(item.amount * gsRate).toLocaleString("es-PY")} Py</span>
+                          <span className="text-gray-300">|</span>
                           <FlagIcon code="ar" />
-                          <span className="text-gray-600">{((register?.totalSales || 0) * arsRate).toLocaleString("es-AR")} $a</span>
-                        </span>
+                          <span>{(item.amount * arsRate).toLocaleString("es-AR")} $a</span>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="border-t pt-3 bg-green-50 p-3 rounded-lg">
+                      <div className="flex items-center justify-between font-bold">
+                        <span>TOTAL VENTAS</span>
+                        <div className="flex items-center gap-2 text-sm">
+                          <FlagIcon code="us" />
+                          <span className="text-green-600">{register.totalSales.toFixed(2)} US</span>
+                          <span className="text-gray-300">|</span>
+                          <FlagIcon code="py" />
+                          <span>{(register.totalSales * gsRate).toLocaleString("es-PY")} Py</span>
+                          <span className="text-gray-300">|</span>
+                          <FlagIcon code="ar" />
+                          <span>{(register.totalSales * arsRate).toLocaleString("es-AR")} $a</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="text-center text-gray-500 text-sm">
-                    {register?.salesCount || 0} ventas hoy
+                    <div className="text-center text-gray-500 text-sm">
+                      {register.salesCount} ventas hoy
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
               <div className="bg-blue-50 p-6 rounded-xl border border-blue-200">
                 <h3 className="font-bold mb-3 flex items-center gap-2">
