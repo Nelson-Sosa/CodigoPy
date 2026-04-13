@@ -87,7 +87,7 @@ const CashRegisterPage = () => {
   const [openingAmount, setOpeningAmount] = useState(0);
   const [reopenAmount, setReopenAmount] = useState(0);
 
-  const { gsRate } = useExchangeRate();
+  const { gsRate, arsRate } = useExchangeRate();
 
   const isOpen = summary?.todayStatus === 'open';
   const isClosedYesterday = summary?.todayStatus === 'closed';
@@ -162,7 +162,7 @@ const CashRegisterPage = () => {
       setActionLoading(true);
       try {
         await cashRegisterService.reopen(reopenAmount);
-        alert("Caja reopen exitosamente");
+        alert("Caja reopenta exitosamente");
         fetchData();
         setReopenAmount(0);
       } catch (err: any) {
@@ -398,7 +398,11 @@ const CashRegisterPage = () => {
                         <span className="text-sm text-gray-500 font-medium">Caja Inicial</span>
                       </div>
                       <p className="text-2xl font-bold text-gray-900">${register.openingAmount.toFixed(2)}</p>
-                      <p className="text-xs text-gray-400 mt-1">{(register.openingAmount * gsRate).toLocaleString("es-PY")} Gs</p>
+                      <div className="flex gap-2 mt-1">
+                        <p className="text-xs text-gray-400">{(register.openingAmount * gsRate).toLocaleString("es-PY")} Gs</p>
+                        <span className="text-xs text-gray-300">|</span>
+                        <p className="text-xs text-gray-400">{(register.openingAmount * arsRate).toLocaleString("es-AR")} AR$</p>
+                      </div>
                     </div>
 
                     <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-5 hover:shadow-xl transition-all duration-300">
@@ -409,7 +413,11 @@ const CashRegisterPage = () => {
                         <span className="text-sm text-gray-500 font-medium">Efectivo</span>
                       </div>
                       <p className="text-2xl font-bold text-green-600">${register.cashSales.toFixed(2)}</p>
-                      <p className="text-xs text-gray-400 mt-1">{(register.cashSales * gsRate).toLocaleString("es-PY")} Gs</p>
+                      <div className="flex gap-2 mt-1">
+                        <p className="text-xs text-gray-400">{(register.cashSales * gsRate).toLocaleString("es-PY")} Gs</p>
+                        <span className="text-xs text-gray-300">|</span>
+                        <p className="text-xs text-gray-400">{(register.cashSales * arsRate).toLocaleString("es-AR")} AR$</p>
+                      </div>
                     </div>
 
                     <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-5 hover:shadow-xl transition-all duration-300">
@@ -420,7 +428,11 @@ const CashRegisterPage = () => {
                         <span className="text-sm text-gray-500 font-medium">Otros</span>
                       </div>
                       <p className="text-2xl font-bold text-purple-600">${(register.cardSales + register.transferSales + register.creditSales).toFixed(2)}</p>
-                      <p className="text-xs text-gray-400 mt-1">{((register.cardSales + register.transferSales + register.creditSales) * gsRate).toLocaleString("es-PY")} Gs</p>
+                      <div className="flex gap-2 mt-1">
+                        <p className="text-xs text-gray-400">{((register.cardSales + register.transferSales + register.creditSales) * gsRate).toLocaleString("es-PY")} Gs</p>
+                        <span className="text-xs text-gray-300">|</span>
+                        <p className="text-xs text-gray-400">{((register.cardSales + register.transferSales + register.creditSales) * arsRate).toLocaleString("es-AR")} AR$</p>
+                      </div>
                     </div>
 
                     <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl shadow-lg p-5 text-white">
@@ -431,7 +443,11 @@ const CashRegisterPage = () => {
                         <span className="text-sm text-indigo-100 font-medium">Total Ventas</span>
                       </div>
                       <p className="text-2xl font-bold">${register.totalSales.toFixed(2)}</p>
-                      <p className="text-xs text-indigo-200 mt-1">{register.salesCount} ventas</p>
+                      <div className="flex gap-2 mt-1">
+                        <p className="text-xs text-indigo-200">{(register.totalSales * gsRate).toLocaleString("es-PY")} Gs</p>
+                        <span className="text-xs text-indigo-300">|</span>
+                        <p className="text-xs text-indigo-200">{(register.totalSales * arsRate).toLocaleString("es-AR")} AR$</p>
+                      </div>
                     </div>
                   </div>
 
@@ -506,7 +522,11 @@ const CashRegisterPage = () => {
                       </div>
                     </div>
                     <p className="text-4xl font-bold mb-1">${register.totalCash.toFixed(2)}</p>
-                    <p className="text-blue-200 text-sm">{(register.totalCash * gsRate).toLocaleString("es-PY")} Gs</p>
+                    <div className="flex gap-3">
+                      <p className="text-blue-200 text-sm">{(register.totalCash * gsRate).toLocaleString("es-PY")} Gs</p>
+                      <span className="text-blue-300">|</span>
+                      <p className="text-blue-200 text-sm">{(register.totalCash * arsRate).toLocaleString("es-AR")} AR$</p>
+                    </div>
                   </div>
 
                   <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
