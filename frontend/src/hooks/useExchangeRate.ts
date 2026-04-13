@@ -22,29 +22,23 @@ export const useExchangeRate = () => {
   const fetchRates = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await exchangeRateService.getAll();
+      const res = await exchangeRateService.get();
+      const data = res.data;
       
-      const ratesMap: Record<string, ExchangeRateData> = {};
-      
-      if (res.data.rates && Array.isArray(res.data.rates)) {
-        res.data.rates.forEach((r: any) => {
-          ratesMap[r._id] = {
-            rate: r.rate,
-            source: r.source,
-            updatedAt: r.updatedAt,
-            expiresAt: r.expiresAt
-          };
-        });
-      }
-      
-      // Agregar rates por defecto si no existen
-      if (!ratesMap['PYG']) ratesMap['PYG'] = { rate: DEFAULT_RATES.PYG, source: 'default', updatedAt: new Date().toISOString() };
-      if (!ratesMap['ARS']) ratesMap['ARS'] = { rate: DEFAULT_RATES.ARS, source: 'default', updatedAt: new Date().toISOString() };
-      
-      setRates(ratesMap);
+      setRates({
+        'PYG': {
+          rate: data.gsRate || DEFAULT_RATES.PYG,
+          source: data.source || 'default',
+          updatedAt: data.updatedAt || new Date().toISOString()
+        },
+        'ARS': {
+          rate: data.arsRate || DEFAULT_RATES.ARS,
+          source: data.source || 'default',
+          updatedAt: data.updatedAt || new Date().toISOString()
+        }
+      });
     } catch (err) {
       console.error('Error fetching exchange rates:', err);
-      // Usar valores por defecto
       setRates({
         'PYG': { rate: DEFAULT_RATES.PYG, source: 'default', updatedAt: new Date().toISOString() },
         'ARS': { rate: DEFAULT_RATES.ARS, source: 'default', updatedAt: new Date().toISOString() }
