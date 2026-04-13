@@ -435,8 +435,8 @@ const CashRegisterPage = () => {
                         <span className="text-sm text-indigo-100 font-medium">Total Ventas</span>
                       </div>
                       <CurrencyDisplay amount={register.totalSales} currency="USD" size="md" />
-                      <CurrencyDisplay amount={register.totalSales * gsRate} currency="PYG" size="sm" showFlag={false} />
-                      <CurrencyDisplay amount={register.totalSales * arsRate} currency="ARS" size="sm" showFlag={false} />
+                      <CurrencyDisplay amount={register.totalSales * gsRate} currency="PYG" size="sm" />
+                      <CurrencyDisplay amount={register.totalSales * arsRate} currency="ARS" size="sm" />
                       <p className="text-xs text-indigo-200 mt-2">{register.salesCount} ventas</p>
                     </div>
                   </div>
