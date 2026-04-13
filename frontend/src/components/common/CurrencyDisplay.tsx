@@ -82,8 +82,7 @@ const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
         <div className="flex items-center gap-1">
           <img
             src={flagSrc}
-            alt={config.name}
-            title={config.name}
+            alt=""
             className={`${styles.flag} object-contain`}
             style={{
               minWidth: '16px',
