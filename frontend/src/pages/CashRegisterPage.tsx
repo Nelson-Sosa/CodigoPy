@@ -69,12 +69,11 @@ interface HistoryItem {
   salesCount: number;
 }
 
-const FlagIcon = ({ code, size = 16 }: { code: string; size?: number }) => (
+const FlagIcon = ({ code }: { code: string }) => (
   <img
-    src={`https://flagcdn.com/${size}x${Math.round(size * 0.75)}.png`}
+    src={`https://flagcdn.com/w40/${code}.png`}
     alt={code.toUpperCase()}
-    className="inline-block rounded-sm shadow-sm"
-    style={{ width: size, height: size * 0.75 }}
+    className="inline-block rounded-sm shadow-sm w-6 h-auto"
     onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
   />
 );
@@ -102,17 +101,17 @@ const CashRegisterPage = () => {
   const showPrice = (amount: number, className: string = "") => (
     <span className={`inline-flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs ${className}`}>
       <span className="inline-flex items-center gap-0.5">
-        <FlagIcon code="us" size={12} />
+        <FlagIcon code="us" />
         <span className="font-bold text-green-600 text-sm">{formatPrice(amount)} US</span>
       </span>
       <span className="text-gray-300">|</span>
       <span className="inline-flex items-center gap-0.5">
-        <FlagIcon code="py" size={12} />
+        <FlagIcon code="py" />
         <span className="text-gray-600">{(amount * gsRate).toLocaleString("es-PY")} Py</span>
       </span>
       <span className="text-gray-300">|</span>
       <span className="inline-flex items-center gap-0.5">
-        <FlagIcon code="ar" size={12} />
+        <FlagIcon code="ar" />
         <span className="text-gray-600">{(amount * arsRate).toLocaleString("es-AR")} $a</span>
       </span>
     </span>
@@ -481,12 +480,12 @@ const CashRegisterPage = () => {
                       <p className="text-gray-500">Diferencia</p>
                       <p className={`font-bold ${(register.closingAmount! - register.expectedAmount!) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                         <span className="inline-flex items-center gap-1">
-                          <FlagIcon code="py" size={14} />
+                          <FlagIcon code="py" />
                           {((register.closingAmount! - register.expectedAmount!) * gsRate).toLocaleString("es-PY")}
                         </span>
                         <span className="text-gray-300 mx-2">|</span>
                         <span className="inline-flex items-center gap-1">
-                          <FlagIcon code="ar" size={14} />
+                          <FlagIcon code="ar" />
                           {((register.closingAmount! - register.expectedAmount!) * arsRate).toLocaleString("es-AR")}
                         </span>
                       </p>
@@ -511,17 +510,17 @@ const CashRegisterPage = () => {
                     </div>
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
                       <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="us" size={12} />
+                        <FlagIcon code="us" />
                         <span className="font-bold text-green-600 text-sm">{formatPrice(register?.cashSales || 0)} US</span>
                       </span>
                       <span className="text-gray-300">|</span>
                       <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="py" size={12} />
+                        <FlagIcon code="py" />
                         <span className="text-gray-600">{(register?.cashSales || 0) * gsRate} Py</span>
                       </span>
                       <span className="text-gray-300">|</span>
                       <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="ar" size={12} />
+                        <FlagIcon code="ar" />
                         <span className="text-gray-600">{(register?.cashSales || 0) * arsRate} $a</span>
                       </span>
                     </div>
@@ -533,17 +532,17 @@ const CashRegisterPage = () => {
                     </div>
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
                       <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="us" size={12} />
+                        <FlagIcon code="us" />
                         <span className="font-bold text-green-600 text-sm">{formatPrice(register?.cardSales || 0)} US</span>
                       </span>
                       <span className="text-gray-300">|</span>
                       <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="py" size={12} />
+                        <FlagIcon code="py" />
                         <span className="text-gray-600">{(register?.cardSales || 0) * gsRate} Py</span>
                       </span>
                       <span className="text-gray-300">|</span>
                       <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="ar" size={12} />
+                        <FlagIcon code="ar" />
                         <span className="text-gray-600">{(register?.cardSales || 0) * arsRate} $a</span>
                       </span>
                     </div>
@@ -555,17 +554,17 @@ const CashRegisterPage = () => {
                     </div>
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
                       <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="us" size={12} />
+                        <FlagIcon code="us" />
                         <span className="font-bold text-green-600 text-sm">{formatPrice(register?.transferSales || 0)} US</span>
                       </span>
                       <span className="text-gray-300">|</span>
                       <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="py" size={12} />
+                        <FlagIcon code="py" />
                         <span className="text-gray-600">{(register?.transferSales || 0) * gsRate} Py</span>
                       </span>
                       <span className="text-gray-300">|</span>
                       <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="ar" size={12} />
+                        <FlagIcon code="ar" />
                         <span className="text-gray-600">{(register?.transferSales || 0) * arsRate} $a</span>
                       </span>
                     </div>
@@ -577,17 +576,17 @@ const CashRegisterPage = () => {
                     </div>
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
                       <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="us" size={12} />
+                        <FlagIcon code="us" />
                         <span className="font-bold text-green-600 text-sm">{formatPrice(register?.creditSales || 0)} US</span>
                       </span>
                       <span className="text-gray-300">|</span>
                       <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="py" size={12} />
+                        <FlagIcon code="py" />
                         <span className="text-gray-600">{(register?.creditSales || 0) * gsRate} Py</span>
                       </span>
                       <span className="text-gray-300">|</span>
                       <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="ar" size={12} />
+                        <FlagIcon code="ar" />
                         <span className="text-gray-600">{(register?.creditSales || 0) * arsRate} $a</span>
                       </span>
                     </div>
@@ -597,17 +596,17 @@ const CashRegisterPage = () => {
                       <span className="font-bold">TOTAL VENTAS</span>
                       <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
                         <span className="inline-flex items-center gap-0.5">
-                          <FlagIcon code="us" size={12} />
+                          <FlagIcon code="us" />
                           <span className="font-bold text-green-600 text-sm">{formatPrice(register?.totalSales || 0)} US</span>
                         </span>
                         <span className="text-gray-400">|</span>
                         <span className="inline-flex items-center gap-0.5">
-                          <FlagIcon code="py" size={12} />
+                          <FlagIcon code="py" />
                           <span className="text-gray-600">{(register?.totalSales || 0) * gsRate} Py</span>
                         </span>
                         <span className="text-gray-400">|</span>
                         <span className="inline-flex items-center gap-0.5">
-                          <FlagIcon code="ar" size={12} />
+                          <FlagIcon code="ar" />
                           <span className="text-gray-600">{(register?.totalSales || 0) * arsRate} $a</span>
                         </span>
                       </div>
@@ -629,17 +628,17 @@ const CashRegisterPage = () => {
                     <span className="text-blue-700">Dinero Inicial:</span>
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
                       <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="us" size={12} />
+                        <FlagIcon code="us" />
                         <span className="font-bold text-blue-800 text-sm">{formatPrice(register?.openingAmount || 0)} US</span>
                       </span>
                       <span className="text-gray-400">|</span>
                       <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="py" size={12} />
+                        <FlagIcon code="py" />
                         <span className="text-gray-600">{(register?.openingAmount || 0) * gsRate} Py</span>
                       </span>
                       <span className="text-gray-400">|</span>
                       <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="ar" size={12} />
+                        <FlagIcon code="ar" />
                         <span className="text-gray-600">{(register?.openingAmount || 0) * arsRate} $a</span>
                       </span>
                     </div>
@@ -648,17 +647,17 @@ const CashRegisterPage = () => {
                     <span className="text-blue-700">Ventas en Efectivo:</span>
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
                       <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="us" size={12} />
+                        <FlagIcon code="us" />
                         <span className="font-bold text-blue-800 text-sm">{formatPrice(register?.cashSales || 0)} US</span>
                       </span>
                       <span className="text-gray-400">|</span>
                       <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="py" size={12} />
+                        <FlagIcon code="py" />
                         <span className="text-gray-600">{(register?.cashSales || 0) * gsRate} Py</span>
                       </span>
                       <span className="text-gray-400">|</span>
                       <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="ar" size={12} />
+                        <FlagIcon code="ar" />
                         <span className="text-gray-600">{(register?.cashSales || 0) * arsRate} $a</span>
                       </span>
                     </div>
@@ -668,17 +667,17 @@ const CashRegisterPage = () => {
                       <span className="text-blue-800 font-medium">Dinero Esperado:</span>
                       <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
                         <span className="inline-flex items-center gap-0.5">
-                          <FlagIcon code="us" size={12} />
+                          <FlagIcon code="us" />
                           <span className="font-bold text-green-600 text-sm">{formatPrice(register?.totalCash || 0)} US</span>
                         </span>
                         <span className="text-gray-400">|</span>
                         <span className="inline-flex items-center gap-0.5">
-                          <FlagIcon code="py" size={12} />
+                          <FlagIcon code="py" />
                           <span className="text-gray-600">{(register?.totalCash || 0) * gsRate} Py</span>
                         </span>
                         <span className="text-gray-400">|</span>
                         <span className="inline-flex items-center gap-0.5">
-                          <FlagIcon code="ar" size={12} />
+                          <FlagIcon code="ar" />
                           <span className="text-gray-600">{(register?.totalCash || 0) * arsRate} $a</span>
                         </span>
                       </div>
@@ -862,7 +861,7 @@ const CashRegisterPage = () => {
                     <p className="text-gray-500">Efectivo</p>
                     <p className="font-bold text-green-600">
                       <span className="flex items-center justify-center gap-1">
-                        <FlagIcon code="us" size={12} />
+                        <FlagIcon code="us" />
                         {register.cashSales.toFixed(2)} US
                       </span>
                     </p>
@@ -871,7 +870,7 @@ const CashRegisterPage = () => {
                     <p className="text-gray-500">Tarjeta</p>
                     <p className="font-bold text-blue-600">
                       <span className="flex items-center justify-center gap-1">
-                        <FlagIcon code="us" size={12} />
+                        <FlagIcon code="us" />
                         {register.cardSales.toFixed(2)} US
                       </span>
                     </p>
@@ -880,7 +879,7 @@ const CashRegisterPage = () => {
                     <p className="text-gray-500">Transferencia</p>
                     <p className="font-bold text-purple-600">
                       <span className="flex items-center justify-center gap-1">
-                        <FlagIcon code="us" size={12} />
+                        <FlagIcon code="us" />
                         {register.transferSales.toFixed(2)} US
                       </span>
                     </p>
@@ -889,7 +888,7 @@ const CashRegisterPage = () => {
                     <p className="text-gray-500">Crédito</p>
                     <p className="font-bold text-orange-600">
                       <span className="flex items-center justify-center gap-1">
-                        <FlagIcon code="us" size={12} />
+                        <FlagIcon code="us" />
                         {register.creditSales.toFixed(2)} US
                       </span>
                     </p>
@@ -898,7 +897,7 @@ const CashRegisterPage = () => {
                     <p className="text-green-100">TOTAL</p>
                     <p className="font-bold">
                       <span className="flex items-center justify-center gap-1">
-                        <FlagIcon code="us" size={12} />
+                        <FlagIcon code="us" />
                         {register.totalSales.toFixed(2)} US
                       </span>
                     </p>
@@ -915,14 +914,14 @@ const CashRegisterPage = () => {
                   <div className="flex justify-between items-center">
                     <span className="text-blue-600">Dinero Inicial:</span>
                     <span className="inline-flex items-center gap-1">
-                      <FlagIcon code="us" size={12} />
+                      <FlagIcon code="us" />
                       <span className="font-bold">{register.openingAmount.toFixed(2)} US</span>
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-blue-600">Ventas Efectivo:</span>
                     <span className="inline-flex items-center gap-1">
-                      <FlagIcon code="us" size={12} />
+                      <FlagIcon code="us" />
                       <span className="font-bold">{register.cashSales.toFixed(2)} US</span>
                     </span>
                   </div>
@@ -931,17 +930,17 @@ const CashRegisterPage = () => {
                       <span className="text-blue-800 font-bold">Dinero Esperado:</span>
                       <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
                         <span className="inline-flex items-center gap-0.5">
-                          <FlagIcon code="us" size={12} />
+                          <FlagIcon code="us" />
                           <span className="font-bold text-green-600">{register.totalCash.toFixed(2)} US</span>
                         </span>
                         <span className="text-gray-300">|</span>
                         <span className="inline-flex items-center gap-0.5">
-                          <FlagIcon code="py" size={12} />
+                          <FlagIcon code="py" />
                           <span>{(register.totalCash * gsRate).toLocaleString("es-PY")} Py</span>
                         </span>
                         <span className="text-gray-300">|</span>
                         <span className="inline-flex items-center gap-0.5">
-                          <FlagIcon code="ar" size={12} />
+                          <FlagIcon code="ar" />
                           <span>{(register.totalCash * arsRate).toLocaleString("es-AR")} $a</span>
                         </span>
                       </div>
@@ -987,14 +986,14 @@ const CashRegisterPage = () => {
                           <td className="p-2 text-right">
                             <div className="flex flex-col items-end gap-0.5">
                               <span className="inline-flex items-center gap-0.5">
-                                <FlagIcon code="us" size={10} />
+                                <FlagIcon code="us" />
                                 <span className="font-bold text-green-600 text-sm">{sale.total.toFixed(2)} US</span>
                               </span>
                               <span className="inline-flex items-center gap-0.5 text-xs text-gray-500">
-                                <FlagIcon code="py" size={10} /> {(sale.total * gsRate).toLocaleString("es-PY")} Py
+                                <FlagIcon code="py" /> {(sale.total * gsRate).toLocaleString("es-PY")} Py
                               </span>
                               <span className="inline-flex items-center gap-0.5 text-xs text-gray-400">
-                                <FlagIcon code="ar" size={10} /> {(sale.total * arsRate).toLocaleString("es-AR")} $a
+                                <FlagIcon code="ar" /> {(sale.total * arsRate).toLocaleString("es-AR")} $a
                               </span>
                             </div>
                           </td>
