@@ -316,7 +316,7 @@ exports.forceCloseAll = async (req, res) => {
     const pyToday = getPyToday();
     
     const result = await CashRegister.updateMany(
-      { date: pyToday, user: req.user._id, status: 'open' },
+      { date: pyToday, status: 'open' },
       { 
         status: 'closed',
         closedAt: new Date(),
