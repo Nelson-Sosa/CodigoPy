@@ -511,7 +511,7 @@ const CashRegisterPage = () => {
                         <DollarSign size={24} />
                       </div>
                     </div>
-                    <p className="text-4xl font-bold mb-1">${register.totalCash.toFixed(2)}</p>
+                    <CurrencyDisplay amount={register.totalCash} currency="USD" size="lg" />
                     <CurrencyDisplay amount={register.totalCash * gsRate} currency="PYG" size="sm" showFlag={false} />
                     <CurrencyDisplay amount={register.totalCash * arsRate} currency="ARS" size="sm" showFlag={false} />
                   </div>
@@ -557,7 +557,7 @@ const CashRegisterPage = () => {
                           </div>
                           <span className="text-sm font-medium text-gray-700">Efectivo</span>
                         </div>
-                        <span className="font-bold text-green-600">${register.cashSales.toFixed(2)}</span>
+                        <CurrencyDisplay amount={register.cashSales} currency="USD" size="sm" />
                       </div>
                       <div className="flex items-center justify-between p-3 bg-blue-50 rounded-xl border border-blue-100">
                         <div className="flex items-center gap-3">
@@ -566,7 +566,7 @@ const CashRegisterPage = () => {
                           </div>
                           <span className="text-sm font-medium text-gray-700">Tarjeta</span>
                         </div>
-                        <span className="font-bold text-blue-600">${register.cardSales.toFixed(2)}</span>
+                        <CurrencyDisplay amount={register.cardSales} currency="USD" size="sm" />
                       </div>
                       <div className="flex items-center justify-between p-3 bg-purple-50 rounded-xl border border-purple-100">
                         <div className="flex items-center gap-3">
@@ -575,7 +575,7 @@ const CashRegisterPage = () => {
                           </div>
                           <span className="text-sm font-medium text-gray-700">Transferencia</span>
                         </div>
-                        <span className="font-bold text-purple-600">${register.transferSales.toFixed(2)}</span>
+                        <CurrencyDisplay amount={register.transferSales} currency="USD" size="sm" />
                       </div>
                       <div className="flex items-center justify-between p-3 bg-orange-50 rounded-xl border border-orange-100">
                         <div className="flex items-center gap-3">
@@ -584,7 +584,7 @@ const CashRegisterPage = () => {
                           </div>
                           <span className="text-sm font-medium text-gray-700">Credito</span>
                         </div>
-                        <span className="font-bold text-orange-600">${register.creditSales.toFixed(2)}</span>
+                        <CurrencyDisplay amount={register.creditSales} currency="USD" size="sm" />
                       </div>
                     </div>
                   </div>
@@ -594,11 +594,11 @@ const CashRegisterPage = () => {
                     <div className="space-y-3">
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600 text-sm">Total ventas:</span>
-                        <span className="font-bold text-gray-900">${(summary?.monthTotal || 0).toFixed(2)}</span>
+                        <CurrencyDisplay amount={summary?.monthTotal || 0} currency="USD" size="sm" />
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600 text-sm">Efectivo:</span>
-                        <span className="font-bold text-green-600">${(summary?.monthCash || 0).toFixed(2)}</span>
+                        <CurrencyDisplay amount={summary?.monthCash || 0} currency="USD" size="sm" />
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600 text-sm">Ventas:</span>
