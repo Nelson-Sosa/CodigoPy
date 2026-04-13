@@ -3,6 +3,7 @@ import { cashRegisterService, saleService } from "../services/api";
 import { DollarSign, Lock, Unlock, ShoppingCart, CreditCard, Banknote, ArrowRightLeft, History, X, Eye, TrendingUp } from "lucide-react";
 import { format } from "date-fns";
 import { useExchangeRate } from "../hooks/useExchangeRate";
+import CurrencyDisplay from "../components/common/CurrencyDisplay";
 
 interface SaleItem {
   productName: string;
@@ -398,8 +399,8 @@ const CashRegisterPage = () => {
                         <span className="text-sm text-gray-500 font-medium">Caja Inicial</span>
                       </div>
                       <p className="text-2xl font-bold text-gray-900">${register.openingAmount.toFixed(2)}</p>
-                      <p className="text-xs text-gray-400">{(register.openingAmount * gsRate).toLocaleString("es-PY")} Gs</p>
-                      <p className="text-xs text-gray-400">{(register.openingAmount * arsRate).toLocaleString("es-AR")} AR$</p>
+                      <CurrencyDisplay amount={register.openingAmount * gsRate} currency="PYG" size="sm" />
+                      <CurrencyDisplay amount={register.openingAmount * arsRate} currency="ARS" size="sm" />
                     </div>
 
                     <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-5 hover:shadow-xl transition-all duration-300">
@@ -410,8 +411,8 @@ const CashRegisterPage = () => {
                         <span className="text-sm text-gray-500 font-medium">Efectivo</span>
                       </div>
                       <p className="text-2xl font-bold text-green-600">${register.cashSales.toFixed(2)}</p>
-                      <p className="text-xs text-gray-400">{(register.cashSales * gsRate).toLocaleString("es-PY")} Gs</p>
-                      <p className="text-xs text-gray-400">{(register.cashSales * arsRate).toLocaleString("es-AR")} AR$</p>
+                      <CurrencyDisplay amount={register.cashSales * gsRate} currency="PYG" size="sm" />
+                      <CurrencyDisplay amount={register.cashSales * arsRate} currency="ARS" size="sm" />
                     </div>
 
                     <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-5 hover:shadow-xl transition-all duration-300">
@@ -422,8 +423,8 @@ const CashRegisterPage = () => {
                         <span className="text-sm text-gray-500 font-medium">Otros</span>
                       </div>
                       <p className="text-2xl font-bold text-purple-600">${(register.cardSales + register.transferSales + register.creditSales).toFixed(2)}</p>
-                      <p className="text-xs text-gray-400">{((register.cardSales + register.transferSales + register.creditSales) * gsRate).toLocaleString("es-PY")} Gs</p>
-                      <p className="text-xs text-gray-400">{((register.cardSales + register.transferSales + register.creditSales) * arsRate).toLocaleString("es-AR")} AR$</p>
+                      <CurrencyDisplay amount={(register.cardSales + register.transferSales + register.creditSales) * gsRate} currency="PYG" size="sm" />
+                      <CurrencyDisplay amount={(register.cardSales + register.transferSales + register.creditSales) * arsRate} currency="ARS" size="sm" />
                     </div>
 
                     <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl shadow-lg p-5 text-white">
@@ -509,8 +510,8 @@ const CashRegisterPage = () => {
                       </div>
                     </div>
                     <p className="text-4xl font-bold mb-1">${register.totalCash.toFixed(2)}</p>
-                    <p className="text-blue-200 text-sm">{(register.totalCash * gsRate).toLocaleString("es-PY")} Gs</p>
-                    <p className="text-blue-200 text-sm">{(register.totalCash * arsRate).toLocaleString("es-AR")} AR$</p>
+                    <CurrencyDisplay amount={register.totalCash * gsRate} currency="PYG" size="sm" showFlag={false} />
+                    <CurrencyDisplay amount={register.totalCash * arsRate} currency="ARS" size="sm" showFlag={false} />
                   </div>
 
                   <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
