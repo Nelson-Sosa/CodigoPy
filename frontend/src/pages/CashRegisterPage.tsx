@@ -516,12 +516,12 @@ const CashRegisterPage = () => {
                       <span className="text-gray-300">|</span>
                       <span className="inline-flex items-center gap-0.5">
                         <FlagIcon code="py" />
-                        <span className="text-gray-600">{(register?.cashSales || 0) * gsRate} Py</span>
+                        <span className="text-gray-600">{((register?.cashSales || 0) * gsRate).toLocaleString("es-PY")} Py</span>
                       </span>
                       <span className="text-gray-300">|</span>
                       <span className="inline-flex items-center gap-0.5">
                         <FlagIcon code="ar" />
-                        <span className="text-gray-600">{(register?.cashSales || 0) * arsRate} $a</span>
+                        <span className="text-gray-600">{((register?.cashSales || 0) * arsRate).toLocaleString("es-AR")} $a</span>
                       </span>
                     </div>
                   </div>
@@ -538,12 +538,12 @@ const CashRegisterPage = () => {
                       <span className="text-gray-300">|</span>
                       <span className="inline-flex items-center gap-0.5">
                         <FlagIcon code="py" />
-                        <span className="text-gray-600">{(register?.cardSales || 0) * gsRate} Py</span>
+                        <span className="text-gray-600">{((register?.cardSales || 0) * gsRate).toLocaleString("es-PY")} Py</span>
                       </span>
                       <span className="text-gray-300">|</span>
                       <span className="inline-flex items-center gap-0.5">
                         <FlagIcon code="ar" />
-                        <span className="text-gray-600">{(register?.cardSales || 0) * arsRate} $a</span>
+                        <span className="text-gray-600">{((register?.cardSales || 0) * arsRate).toLocaleString("es-AR")} $a</span>
                       </span>
                     </div>
                   </div>
@@ -560,12 +560,12 @@ const CashRegisterPage = () => {
                       <span className="text-gray-300">|</span>
                       <span className="inline-flex items-center gap-0.5">
                         <FlagIcon code="py" />
-                        <span className="text-gray-600">{(register?.transferSales || 0) * gsRate} Py</span>
+                        <span className="text-gray-600">{((register?.transferSales || 0) * gsRate).toLocaleString("es-PY")} Py</span>
                       </span>
                       <span className="text-gray-300">|</span>
                       <span className="inline-flex items-center gap-0.5">
                         <FlagIcon code="ar" />
-                        <span className="text-gray-600">{(register?.transferSales || 0) * arsRate} $a</span>
+                        <span className="text-gray-600">{((register?.transferSales || 0) * arsRate).toLocaleString("es-AR")} $a</span>
                       </span>
                     </div>
                   </div>
@@ -582,12 +582,12 @@ const CashRegisterPage = () => {
                       <span className="text-gray-300">|</span>
                       <span className="inline-flex items-center gap-0.5">
                         <FlagIcon code="py" />
-                        <span className="text-gray-600">{(register?.creditSales || 0) * gsRate} Py</span>
+                        <span className="text-gray-600">{((register?.creditSales || 0) * gsRate).toLocaleString("es-PY")} Py</span>
                       </span>
                       <span className="text-gray-300">|</span>
                       <span className="inline-flex items-center gap-0.5">
                         <FlagIcon code="ar" />
-                        <span className="text-gray-600">{(register?.creditSales || 0) * arsRate} $a</span>
+                        <span className="text-gray-600">{((register?.creditSales || 0) * arsRate).toLocaleString("es-AR")} $a</span>
                       </span>
                     </div>
                   </div>
@@ -602,12 +602,12 @@ const CashRegisterPage = () => {
                         <span className="text-gray-400">|</span>
                         <span className="inline-flex items-center gap-0.5">
                           <FlagIcon code="py" />
-                          <span className="text-gray-600">{(register?.totalSales || 0) * gsRate} Py</span>
+                          <span className="text-gray-600">{((register?.totalSales || 0) * gsRate).toLocaleString("es-PY")} Py</span>
                         </span>
                         <span className="text-gray-400">|</span>
                         <span className="inline-flex items-center gap-0.5">
                           <FlagIcon code="ar" />
-                          <span className="text-gray-600">{(register?.totalSales || 0) * arsRate} $a</span>
+                          <span className="text-gray-600">{((register?.totalSales || 0) * arsRate).toLocaleString("es-AR")} $a</span>
                         </span>
                       </div>
                     </div>
@@ -634,12 +634,12 @@ const CashRegisterPage = () => {
                       <span className="text-gray-400">|</span>
                       <span className="inline-flex items-center gap-0.5">
                         <FlagIcon code="py" />
-                        <span className="text-gray-600">{(register?.openingAmount || 0) * gsRate} Py</span>
+                        <span className="text-gray-600">{((register?.openingAmount || 0) * gsRate).toLocaleString("es-PY")} Py</span>
                       </span>
                       <span className="text-gray-400">|</span>
                       <span className="inline-flex items-center gap-0.5">
                         <FlagIcon code="ar" />
-                        <span className="text-gray-600">{(register?.openingAmount || 0) * arsRate} $a</span>
+                        <span className="text-gray-600">{((register?.openingAmount || 0) * arsRate).toLocaleString("es-AR")} $a</span>
                       </span>
                     </div>
                   </div>
@@ -653,12 +653,12 @@ const CashRegisterPage = () => {
                       <span className="text-gray-400">|</span>
                       <span className="inline-flex items-center gap-0.5">
                         <FlagIcon code="py" />
-                        <span className="text-gray-600">{(register?.cashSales || 0) * gsRate} Py</span>
+                        <span className="text-gray-600">{((register?.cashSales || 0) * gsRate).toLocaleString("es-PY")} Py</span>
                       </span>
                       <span className="text-gray-400">|</span>
                       <span className="inline-flex items-center gap-0.5">
                         <FlagIcon code="ar" />
-                        <span className="text-gray-600">{(register?.cashSales || 0) * arsRate} $a</span>
+                        <span className="text-gray-600">{((register?.cashSales || 0) * arsRate).toLocaleString("es-AR")} $a</span>
                       </span>
                     </div>
                   </div>
@@ -673,12 +673,12 @@ const CashRegisterPage = () => {
                         <span className="text-gray-400">|</span>
                         <span className="inline-flex items-center gap-0.5">
                           <FlagIcon code="py" />
-                          <span className="text-gray-600">{(register?.totalCash || 0) * gsRate} Py</span>
+                          <span className="text-gray-600">{((register?.totalCash || 0) * gsRate).toLocaleString("es-PY")} Py</span>
                         </span>
                         <span className="text-gray-400">|</span>
                         <span className="inline-flex items-center gap-0.5">
                           <FlagIcon code="ar" />
-                          <span className="text-gray-600">{(register?.totalCash || 0) * arsRate} $a</span>
+                          <span className="text-gray-600">{((register?.totalCash || 0) * arsRate).toLocaleString("es-AR")} $a</span>
                         </span>
                       </div>
                     </div>
