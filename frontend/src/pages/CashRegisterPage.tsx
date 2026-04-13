@@ -48,6 +48,9 @@ interface Summary {
   todayRegister?: CashRegister;
   monthTotal: number;
   monthCash: number;
+  monthCard: number;
+  monthTransfer: number;
+  monthCredit: number;
   monthSalesCount: number;
 }
 
@@ -574,14 +577,14 @@ const CashRegisterPage = () => {
                 
                 <div className="mt-6 pt-4 border-t">
                   <h4 className="font-semibold mb-3 flex items-center gap-2">
-                    💳 Distribución por métodos
+                    💳 Distribución por métodos (Mes)
                   </h4>
                   <div className="space-y-3">
                     {[
-                      { label: 'Efectivo', percent: register?.totalSales ? Math.round((register.cashSales / register.totalSales) * 100) : 0, color: 'bg-green-500' },
-                      { label: 'Tarjeta', percent: register?.totalSales ? Math.round((register.cardSales / register.totalSales) * 100) : 0, color: 'bg-blue-500' },
-                      { label: 'Transferencia', percent: register?.totalSales ? Math.round((register.transferSales / register.totalSales) * 100) : 0, color: 'bg-purple-500' },
-                      { label: 'Crédito', percent: register?.totalSales ? Math.round((register.creditSales / register.totalSales) * 100) : 0, color: 'bg-orange-500' },
+                      { label: 'Efectivo', percent: summary?.monthTotal ? Math.round((summary.monthCash / summary.monthTotal) * 100) : 0, color: 'bg-green-500' },
+                      { label: 'Tarjeta', percent: summary?.monthTotal ? Math.round((summary.monthCard / summary.monthTotal) * 100) : 0, color: 'bg-blue-500' },
+                      { label: 'Transferencia', percent: summary?.monthTotal ? Math.round((summary.monthTransfer / summary.monthTotal) * 100) : 0, color: 'bg-purple-500' },
+                      { label: 'Crédito', percent: summary?.monthTotal ? Math.round((summary.monthCredit / summary.monthTotal) * 100) : 0, color: 'bg-orange-500' },
                     ].map((item) => (
                       <div key={item.label} className="flex items-center gap-3">
                         <div className="w-28 text-sm text-gray-600">{item.label}:</div>

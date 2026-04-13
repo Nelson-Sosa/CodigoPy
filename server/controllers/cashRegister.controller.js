@@ -212,11 +212,17 @@ exports.getSummary = async (req, res) => {
     });
 
     let monthCashSales = 0;
+    let monthCardSales = 0;
+    let monthTransferSales = 0;
+    let monthCreditSales = 0;
     let monthTotal = 0;
     monthSales.forEach(sale => {
       monthTotal += sale.total;
-      if (sale.paymentMethod === 'cash') {
-        monthCashSales += sale.total;
+      switch (sale.paymentMethod) {
+        case 'cash': monthCashSales += sale.total; break;
+        case 'card': monthCardSales += sale.total; break;
+        case 'transfer': monthTransferSales += sale.total; break;
+        case 'credit': monthCreditSales += sale.total; break;
       }
     });
 
@@ -238,6 +244,9 @@ exports.getSummary = async (req, res) => {
       },
       monthTotal,
       monthCash: monthCashSales,
+      monthCard: monthCardSales,
+      monthTransfer: monthTransferSales,
+      monthCredit: monthCreditSales,
       monthSalesCount: monthSales.length,
     });
   } catch (err) {
