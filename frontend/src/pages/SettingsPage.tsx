@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { settingsService } from "../services/api";
+import { useAuth } from "../context/AuthContext";
+import ExchangeRateDisplay from "../components/common/ExchangeRateDisplay";
 import { Settings, Save, Building2, Receipt, FileText } from "lucide-react";
 
 interface SettingsData {
@@ -25,6 +27,8 @@ interface SettingsData {
 }
 
 const SettingsPage = () => {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin" || user?.role === "supervisor";
   const [settings, setSettings] = useState<SettingsData>({
     businessName: "",
     ruc: "",
@@ -369,6 +373,10 @@ const SettingsPage = () => {
             placeholder="Gracias por su compra"
           />
         </div>
+
+        {isAdmin && (
+          <ExchangeRateDisplay isAdmin={true} />
+        )}
 
         <div className="flex justify-end">
           <button

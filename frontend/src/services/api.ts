@@ -123,4 +123,10 @@ export const cashRegisterService = {
   reopen: (openingAmount: number) => api.post('/cash-register/reopen', { openingAmount }),
 };
 
+export const exchangeRateService = {
+  get: () => api.get('/exchange-rate'),
+  sync: () => api.post('/exchange-rate/sync'),
+  update: (data: { gsRate: number; arsRate: number }) => api.post('/exchange-rate', data),
+};
+
 export default api;
