@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { cashRegisterService, saleService, settingsService } from "../services/api";
+import { cashRegisterService, saleService } from "../services/api";
 import { DollarSign, Lock, Unlock, ShoppingCart, CreditCard, Banknote, ArrowRightLeft, History, X, Eye } from "lucide-react";
 import { format } from "date-fns";
 import { formatPrice } from "../utils/formatters";
+import { useExchangeRate } from "../hooks/useExchangeRate";
 
 interface SaleItem {
   productName: string;
@@ -80,8 +81,9 @@ const CashRegisterPage = () => {
   const [showPreCloseModal, setShowPreCloseModal] = useState(false);
   const [preCloseClosingAmount, setPreCloseClosingAmount] = useState(0);
   const [preCloseNotes, setPreCloseNotes] = useState("");
-  const [exchangeRate, setExchangeRate] = useState(6600);
   const [openingAmount, setOpeningAmount] = useState(0);
+
+  const { gsRate } = useExchangeRate();
 
   const isOpen = summary?.todayStatus === 'open';
   const isClosed = summary?.todayStatus === 'closed';
@@ -91,7 +93,7 @@ const CashRegisterPage = () => {
     <span className={`inline-flex items-baseline gap-1 ${className}`}>
       <span className="font-bold text-green-600">${formatPrice(amount)}</span>
       <span className="text-gray-400">|</span>
-      <span className="text-gray-500">Gs. {(amount * exchangeRate).toLocaleString("es-PY")}</span>
+      <span className="text-gray-500">Gs. {(amount * gsRate).toLocaleString("es-PY")}</span>
     </span>
   );
 
@@ -116,15 +118,13 @@ const CashRegisterPage = () => {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      const [summaryRes, historyRes, salesRes, settingsRes] = await Promise.all([
+      const [summaryRes, historyRes, salesRes] = await Promise.all([
         cashRegisterService.getSummary(),
         cashRegisterService.getHistory({ page: 1, limit: 10 }),
         saleService.getAll(),
-        settingsService.get(),
       ]);
       setSummary(summaryRes.data);
       setHistory(historyRes.data.history || []);
-      setExchangeRate(settingsRes.data?.exchangeRate || 6600);
       const filteredSales = (salesRes.data.sales || salesRes.data || []).filter(
         (s: Sale) => new Date(s.createdAt) >= today && s.status !== 'cancelled'
       );
@@ -459,7 +459,7 @@ const CashRegisterPage = () => {
                     <div>
                       <p className="text-gray-500">Diferencia</p>
                       <p className={`font-bold ${(register.closingAmount! - register.expectedAmount!) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        Gs. {((register.closingAmount! - register.expectedAmount!) * exchangeRate).toLocaleString("es-PY")}
+                        Gs. {((register.closingAmount! - register.expectedAmount!) * gsRate).toLocaleString("es-PY")}
                       </p>
                     </div>
                     <div>
@@ -532,7 +532,7 @@ const CashRegisterPage = () => {
                     <span className="text-xl font-bold text-blue-700">
                       <span className="text-green-600">${formatPrice(register?.totalCash || 0)}</span>
                       <span className="text-gray-400 text-sm ml-1">|</span>
-                      <span className="text-gray-500 text-sm ml-1">Gs. {(register?.totalCash || 0) * exchangeRate}</span>
+                      <span className="text-gray-500 text-sm ml-1">Gs. {(register?.totalCash || 0) * gsRate}</span>
                     </span>
                   </div>
                   <p className="text-xs text-blue-500 mt-1">

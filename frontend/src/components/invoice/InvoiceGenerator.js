@@ -1,4 +1,4 @@
-import { settingsService } from "../../services/api";
+import { settingsService, exchangeRateService } from "../../services/api";
 const numberToWordsGs = (num) => {
     const n = Math.floor(num);
     if (n === 0)
@@ -65,7 +65,19 @@ export const generateInvoiceHTML = async (sale) => {
     }
     const date = new Date(sale.createdAt);
     const formattedDate = date.toLocaleDateString('es-PY', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    const exchangeRate = 6600;
+    let exchangeRate = 6600;
+    try {
+        const rateRes = await exchangeRateService.get();
+        if (rateRes.data?.gsRate) {
+            exchangeRate = rateRes.data.gsRate;
+        }
+        else if (rateRes.data?.exchangeRate) {
+            exchangeRate = rateRes.data.exchangeRate;
+        }
+    }
+    catch (e) {
+        console.log("Using default exchange rate");
+    }
     const totalGs = Math.round(sale.total * exchangeRate);
     const formatGs = (amount) => {
         return Math.round(amount * exchangeRate).toLocaleString("es-PY");

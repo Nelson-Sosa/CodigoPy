@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { settingsService } from "../../services/api";
+import { useExchangeRate } from "../../hooks/useExchangeRate";
 
 interface PriceProps {
   amount: number;
@@ -14,23 +13,9 @@ const Price: React.FC<PriceProps> = ({
   className = "",
   showGs = true 
 }) => {
-  const [exchangeRate, setExchangeRate] = useState(6600);
+  const { gsRate, loading } = useExchangeRate();
 
-  useEffect(() => {
-    const fetchRate = async () => {
-      try {
-        const res = await settingsService.get();
-        if (res.data?.exchangeRate) {
-          setExchangeRate(res.data.exchangeRate);
-        }
-      } catch (err) {
-        console.log("Using default exchange rate");
-      }
-    };
-    fetchRate();
-  }, []);
-
-  const gs = amount * exchangeRate;
+  const gs = amount * gsRate;
 
   const sizeClasses = {
     xs: "text-xs",
@@ -57,6 +42,7 @@ const Price: React.FC<PriceProps> = ({
           </span>
         </>
       )}
+      {loading && <span className="text-gray-400 text-xs">...</span>}
     </span>
   );
 };
