@@ -8,6 +8,6 @@ r.get('/summary', protect, c.getSummary);
 r.post('/open', protect, c.open);
 r.post('/close', protect, c.close);
 r.post('/reopen', protect, c.reopen);
-r.delete('/fix-indexes', protect, c.fixIndexes);
+r.get('/fix-indexes', protect, c.fixIndexes);
 
 module.exports = r;
