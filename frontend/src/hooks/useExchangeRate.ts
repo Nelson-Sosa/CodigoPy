@@ -8,11 +8,7 @@ const DEFAULT_RATES = {
 
 interface ExchangeRateData {
   rate: number;
-  source: string;
   updatedAt: string;
-  expiresAt?: string;
-  expired?: boolean;
-  warning?: string;
 }
 
 export const useExchangeRate = () => {
@@ -28,20 +24,18 @@ export const useExchangeRate = () => {
       setRates({
         'PYG': {
           rate: data.gsRate || DEFAULT_RATES.PYG,
-          source: data.source || 'default',
           updatedAt: data.updatedAt || new Date().toISOString()
         },
         'ARS': {
           rate: data.arsRate || DEFAULT_RATES.ARS,
-          source: data.source || 'default',
           updatedAt: data.updatedAt || new Date().toISOString()
         }
       });
     } catch (err) {
       console.error('Error fetching exchange rates:', err);
       setRates({
-        'PYG': { rate: DEFAULT_RATES.PYG, source: 'default', updatedAt: new Date().toISOString() },
-        'ARS': { rate: DEFAULT_RATES.ARS, source: 'default', updatedAt: new Date().toISOString() }
+        'PYG': { rate: DEFAULT_RATES.PYG, updatedAt: new Date().toISOString() },
+        'ARS': { rate: DEFAULT_RATES.ARS, updatedAt: new Date().toISOString() }
       });
     } finally {
       setLoading(false);
@@ -59,20 +53,6 @@ export const useExchangeRate = () => {
   const convertToGs = (usd: number) => Math.round(usd * getRate('PYG'));
   const convertToArs = (usd: number) => Math.round(usd * getRate('ARS'));
   
-  const syncFromExternal = async (): Promise<boolean> => {
-    try {
-      setLoading(true);
-      await exchangeRateService.sync();
-      await fetchRates();
-      return true;
-    } catch (err) {
-      console.error('Error syncing exchange rates:', err);
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const updateRate = async (currency: string, rate: number): Promise<void> => {
     setLoading(true);
     try {
@@ -94,7 +74,6 @@ export const useExchangeRate = () => {
     arsRate: getRate('ARS'),
     convertToGs,
     convertToArs,
-    syncFromExternal,
     updateRate,
     refresh: fetchRates,
   };

@@ -93,9 +93,7 @@ export const cashRegisterService = {
     reopen: (openingAmount) => api.post('/cash-register/reopen', { openingAmount }),
 };
 export const exchangeRateService = {
-    get: (currency) => api.get(`/exchange-rate${currency ? `?currency=${currency}` : ''}`),
-    getAll: () => api.get('/exchange-rate/all'),
-    sync: () => api.post('/exchange-rate/sync'),
+    get: () => api.get('/exchange-rate'),
     update: (data) => api.post('/exchange-rate/manual', data),
 };
 export default api;

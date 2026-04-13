@@ -124,9 +124,7 @@ export const cashRegisterService = {
 };
 
 export const exchangeRateService = {
-  get: (currency?: string) => api.get(`/exchange-rate${currency ? `?currency=${currency}` : ''}`),
-  getAll: () => api.get('/exchange-rate/all'),
-  sync: () => api.post('/exchange-rate/sync'),
+  get: () => api.get('/exchange-rate'),
   update: (data: { targetCurrency: string; rate: number }) => api.post('/exchange-rate/manual', data),
 };
 

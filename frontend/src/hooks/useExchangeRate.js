@@ -15,12 +15,10 @@ export const useExchangeRate = () => {
             setRates({
                 'PYG': {
                     rate: data.gsRate || DEFAULT_RATES.PYG,
-                    source: data.source || 'default',
                     updatedAt: data.updatedAt || new Date().toISOString()
                 },
                 'ARS': {
                     rate: data.arsRate || DEFAULT_RATES.ARS,
-                    source: data.source || 'default',
                     updatedAt: data.updatedAt || new Date().toISOString()
                 }
             });
@@ -28,8 +26,8 @@ export const useExchangeRate = () => {
         catch (err) {
             console.error('Error fetching exchange rates:', err);
             setRates({
-                'PYG': { rate: DEFAULT_RATES.PYG, source: 'default', updatedAt: new Date().toISOString() },
-                'ARS': { rate: DEFAULT_RATES.ARS, source: 'default', updatedAt: new Date().toISOString() }
+                'PYG': { rate: DEFAULT_RATES.PYG, updatedAt: new Date().toISOString() },
+                'ARS': { rate: DEFAULT_RATES.ARS, updatedAt: new Date().toISOString() }
             });
         }
         finally {
@@ -44,21 +42,6 @@ export const useExchangeRate = () => {
     };
     const convertToGs = (usd) => Math.round(usd * getRate('PYG'));
     const convertToArs = (usd) => Math.round(usd * getRate('ARS'));
-    const syncFromExternal = async () => {
-        try {
-            setLoading(true);
-            await exchangeRateService.sync();
-            await fetchRates();
-            return true;
-        }
-        catch (err) {
-            console.error('Error syncing exchange rates:', err);
-            return false;
-        }
-        finally {
-            setLoading(false);
-        }
-    };
     const updateRate = async (currency, rate) => {
         setLoading(true);
         try {
@@ -81,7 +64,6 @@ export const useExchangeRate = () => {
         arsRate: getRate('ARS'),
         convertToGs,
         convertToArs,
-        syncFromExternal,
         updateRate,
         refresh: fetchRates,
     };
