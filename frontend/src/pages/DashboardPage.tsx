@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { productService, saleService } from "../services/api";
+import ExchangeRateDisplay from "../components/common/ExchangeRateDisplay";
 import {
   BarChart,
   Bar,
@@ -155,6 +156,8 @@ const DashboardPage = () => {
           </p>
         </div>
       )}
+
+      <ExchangeRateDisplay />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-xl shadow-lg">
