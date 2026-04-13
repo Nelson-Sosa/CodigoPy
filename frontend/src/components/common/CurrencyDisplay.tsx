@@ -26,9 +26,9 @@ const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
   };
 
   const flagSizes = {
-    sm: 'w-5 h-4 rounded-sm',
-    md: 'w-6 h-4 rounded',
-    lg: 'w-8 h-5 rounded',
+    sm: 'w-5 h-3.5 rounded-sm object-cover',
+    md: 'w-6 h-4 rounded-sm object-cover',
+    lg: 'w-8 h-5 rounded object-cover',
   };
 
   return (
@@ -38,7 +38,7 @@ const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
           src={config.flagUrl}
           alt={config.name}
           title={config.name}
-          className={`${flagSizes[size]} object-cover`}
+          className={flagSizes[size]}
         />
       )}
       <span className={`${sizeClasses[size]} font-medium text-gray-700`}>
