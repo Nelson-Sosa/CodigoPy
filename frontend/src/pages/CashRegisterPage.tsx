@@ -85,6 +85,7 @@ const CashRegisterPage = () => {
   const [preCloseClosingAmount, setPreCloseClosingAmount] = useState(0);
   const [preCloseNotes, setPreCloseNotes] = useState("");
   const [openingAmount, setOpeningAmount] = useState(0);
+  const [reopenAmount, setReopenAmount] = useState(0);
 
   const { gsRate } = useExchangeRate();
 
@@ -150,6 +151,22 @@ const CashRegisterPage = () => {
         setOpeningAmount(0);
       } catch (err: any) {
         alert(err.response?.data?.message || "Error al abrir caja");
+      } finally {
+        setActionLoading(false);
+      }
+    }
+  };
+
+  const handleReopen = async () => {
+    if (confirm("¿Reabrir caja con $ " + reopenAmount + "?")) {
+      setActionLoading(true);
+      try {
+        await cashRegisterService.reopen(reopenAmount);
+        alert("Caja reopen exitosamente");
+        fetchData();
+        setReopenAmount(0);
+      } catch (err: any) {
+        alert(err.response?.data?.message || "Error al reabrir caja");
       } finally {
         setActionLoading(false);
       }
@@ -340,15 +357,31 @@ const CashRegisterPage = () => {
             )}
 
             {isClosedYesterday && (
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-6 mb-6 flex items-center justify-between hover:shadow-lg transition-all duration-300">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center shadow-lg">
-                    <DollarSign className="text-white" size={28} />
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 mb-6 hover:shadow-xl transition-all duration-300">
+                <div className="max-w-md mx-auto text-center">
+                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <Unlock className="text-white" size={40} />
                   </div>
-                  <div>
-                    <h3 className="font-bold text-green-800 text-lg">Caja anterior cerrada</h3>
-                    <p className="text-green-600">Listo para abrir nueva caja</p>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">Reabrir Caja</h2>
+                  <p className="text-gray-500 mb-6">La caja anterior fue cerrada. Ingresa el dinero inicial para continuar</p>
+                  <div className="relative mb-6">
+                    <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 text-3xl">$</span>
+                    <input
+                      type="number"
+                      min="0"
+                      value={reopenAmount}
+                      onChange={(e) => setReopenAmount(Number(e.target.value))}
+                      className="w-full border-2 border-gray-200 rounded-2xl pl-12 pr-5 py-4 text-3xl text-center font-bold focus:border-green-500 focus:ring-0 transition-all duration-200"
+                      placeholder="0.00"
+                    />
                   </div>
+                  <button
+                    onClick={handleReopen}
+                    disabled={actionLoading}
+                    className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-4 rounded-2xl font-bold text-lg hover:from-green-600 hover:to-green-700 disabled:opacity-50 transition-all duration-200 hover:scale-[1.02] shadow-lg shadow-green-500/30"
+                  >
+                    {actionLoading ? 'Reabriendo...' : 'Reabrir Caja'}
+                  </button>
                 </div>
               </div>
             )}
