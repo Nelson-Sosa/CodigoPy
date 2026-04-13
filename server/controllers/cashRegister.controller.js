@@ -2,15 +2,15 @@ const CashRegister = require('../models/CashRegister');
 const Sale = require('../models/Sale');
 
 const getStartOfDay = (date) => {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  return d;
+  const offset = -4 * 60;
+  const localDate = new Date(date.getTime() + offset * 60 * 1000);
+  return new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate());
 };
 
 const getEndOfDay = (date) => {
-  const d = new Date(date);
-  d.setHours(23, 59, 59, 999);
-  return d;
+  const offset = -4 * 60;
+  const localDate = new Date(date.getTime() + offset * 60 * 1000);
+  return new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate(), 23, 59, 59, 999);
 };
 
 exports.getToday = async (req, res) => {
@@ -148,9 +148,22 @@ exports.getHistory = async (req, res) => {
 exports.getSummary = async (req, res) => {
   try {
     const now = new Date();
-    const today = getStartOfDay(now);
-    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
-    const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+    
+    const getLocalDate = (date) => {
+      const offset = -4 * 60;
+      const localDate = new Date(date.getTime() + offset * 60 * 1000);
+      return new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate());
+    };
+    
+    const getLocalDateEnd = (date) => {
+      const offset = -4 * 60;
+      const localDate = new Date(date.getTime() + offset * 60 * 1000);
+      return new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate(), 23, 59, 59, 999);
+    };
+    
+    const today = getLocalDate(now);
+    const startOfDay = getLocalDate(now);
+    const endOfDay = getLocalDateEnd(now);
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
     
     const todayRegister = await CashRegister.findOne({ date: today, user: req.user._id });
@@ -163,12 +176,10 @@ exports.getSummary = async (req, res) => {
     let todaySales = [];
     let monthSales = [];
     
-    if (todayStatus === 'open' || todayStatus === 'not_opened') {
-      todaySales = await Sale.find({
-        createdAt: { $gte: startOfDay, $lte: endOfDay },
-        status: { $ne: 'cancelled' }
-      });
-    }
+    todaySales = await Sale.find({
+      createdAt: { $gte: startOfDay, $lte: endOfDay },
+      status: { $ne: 'cancelled' }
+    });
     
     monthSales = await Sale.find({
       createdAt: { $gte: startOfMonth, $lte: endOfDay },
