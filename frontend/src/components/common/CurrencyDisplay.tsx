@@ -80,7 +80,7 @@ const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
   return (
     <div className={`inline-flex items-center ${styles.gap} ${className}`}>
       {showFlag && (
-        <div className={`${styles.flag} flex-shrink-0`}>
+        <div className={`${styles.flag} flex-shrink-0 flex items-center gap-0.5`}>
           <img
             src={flagSrc}
             alt={config.name}
@@ -92,10 +92,10 @@ const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
             }}
             onError={(e) => {
               const target = e.target as HTMLImageElement;
-              // 🔁 fallback si falla
               target.src = `${import.meta.env.BASE_URL}flags/us.svg`;
             }}
           />
+          <span className={`${styles.text} font-semibold ${textColor}`}>{config.code.toUpperCase()}</span>
         </div>
       )}
 
