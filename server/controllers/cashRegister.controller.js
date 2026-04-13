@@ -147,22 +147,33 @@ exports.getHistory = async (req, res) => {
 
 exports.getSummary = async (req, res) => {
   try {
-    const today = getStartOfDay(new Date());
-    const startOfDay = getStartOfDay(new Date());
-    const endOfDay = getEndOfDay(new Date());
+    const now = new Date();
+    const today = getStartOfDay(now);
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+    const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
     
-    const [todayRegister, todaySales, monthSales] = await Promise.all([
-      CashRegister.findOne({ date: today, user: req.user._id }),
-      Sale.find({
+    const todayRegister = await CashRegister.findOne({ date: today, user: req.user._id });
+    
+    let todayStatus = 'not_opened';
+    if (todayRegister) {
+      todayStatus = todayRegister.status;
+    }
+
+    let todaySales = [];
+    let monthSales = [];
+    
+    if (todayStatus === 'open' || todayStatus === 'not_opened') {
+      todaySales = await Sale.find({
         createdAt: { $gte: startOfDay, $lte: endOfDay },
         status: { $ne: 'cancelled' }
-      }),
-      Sale.find({
-        createdAt: { $gte: startOfMonth, $lte: endOfDay },
-        status: { $ne: 'cancelled' }
-      })
-    ]);
+      });
+    }
+    
+    monthSales = await Sale.find({
+      createdAt: { $gte: startOfMonth, $lte: endOfDay },
+      status: { $ne: 'cancelled' }
+    });
 
     let cashSales = 0;
     let cardSales = 0;
@@ -191,20 +202,19 @@ exports.getSummary = async (req, res) => {
     const openingAmount = todayRegister?.openingAmount || 0;
     const expectedCash = openingAmount + cashSales;
 
-    const liveTodayRegister = {
-      ...todayRegister?.toObject(),
-      cashSales,
-      cardSales,
-      transferSales,
-      creditSales,
-      totalSales,
-      totalCash: expectedCash,
-      salesCount: todaySales.length,
-    };
-
     res.json({
-      todayStatus: todayRegister?.status || 'not_opened',
-      todayRegister: liveTodayRegister,
+      todayStatus,
+      todayRegister: {
+        cashSales,
+        cardSales,
+        transferSales,
+        creditSales,
+        totalSales,
+        totalCash: expectedCash,
+        salesCount: todaySales.length,
+        openingAmount,
+        status: todayStatus,
+      },
       monthTotal,
       monthCash: monthCashSales,
       monthSalesCount: monthSales.length,
