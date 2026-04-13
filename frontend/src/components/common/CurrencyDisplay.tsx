@@ -26,20 +26,17 @@ const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
   };
 
   const flagSizes = {
-    sm: 'w-5 h-3.5 rounded-sm object-cover',
-    md: 'w-6 h-4 rounded-sm object-cover',
-    lg: 'w-8 h-5 rounded object-cover',
+    sm: 'w-5 h-3.5',
+    md: 'w-6 h-4',
+    lg: 'w-8 h-5',
   };
 
   return (
     <div className={`inline-flex items-center gap-1.5 ${className}`}>
       {showFlag && (
-        <img
-          src={config.flagUrl}
-          alt={config.name}
-          title={config.name}
-          className={flagSizes[size]}
-        />
+        <div className={flagSizes[size]} title={config.name}>
+          {config.flagSvg}
+        </div>
       )}
       <span className={`${sizeClasses[size]} font-medium text-gray-700`}>
         {formattedAmount}
