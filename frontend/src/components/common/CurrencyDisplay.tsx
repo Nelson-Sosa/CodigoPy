@@ -72,7 +72,6 @@ const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
   const styles = sizeStyles[size];
 
   const textColor = darkMode ? 'text-gray-100' : 'text-gray-700';
-  const symbolColor = 'text-gray-400';
 
   // 🔥 SOLUCIÓN CLAVE
   const flagSrc = `${import.meta.env.BASE_URL}flags/${config.code}.svg`;
