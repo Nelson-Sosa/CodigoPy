@@ -74,8 +74,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       return { success: true };
     } catch (error: any) {
-      const message = error.response?.data?.message || "Error al iniciar sesión";
-      return { success: false, error: message };
+      if (error.response) {
+        const message = error.response.data?.message || "Credenciales inválidas";
+        return { success: false, error: message };
+      } else if (error.request) {
+        return { success: false, error: "No se pudo conectar al servidor. Verifica tu conexión." };
+      } else {
+        return { success: false, error: "Error al iniciar sesión" };
+      }
     }
   };
 
