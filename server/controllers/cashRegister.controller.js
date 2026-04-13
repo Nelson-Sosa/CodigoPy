@@ -157,14 +157,25 @@ exports.getSummary = async (req, res) => {
     const todayMonth = localDate.getMonth();
     const todayDay = localDate.getDate();
     
-    const todayStart = new Date(todayYear, todayMonth, todayDay, 0, 0, 0, 0);
-    const todayEnd = new Date(todayYear, todayMonth, todayDay, 23, 59, 59, 999);
-    const startOfMonth = new Date(todayYear, todayMonth, 1, 0, 0, 0, 0);
+    const todayStart = new Date(Date.UTC(todayYear, todayMonth, todayDay, 4, 0, 0, 0));
+    const todayEnd = new Date(Date.UTC(todayYear, todayMonth, todayDay, 27, 59, 59, 999));
+    const startOfMonth = new Date(Date.UTC(todayYear, todayMonth, 1, 4, 0, 0, 0));
     
-    const todayRegister = await CashRegister.findOne({
-      date: todayStart,
+    const allTodayRegisters = await CashRegister.find({
       user: req.user._id
-    }).lean();
+    }).sort({ date: -1 }).lean();
+    
+    let todayRegister = null;
+    for (const reg of allTodayRegisters) {
+      const regDate = new Date(reg.date);
+      const regLocalDate = new Date(regDate.getTime() - 4 * 60 * 60 * 1000);
+      if (regLocalDate.getFullYear() === todayYear && 
+          regLocalDate.getMonth() === todayMonth && 
+          regLocalDate.getDate() === todayDay) {
+        todayRegister = reg;
+        break;
+      }
+    }
     
     let todayStatus = 'not_opened';
     let openingAmount = 0;
@@ -172,8 +183,6 @@ exports.getSummary = async (req, res) => {
     if (todayRegister && todayRegister.status) {
       todayStatus = todayRegister.status;
       openingAmount = todayRegister.openingAmount || 0;
-    } else {
-      todayStatus = 'not_opened';
     }
 
     const todaySales = await Sale.find({
