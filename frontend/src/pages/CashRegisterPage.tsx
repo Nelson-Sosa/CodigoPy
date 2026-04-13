@@ -338,24 +338,24 @@ const CashRegisterPage = () => {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className={`p-6 rounded-xl shadow-md ${isOpen ? 'bg-green-50 border-2 border-green-500' : 'bg-white'}`}>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold flex items-center gap-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className={`p-4 rounded-xl shadow-sm ${isOpen ? 'bg-green-50 border-2 border-green-500' : 'bg-white'}`}>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-base font-bold flex items-center gap-2">
                   {isOpen ? (
                     <>
-                      <Unlock className="text-green-500" size={24} />
+                      <Unlock className="text-green-500" size={20} />
                       <span className="text-green-700">Caja Abierta</span>
                     </>
                   ) : (
                     <>
-                      <Lock className="text-gray-400" size={24} />
+                      <Lock className="text-gray-400" size={20} />
                       <span className="text-gray-600">Caja Cerrada</span>
                     </>
                   )}
                 </h2>
                 {register && (
-                  <span className="text-sm text-gray-500">
+                  <span className="text-xs text-gray-500">
                     {register.openedAt ? format(new Date(register.openedAt), 'HH:mm') : '-'}
                   </span>
                 )}
@@ -391,36 +391,33 @@ const CashRegisterPage = () => {
               )}
 
               {isOpen && register && (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-white p-4 rounded-lg">
-                      <p className="text-sm text-gray-500">Dinero Inicial</p>
-                      {showPrice(register.openingAmount, "text-xl")}
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-white p-3 rounded-lg">
+                      <p className="text-xs text-gray-500">Dinero Inicial</p>
+                      {showPrice(register.openingAmount)}
                     </div>
-                    <div className="bg-white p-4 rounded-lg">
-                      <p className="text-sm text-gray-500">Ventas en Efectivo</p>
-                      {showPrice(register.cashSales, "text-xl")}
+                    <div className="bg-white p-3 rounded-lg">
+                      <p className="text-xs text-gray-500">Ventas en Efectivo</p>
+                      {showPrice(register.cashSales)}
                     </div>
                   </div>
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <p className="text-sm text-blue-600">Dinero Esperado en Caja</p>
-                    <div className="text-2xl font-bold text-blue-700">
-                      {showPrice(register.totalCash)}
+                  <div className="bg-blue-50 p-3 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-blue-600">Dinero Esperado:</p>
+                      <div className="text-xl font-bold text-blue-700">
+                        {showPrice(register.totalCash)}
+                      </div>
                     </div>
-                    <p className="text-xs text-blue-500 mt-1">
-                      = Dinero inicial + Ventas en efectivo
-                    </p>
                   </div>
-                    <div className="border-t pt-4">
-                    <button
-                      onClick={handlePreClose}
-                      disabled={actionLoading}
-                      className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 transition flex items-center justify-center gap-2"
-                    >
-                      <Eye size={20} />
-                      Verificar Cierre de Caja
-                    </button>
-                  </div>
+                  <button
+                    onClick={handlePreClose}
+                    disabled={actionLoading}
+                    className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 transition flex items-center justify-center gap-2 text-sm"
+                  >
+                    <Eye size={16} />
+                    Verificar Cierre de Caja
+                  </button>
                 </div>
               )}
 
