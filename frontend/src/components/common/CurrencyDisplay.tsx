@@ -96,16 +96,11 @@ const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
             }}
           />
           <span className={`${styles.text} font-semibold ${textColor} whitespace-nowrap`}>
-            ({formattedAmount})
+            {formattedAmount}
           </span>
           <span className={`${styles.text} font-semibold ${textColor}`}>
-            {config.code.toUpperCase()}
+            {currency === 'USD' ? 'US' : currency === 'PYG' ? 'Gs' : 'AR$'}
           </span>
-          {currency !== 'USD' && (
-            <span className={`${styles.text} ${symbolColor} whitespace-nowrap`}>
-              {config.symbol}
-            </span>
-          )}
         </div>
       )}
 
@@ -114,11 +109,9 @@ const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
           <span className={`${styles.text} font-semibold ${textColor} whitespace-nowrap`}>
             {formattedAmount}
           </span>
-          {currency !== 'USD' && (
-            <span className={`${styles.text} ${symbolColor} whitespace-nowrap`}>
-              {config.symbol}
-            </span>
-          )}
+          <span className={`${styles.text} font-semibold ${textColor}`}>
+            {currency === 'USD' ? 'US' : currency === 'PYG' ? 'Gs' : 'AR$'}
+          </span>
         </div>
       )}
     </div>
