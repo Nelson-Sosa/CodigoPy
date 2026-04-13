@@ -80,12 +80,12 @@ const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
   return (
     <div className={`inline-flex items-center ${styles.gap} ${className}`}>
       {showFlag && (
-        <div className={`${styles.flag} flex-shrink-0 flex items-center gap-0.5`}>
+        <div className="flex items-center gap-1">
           <img
             src={flagSrc}
             alt={config.name}
             title={config.name}
-            className="w-full h-full object-contain"
+            className={`${styles.flag} object-contain`}
             style={{
               minWidth: '16px',
               minHeight: '12px',
@@ -95,18 +95,31 @@ const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
               target.src = `${import.meta.env.BASE_URL}flags/us.svg`;
             }}
           />
-          <span className={`${styles.text} font-semibold ${textColor}`}>{config.code.toUpperCase()}</span>
+          <span className={`${styles.text} font-semibold ${textColor} whitespace-nowrap`}>
+            ({formattedAmount})
+          </span>
+          <span className={`${styles.text} font-semibold ${textColor}`}>
+            {config.code.toUpperCase()}
+          </span>
+          {currency !== 'USD' && (
+            <span className={`${styles.text} ${symbolColor} whitespace-nowrap`}>
+              {config.symbol}
+            </span>
+          )}
         </div>
       )}
 
-      <span className={`${styles.text} font-semibold ${textColor} whitespace-nowrap`}>
-        {formattedAmount}
-      </span>
-
-      {currency !== 'USD' && (
-        <span className={`${styles.text} ${symbolColor} whitespace-nowrap`}>
-          {config.symbol}
-        </span>
+      {!showFlag && (
+        <div className="flex items-center gap-1">
+          <span className={`${styles.text} font-semibold ${textColor} whitespace-nowrap`}>
+            {formattedAmount}
+          </span>
+          {currency !== 'USD' && (
+            <span className={`${styles.text} ${symbolColor} whitespace-nowrap`}>
+              {config.symbol}
+            </span>
+          )}
+        </div>
       )}
     </div>
   );
