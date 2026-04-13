@@ -338,44 +338,44 @@ const CashRegisterPage = () => {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className={`p-6 rounded-xl shadow-md ${isOpen ? 'bg-green-50 border-2 border-green-500' : 'bg-white'}`}>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold flex items-center gap-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className={`p-4 rounded-xl shadow-sm ${isOpen ? 'bg-green-50 border-2 border-green-500' : 'bg-white'}`}>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-base font-bold flex items-center gap-2">
                   {isOpen ? (
                     <>
-                      <Unlock className="text-green-500" size={24} />
+                      <Unlock className="text-green-500" size={20} />
                       <span className="text-green-700">Caja Abierta</span>
                     </>
                   ) : (
                     <>
-                      <Lock className="text-gray-400" size={24} />
+                      <Lock className="text-gray-400" size={20} />
                       <span className="text-gray-600">Caja Cerrada</span>
                     </>
                   )}
                 </h2>
                 {register && (
-                  <span className="text-sm text-gray-500">
+                  <span className="text-xs text-gray-500">
                     {register.openedAt ? format(new Date(register.openedAt), 'HH:mm') : '-'}
                   </span>
                 )}
               </div>
 
               {shouldShowOpenCaja && (
-                <div className="space-y-4">
-                  <p className="text-gray-600">Ingresa el dinero inicial en caja</p>
+                <div className="space-y-3">
+                  <p className="text-sm text-gray-600">Ingresa el dinero inicial en caja</p>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-xs font-medium text-gray-700 mb-1">
                       Dinero inicial en caja
                     </label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">$</span>
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
                       <input
                         type="number"
                         min="0"
                         value={openingAmount}
                         onChange={(e) => setOpeningAmount(Number(e.target.value))}
-                        className="w-full border rounded-lg pl-8 pr-4 py-3 focus:ring-2 focus:ring-green-500"
+                        className="w-full border rounded-lg pl-7 pr-3 py-2 text-sm focus:ring-2 focus:ring-green-500"
                         placeholder="0.00"
                       />
                     </div>
@@ -383,7 +383,7 @@ const CashRegisterPage = () => {
                   <button
                     onClick={handleOpen}
                     disabled={actionLoading}
-                    className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50 transition"
+                    className="w-full bg-green-600 text-white py-2 rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 transition text-sm"
                   >
                     {actionLoading ? "Abriendo..." : "Abrir Caja"}
                   </button>
@@ -391,210 +391,147 @@ const CashRegisterPage = () => {
               )}
 
               {isOpen && register && (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-white p-4 rounded-lg">
-                      <p className="text-sm text-gray-500">Dinero Inicial</p>
-                      {showPrice(register.openingAmount, "text-xl")}
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-white p-3 rounded-lg">
+                      <p className="text-xs text-gray-500">Dinero Inicial</p>
+                      {showPrice(register.openingAmount, "text-sm")}
                     </div>
-                    <div className="bg-white p-4 rounded-lg">
-                      <p className="text-sm text-gray-500">Ventas en Efectivo</p>
-                      {showPrice(register.cashSales, "text-xl")}
+                    <div className="bg-white p-3 rounded-lg">
+                      <p className="text-xs text-gray-500">Ventas en Efectivo</p>
+                      {showPrice(register.cashSales, "text-sm")}
                     </div>
                   </div>
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <p className="text-sm text-blue-600">Dinero Esperado en Caja</p>
-                    <div className="text-2xl font-bold text-blue-700">
+                  <div className="bg-blue-50 p-3 rounded-lg">
+                    <p className="text-xs text-blue-600">Dinero Esperado en Caja</p>
+                    <div className="text-xl font-bold text-blue-700">
                       {showPrice(register.totalCash)}
                     </div>
                     <p className="text-xs text-blue-500 mt-1">
                       = Dinero inicial + Ventas en efectivo
                     </p>
                   </div>
-                    <div className="border-t pt-4">
-                    <button
-                      onClick={handlePreClose}
-                      disabled={actionLoading}
-                      className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 transition flex items-center justify-center gap-2"
-                    >
-                      <Eye size={20} />
-                      Verificar Cierre de Caja
-                    </button>
-                  </div>
+                  <button
+                    onClick={handlePreClose}
+                    disabled={actionLoading}
+                    className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 transition flex items-center justify-center gap-2 text-sm"
+                  >
+                    <Eye size={16} />
+                    Verificar Cierre de Caja
+                  </button>
                 </div>
               )}
 
               {isClosedYesterday && (
-                <div className="space-y-4">
-                  <div className="bg-green-50 p-4 rounded-lg text-center border-2 border-green-500">
-                    <p className="text-green-700 font-medium">✓ La caja del día anterior fue cerrada</p>
-                    <p className="text-green-600 text-sm mt-1">Listo para abrir nueva caja</p>
-                  </div>
+                <div className="bg-green-50 p-3 rounded-lg text-center border border-green-200">
+                  <p className="text-green-700 text-sm font-medium">✓ La caja del día anterior fue cerrada</p>
+                  <p className="text-green-600 text-xs mt-1">Listo para abrir nueva caja</p>
                 </div>
               )}
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-4">
               {isOpen && register && (
-                <div className="bg-white p-6 rounded-xl shadow-md">
-                  <h3 className="font-bold mb-4">Ventas por Método de Pago</h3>
-                  <div className="space-y-3">
+                <div className="bg-white p-4 rounded-xl shadow-sm">
+                  <h3 className="font-bold mb-3 text-sm">Ventas por Método de Pago</h3>
+                  <div className="space-y-2">
                     {[
                       { label: 'Efectivo', amount: register.cashSales, color: 'text-green-500', bg: 'bg-green-50' },
                       { label: 'Tarjeta', amount: register.cardSales, color: 'text-blue-500', bg: 'bg-blue-50' },
                       { label: 'Transferencia', amount: register.transferSales, color: 'text-purple-500', bg: 'bg-purple-50' },
                       { label: 'Crédito', amount: register.creditSales, color: 'text-orange-500', bg: 'bg-orange-50' },
                     ].map((item) => (
-                      <div key={item.label} className={`flex items-center justify-between p-3 rounded-lg ${item.bg}`}>
+                      <div key={item.label} className={`flex items-center justify-between p-2 rounded-lg ${item.bg}`}>
                         <div className="flex items-center gap-2">
-                          {item.label === 'Efectivo' && <Banknote size={20} className={item.color} />}
-                          {item.label === 'Tarjeta' && <CreditCard size={20} className={item.color} />}
-                          {item.label === 'Transferencia' && <ArrowRightLeft size={20} className={item.color} />}
-                          {item.label === 'Crédito' && <ShoppingCart size={20} className={item.color} />}
-                          <span className="font-medium text-sm">{item.label}</span>
+                          {item.label === 'Efectivo' && <Banknote size={16} className={item.color} />}
+                          {item.label === 'Tarjeta' && <CreditCard size={16} className={item.color} />}
+                          {item.label === 'Transferencia' && <ArrowRightLeft size={16} className={item.color} />}
+                          {item.label === 'Crédito' && <ShoppingCart size={16} className={item.color} />}
+                          <span className="font-medium text-xs">{item.label}</span>
                         </div>
-                        <div className="flex items-center gap-2 text-sm font-semibold">
+                        <div className="flex items-center gap-1 text-xs font-semibold">
                           <FlagIcon code="us" />
                           <span>{item.amount.toFixed(2)} US</span>
-                          <span className="text-gray-300">|</span>
-                          <FlagIcon code="py" />
-                          <span>{(item.amount * gsRate).toLocaleString("es-PY")} Py</span>
-                          <span className="text-gray-300">|</span>
-                          <FlagIcon code="ar" />
-                          <span>{(item.amount * arsRate).toLocaleString("es-AR")} $a</span>
                         </div>
                       </div>
                     ))}
-                    <div className="border-t pt-3 bg-green-50 p-3 rounded-lg">
-                      <div className="flex items-center justify-between font-bold">
-                        <span>TOTAL VENTAS</span>
-                        <div className="flex items-center gap-2 text-sm">
+                    <div className="border-t pt-2 bg-green-50 p-2 rounded-lg">
+                      <div className="flex items-center justify-between font-bold text-xs">
+                        <span>TOTAL</span>
+                        <div className="flex items-center gap-1">
                           <FlagIcon code="us" />
                           <span className="text-green-600">{register.totalSales.toFixed(2)} US</span>
-                          <span className="text-gray-300">|</span>
-                          <FlagIcon code="py" />
-                          <span>{(register.totalSales * gsRate).toLocaleString("es-PY")} Py</span>
-                          <span className="text-gray-300">|</span>
-                          <FlagIcon code="ar" />
-                          <span>{(register.totalSales * arsRate).toLocaleString("es-AR")} $a</span>
                         </div>
                       </div>
                     </div>
-                    <div className="text-center text-gray-500 text-sm">
+                    <div className="text-center text-gray-500 text-xs">
                       {register.salesCount} ventas hoy
                     </div>
                   </div>
                 </div>
               )}
 
-              <div className="bg-blue-50 p-6 rounded-xl border border-blue-200">
-                <h3 className="font-bold mb-3 flex items-center gap-2">
-                  <DollarSign className="text-blue-600" size={20} />
+              <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
+                <h3 className="font-bold mb-2 text-sm flex items-center gap-2">
+                  <DollarSign className="text-blue-600" size={16} />
                   Dinero en Caja
                 </h3>
-                <div className="space-y-3 text-sm">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
-                    <span className="text-blue-700">Dinero Inicial:</span>
-                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
-                      <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="us" />
-                        <span className="font-bold text-blue-800 text-sm">{formatPrice(register?.openingAmount || 0)} US</span>
-                      </span>
-                      <span className="text-gray-400">|</span>
-                      <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="py" />
-                        <span className="text-gray-600">{((register?.openingAmount || 0) * gsRate).toLocaleString("es-PY")} Py</span>
-                      </span>
-                      <span className="text-gray-400">|</span>
-                      <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="ar" />
-                        <span className="text-gray-600">{((register?.openingAmount || 0) * arsRate).toLocaleString("es-AR")} $a</span>
-                      </span>
-                    </div>
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between items-center">
+                    <span className="text-blue-700">Inicial:</span>
+                    <span className="font-bold text-blue-800">{formatPrice(register?.openingAmount || 0)} US</span>
                   </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
-                    <span className="text-blue-700">Ventas en Efectivo:</span>
-                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
-                      <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="us" />
-                        <span className="font-bold text-blue-800 text-sm">{formatPrice(register?.cashSales || 0)} US</span>
-                      </span>
-                      <span className="text-gray-400">|</span>
-                      <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="py" />
-                        <span className="text-gray-600">{((register?.cashSales || 0) * gsRate).toLocaleString("es-PY")} Py</span>
-                      </span>
-                      <span className="text-gray-400">|</span>
-                      <span className="inline-flex items-center gap-0.5">
-                        <FlagIcon code="ar" />
-                        <span className="text-gray-600">{((register?.cashSales || 0) * arsRate).toLocaleString("es-AR")} $a</span>
-                      </span>
-                    </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-blue-700">Ventas Efvo:</span>
+                    <span className="font-bold text-blue-800">{formatPrice(register?.cashSales || 0)} US</span>
                   </div>
-                  <div className="border-t border-blue-300 pt-3">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
-                      <span className="text-blue-800 font-medium">Dinero Esperado:</span>
-                      <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
-                        <span className="inline-flex items-center gap-0.5">
-                          <FlagIcon code="us" />
-                          <span className="font-bold text-green-600 text-sm">{formatPrice(register?.totalCash || 0)} US</span>
-                        </span>
-                        <span className="text-gray-400">|</span>
-                        <span className="inline-flex items-center gap-0.5">
-                          <FlagIcon code="py" />
-                          <span className="text-gray-600">{((register?.totalCash || 0) * gsRate).toLocaleString("es-PY")} Py</span>
-                        </span>
-                        <span className="text-gray-400">|</span>
-                        <span className="inline-flex items-center gap-0.5">
-                          <FlagIcon code="ar" />
-                          <span className="text-gray-600">{((register?.totalCash || 0) * arsRate).toLocaleString("es-AR")} $a</span>
-                        </span>
-                      </div>
-                    </div>
+                  <div className="border-t border-blue-300 pt-2 flex justify-between items-center">
+                    <span className="text-blue-800 font-medium">Esperado:</span>
+                    <span className="font-bold text-green-600">{formatPrice(register?.totalCash || 0)} US</span>
                   </div>
-                  <p className="text-xs text-blue-500 mt-2">
-                    💡 Solo incluye efectivo físico (transferencias van al banco)
-                  </p>
                 </div>
+                <p className="text-xs text-blue-500 mt-2">
+                  💡 Solo efectivo físico
+                </p>
               </div>
 
-              <div className="bg-white p-6 rounded-xl shadow-md">
-                <h3 className="font-bold mb-4">Resumen del Mes</h3>
-                <div className="space-y-2">
+              <div className="bg-white p-4 rounded-xl shadow-sm">
+                <h3 className="font-bold mb-3 text-sm">Resumen del Mes</h3>
+                <div className="space-y-1 text-xs">
                   <div className="flex justify-between items-center">
-                    <span>Total ventas del mes:</span>
-                    {showPrice(summary?.monthTotal || 0)}
+                    <span>Total ventas:</span>
+                    <span className="font-bold">{formatPrice(summary?.monthTotal || 0)} US</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span>Total efectivo del mes:</span>
-                    {showPrice(summary?.monthCash || 0)}
+                    <span>Efectivo:</span>
+                    <span className="font-bold text-green-600">{formatPrice(summary?.monthCash || 0)} US</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Ventas del mes:</span>
-                    <span className="font-bold">{summary?.monthSalesCount}</span>
+                    <span>Ventas:</span>
+                    <span className="font-bold">{summary?.monthSalesCount || 0}</span>
                   </div>
                 </div>
                 
-                <div className="mt-6 pt-4 border-t">
-                  <h4 className="font-semibold mb-3 flex items-center gap-2">
-                    💳 Distribución por métodos (Mes)
+                <div className="mt-3 pt-3 border-t">
+                  <h4 className="font-semibold mb-2 text-xs flex items-center gap-1">
+                    💳 Métodos (Mes)
                   </h4>
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {[
-                      { label: 'Efectivo', percent: summary?.monthTotal ? Math.round((summary.monthCash / summary.monthTotal) * 100) : 0, color: 'bg-green-500' },
-                      { label: 'Tarjeta', percent: summary?.monthTotal ? Math.round((summary.monthCard / summary.monthTotal) * 100) : 0, color: 'bg-blue-500' },
-                      { label: 'Transferencia', percent: summary?.monthTotal ? Math.round((summary.monthTransfer / summary.monthTotal) * 100) : 0, color: 'bg-purple-500' },
-                      { label: 'Crédito', percent: summary?.monthTotal ? Math.round((summary.monthCredit / summary.monthTotal) * 100) : 0, color: 'bg-orange-500' },
+                      { label: 'Efvo', percent: summary?.monthTotal ? Math.round((summary.monthCash / summary.monthTotal) * 100) : 0, color: 'bg-green-500' },
+                      { label: 'Tarj', percent: summary?.monthTotal ? Math.round((summary.monthCard / summary.monthTotal) * 100) : 0, color: 'bg-blue-500' },
+                      { label: 'Trans', percent: summary?.monthTotal ? Math.round((summary.monthTransfer / summary.monthTotal) * 100) : 0, color: 'bg-purple-500' },
+                      { label: 'Créd', percent: summary?.monthTotal ? Math.round((summary.monthCredit / summary.monthTotal) * 100) : 0, color: 'bg-orange-500' },
                     ].map((item) => (
-                      <div key={item.label} className="flex items-center gap-3">
-                        <div className="w-28 text-sm text-gray-600">{item.label}:</div>
-                        <div className="flex-1 bg-gray-100 rounded-full h-3 overflow-hidden">
+                      <div key={item.label} className="flex items-center gap-2">
+                        <div className="w-12 text-xs text-gray-600">{item.label}:</div>
+                        <div className="flex-1 bg-gray-100 rounded-full h-2 overflow-hidden">
                           <div 
                             className={`${item.color} h-full rounded-full transition-all`}
                             style={{ width: `${item.percent}%` }}
                           />
                         </div>
-                        <div className="w-12 text-sm font-semibold text-gray-700 text-right">
+                        <div className="w-10 text-xs font-semibold text-gray-700 text-right">
                           {item.percent}%
                         </div>
                       </div>
