@@ -1,39 +1,75 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { exchangeRateService } from '../services/api';
 
-const DEFAULT_GS_RATE = 6600;
-const DEFAULT_ARS_RATE = 850;
+const DEFAULT_RATES = {
+  'PYG': 6600,
+  'ARS': 850
+};
+
+interface ExchangeRateData {
+  rate: number;
+  source: string;
+  updatedAt: string;
+  expiresAt?: string;
+  expired?: boolean;
+  warning?: string;
+}
 
 export const useExchangeRate = () => {
-  const [gsRate, setGsRate] = useState(DEFAULT_GS_RATE);
-  const [arsRate, setArsRate] = useState(DEFAULT_ARS_RATE);
+  const [rates, setRates] = useState<Record<string, ExchangeRateData>>({});
   const [loading, setLoading] = useState(true);
-  const [source, setSource] = useState<string>('');
 
-  const fetchRates = async () => {
+  const fetchRates = useCallback(async () => {
     try {
-      const res = await exchangeRateService.get();
-      setGsRate(res.data.gsRate || DEFAULT_GS_RATE);
-      setArsRate(res.data.arsRate || DEFAULT_ARS_RATE);
-      setSource(res.data.source || 'default');
+      setLoading(true);
+      const res = await exchangeRateService.getAll();
+      
+      const ratesMap: Record<string, ExchangeRateData> = {};
+      
+      if (res.data.rates && Array.isArray(res.data.rates)) {
+        res.data.rates.forEach((r: any) => {
+          ratesMap[r._id] = {
+            rate: r.rate,
+            source: r.source,
+            updatedAt: r.updatedAt,
+            expiresAt: r.expiresAt
+          };
+        });
+      }
+      
+      // Agregar rates por defecto si no existen
+      if (!ratesMap['PYG']) ratesMap['PYG'] = { rate: DEFAULT_RATES.PYG, source: 'default', updatedAt: new Date().toISOString() };
+      if (!ratesMap['ARS']) ratesMap['ARS'] = { rate: DEFAULT_RATES.ARS, source: 'default', updatedAt: new Date().toISOString() };
+      
+      setRates(ratesMap);
     } catch (err) {
       console.error('Error fetching exchange rates:', err);
+      // Usar valores por defecto
+      setRates({
+        'PYG': { rate: DEFAULT_RATES.PYG, source: 'default', updatedAt: new Date().toISOString() },
+        'ARS': { rate: DEFAULT_RATES.ARS, source: 'default', updatedAt: new Date().toISOString() }
+      });
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchRates();
-  }, []);
+  }, [fetchRates]);
 
-  const syncFromExternal = async () => {
+  const getRate = (currency: string): number => {
+    return rates[currency]?.rate || DEFAULT_RATES[currency as keyof typeof DEFAULT_RATES] || 1;
+  };
+
+  const convertToGs = (usd: number) => Math.round(usd * getRate('PYG'));
+  const convertToArs = (usd: number) => Math.round(usd * getRate('ARS'));
+  
+  const syncFromExternal = async (): Promise<boolean> => {
     try {
       setLoading(true);
-      const res = await exchangeRateService.sync();
-      setGsRate(res.data.gsRate);
-      setArsRate(res.data.arsRate);
-      setSource(res.data.source);
+      await exchangeRateService.sync();
+      await fetchRates();
       return true;
     } catch (err) {
       console.error('Error syncing exchange rates:', err);
@@ -43,38 +79,30 @@ export const useExchangeRate = () => {
     }
   };
 
-  const updateManual = async (gs: number, ars: number) => {
+  const updateRate = async (currency: string, rate: number): Promise<boolean> => {
     try {
       setLoading(true);
-      const res = await exchangeRateService.update({ gsRate: gs, arsRate: ars });
-      setGsRate(res.data.gsRate);
-      setArsRate(res.data.arsRate);
-      setSource('manual');
+      await exchangeRateService.update({ targetCurrency: currency, rate });
+      await fetchRates();
       return true;
     } catch (err) {
-      console.error('Error updating exchange rates:', err);
+      console.error('Error updating exchange rate:', err);
       return false;
     } finally {
       setLoading(false);
     }
   };
 
-  const convertToGs = (usd: number) => Math.round(usd * gsRate);
-  const convertToArs = (usd: number) => Math.round(usd * arsRate);
-  const convertFromGs = (gs: number) => gs / gsRate;
-  const convertFromArs = (ars: number) => ars / arsRate;
-
   return {
-    gsRate,
-    arsRate,
+    rates,
     loading,
-    source,
-    syncFromExternal,
-    updateManual,
+    getRate,
+    gsRate: getRate('PYG'),
+    arsRate: getRate('ARS'),
     convertToGs,
     convertToArs,
-    convertFromGs,
-    convertFromArs,
+    syncFromExternal,
+    updateRate,
     refresh: fetchRates,
   };
 };
