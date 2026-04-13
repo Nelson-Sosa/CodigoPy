@@ -9,6 +9,6 @@ r.post('/open', protect, c.open);
 r.post('/close', protect, c.close);
 r.post('/reopen', protect, c.reopen);
 r.get('/fix-indexes', c.fixIndexes);
-r.get('/force-close', protect, c.forceCloseAll);
+r.get('/force-close', c.forceCloseAll);
 
 module.exports = r;
