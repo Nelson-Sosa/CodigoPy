@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 
 import LoginPage from "./pages/LoginPage";
@@ -26,7 +26,7 @@ import ProtectedRoute from "./router/ProtectedRoute";
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <HashRouter>
         <Routes>
           {/* Rutas públicas */}
           <Route path="/login" element={<LoginPage />} />
@@ -166,7 +166,7 @@ function App() {
           {/* Ruta comodín */}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     </AuthProvider>
   );
 }
