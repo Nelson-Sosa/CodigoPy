@@ -12,17 +12,26 @@ const CURRENCIES = [
     code: 'PYG',
     name: 'Guaraní Paraguayo',
     symbol: 'Gs.',
-    flag: { from: '🇺🇸', to: '🇵🇾' },
+    flag: { from: 'us', to: 'py' },
     color: 'emerald',
   },
   {
     code: 'ARS',
     name: 'Peso Argentino',
     symbol: '$a',
-    flag: { from: '🇺🇸', to: '🇦🇷' },
+    flag: { from: 'us', to: 'ar' },
     color: 'amber',
   },
 ];
+
+const FlagIcon = ({ code }: { code: string }) => (
+  <img
+    src={`https://flagcdn.com/24x18/${code}.png`}
+    alt={code.toUpperCase()}
+    className="inline-block"
+    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+  />
+);
 
 const CurrencyCard = ({
   currency,
@@ -91,9 +100,9 @@ const CurrencyCard = ({
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <span className="text-2xl">{currency.flag.from}</span>
+          <FlagIcon code={currency.flag.from} />
           <ArrowRight size={16} className={`${c.accent} transition-transform group-hover:translate-x-1`} />
-          <span className="text-2xl">{currency.flag.to}</span>
+          <FlagIcon code={currency.flag.to} />
         </div>
         <span className="text-xs text-gray-400 font-medium">USD</span>
       </div>
@@ -199,12 +208,16 @@ const ExchangeRateDisplay = ({ isAdmin = false, compact = false }: ExchangeRateD
     return (
       <div className="flex items-center gap-4 text-sm">
         <div className="flex items-center gap-1">
-          <span>🇺🇸→🇵🇾</span>
+          <FlagIcon code="us" />
+          <span className="text-gray-500">→</span>
+          <FlagIcon code="py" />
           <span className="text-gray-500">Gs:</span>
           <span className="font-semibold">{gsRate.toLocaleString('es-PY')}</span>
         </div>
         <div className="flex items-center gap-1">
-          <span>🇺🇸→🇦🇷</span>
+          <FlagIcon code="us" />
+          <span className="text-gray-500">→</span>
+          <FlagIcon code="ar" />
           <span className="text-gray-500">$a:</span>
           <span className="font-semibold">{arsRate.toLocaleString('es-PY')}</span>
         </div>
