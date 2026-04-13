@@ -1,16 +1,19 @@
 const CashRegister = require('../models/CashRegister');
 const Sale = require('../models/Sale');
 
-const getStartOfDay = (date) => {
+const toLocalDate = (date) => {
   const offset = -4 * 60;
-  const localDate = new Date(date.getTime() + offset * 60 * 1000);
-  return new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate());
+  return new Date(date.getTime() + offset * 60 * 1000);
+};
+
+const getStartOfDay = (date) => {
+  const local = toLocalDate(date);
+  return new Date(local.getFullYear(), local.getMonth(), local.getDate());
 };
 
 const getEndOfDay = (date) => {
-  const offset = -4 * 60;
-  const localDate = new Date(date.getTime() + offset * 60 * 1000);
-  return new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate(), 23, 59, 59, 999);
+  const local = toLocalDate(date);
+  return new Date(local.getFullYear(), local.getMonth(), local.getDate(), 23, 59, 59, 999);
 };
 
 exports.getToday = async (req, res) => {
@@ -149,40 +152,33 @@ exports.getSummary = async (req, res) => {
   try {
     const now = new Date();
     
-    const getLocalDate = (date) => {
+    const toLocalDate = (date) => {
       const offset = -4 * 60;
-      const localDate = new Date(date.getTime() + offset * 60 * 1000);
-      return new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate());
+      return new Date(date.getTime() + offset * 60 * 1000);
     };
     
-    const getLocalDateEnd = (date) => {
-      const offset = -4 * 60;
-      const localDate = new Date(date.getTime() + offset * 60 * 1000);
-      return new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate(), 23, 59, 59, 999);
-    };
+    const localNow = toLocalDate(now);
+    const todayStart = new Date(localNow.getFullYear(), localNow.getMonth(), localNow.getDate());
+    const todayEnd = new Date(localNow.getFullYear(), localNow.getMonth(), localNow.getDate(), 23, 59, 59, 999);
+    const startOfMonth = new Date(todayStart.getFullYear(), todayStart.getMonth(), 1);
     
-    const today = getLocalDate(now);
-    const startOfDay = getLocalDate(now);
-    const endOfDay = getLocalDateEnd(now);
-    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    
-    const todayRegister = await CashRegister.findOne({ date: today, user: req.user._id });
+    const todayRegister = await CashRegister.findOne({
+      date: todayStart,
+      user: req.user._id
+    });
     
     let todayStatus = 'not_opened';
     if (todayRegister) {
       todayStatus = todayRegister.status;
     }
 
-    let todaySales = [];
-    let monthSales = [];
-    
-    todaySales = await Sale.find({
-      createdAt: { $gte: startOfDay, $lte: endOfDay },
+    let todaySales = await Sale.find({
+      createdAt: { $gte: todayStart, $lte: todayEnd },
       status: { $ne: 'cancelled' }
     });
     
-    monthSales = await Sale.find({
-      createdAt: { $gte: startOfMonth, $lte: endOfDay },
+    let monthSales = await Sale.find({
+      createdAt: { $gte: startOfMonth, $lte: todayEnd },
       status: { $ne: 'cancelled' }
     });
 
