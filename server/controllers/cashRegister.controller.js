@@ -76,7 +76,7 @@ exports.close = async (req, res) => {
     const pyToday = getPyToday();
 
     const cashRegister = await CashRegister.findOne({
-      date: today,
+      date: pyToday,
       user: req.user._id,
       status: 'open'
     });
@@ -85,13 +85,13 @@ exports.close = async (req, res) => {
       return res.status(400).json({ message: 'No hay caja abierta para hoy' });
     }
 
-    const startOfDay = getLocalStartOfDay(new Date());
-    const endOfDay = getLocalEndOfDay(new Date());
+    const startOfDay = getPyStartOfDay();
+    const endOfDay = getPyEndOfDay();
 
     const sales = await Sale.find({
       createdAt: { $gte: startOfDay, $lte: endOfDay },
       status: { $ne: 'cancelled' }
-    });
+    }).lean();
 
     let cashSales = 0;
     let cardSales = 0;
@@ -255,10 +255,10 @@ exports.getSummary = async (req, res) => {
 exports.reopen = async (req, res) => {
   try {
     const { openingAmount = 0 } = req.body;
-    const today = getLocalToday();
+    const pyToday = getPyToday();
 
     const existing = await CashRegister.findOne({
-      date: today,
+      date: pyToday,
       user: req.user._id,
       status: 'closed'
     });
