@@ -8,7 +8,7 @@ const app = express();
 connectDB();
 
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://codigo-py-flax.vercel.app'],
+  origin: ['http://localhost:5173', 'https://codigo-py-flax.vercel.app', 'https://codigo-py-frontend.onrender.com'],
   credentials: true
 }));
 app.use(express.json());
