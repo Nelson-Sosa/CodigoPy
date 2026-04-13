@@ -705,6 +705,33 @@ const CashRegisterPage = () => {
                     <span className="font-bold">{summary?.monthSalesCount}</span>
                   </div>
                 </div>
+                
+                <div className="mt-6 pt-4 border-t">
+                  <h4 className="font-semibold mb-3 flex items-center gap-2">
+                    💳 Distribución por métodos
+                  </h4>
+                  <div className="space-y-3">
+                    {[
+                      { label: 'Efectivo', percent: register?.totalSales ? Math.round((register.cashSales / register.totalSales) * 100) : 0, color: 'bg-green-500' },
+                      { label: 'Tarjeta', percent: register?.totalSales ? Math.round((register.cardSales / register.totalSales) * 100) : 0, color: 'bg-blue-500' },
+                      { label: 'Transferencia', percent: register?.totalSales ? Math.round((register.transferSales / register.totalSales) * 100) : 0, color: 'bg-purple-500' },
+                      { label: 'Crédito', percent: register?.totalSales ? Math.round((register.creditSales / register.totalSales) * 100) : 0, color: 'bg-orange-500' },
+                    ].map((item) => (
+                      <div key={item.label} className="flex items-center gap-3">
+                        <div className="w-28 text-sm text-gray-600">{item.label}:</div>
+                        <div className="flex-1 bg-gray-100 rounded-full h-3 overflow-hidden">
+                          <div 
+                            className={`${item.color} h-full rounded-full transition-all`}
+                            style={{ width: `${item.percent}%` }}
+                          />
+                        </div>
+                        <div className="w-12 text-sm font-semibold text-gray-700 text-right">
+                          {item.percent}%
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
 
