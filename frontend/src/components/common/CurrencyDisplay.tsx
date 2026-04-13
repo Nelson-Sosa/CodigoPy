@@ -77,12 +77,12 @@ const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
   return (
     <div
       className={`inline-flex items-center ${styles.gap} ${className}`}
-      style={{ display: 'inline-flex !important', visibility: 'visible !important' }}
+      style={{ display: 'inline-flex', visibility: 'visible' } as React.CSSProperties}
     >
       {showFlag !== false && (
         <div
           className={`${styles.flag} flex-shrink-0`}
-          style={{ display: 'block !important', visibility: 'visible !important' }}
+          style={{ display: 'block', visibility: 'visible' } as React.CSSProperties}
         >
           <img
             src={`/flags/${config.code}.svg`}
@@ -94,7 +94,7 @@ const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
               visibility: 'visible',
               minWidth: '16px',
               minHeight: '12px',
-            }}
+            } as React.CSSProperties}
             onError={(e) => {
               (e.target as HTMLImageElement).style.display = 'none';
             }}
@@ -133,7 +133,7 @@ export const CurrencyRow: React.FC<CurrencyRowProps> = ({
   return (
     <div
       className="flex items-center justify-between"
-      style={{ display: 'flex !important', visibility: 'visible !important' }}
+      style={{ display: 'flex', visibility: 'visible' } as React.CSSProperties}
     >
       {label && (
         <span className={`text-sm ${labelColor}`}>{label}</span>
