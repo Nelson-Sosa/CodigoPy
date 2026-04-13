@@ -85,7 +85,7 @@ const CashRegisterPage = () => {
   const [preCloseNotes, setPreCloseNotes] = useState("");
   const [openingAmount, setOpeningAmount] = useState(0);
 
-  const { gsRate, arsRate } = useExchangeRate();
+  const { gsRate } = useExchangeRate();
 
   const isOpen = summary?.todayStatus === 'open';
   const isClosedYesterday = summary?.todayStatus === 'closed';
@@ -386,7 +386,7 @@ const CashRegisterPage = () => {
                         <span className="text-sm text-gray-500 font-medium">Otros</span>
                       </div>
                       <p className="text-2xl font-bold text-purple-600">${(register.cardSales + register.transferSales + register.creditSales).toFixed(2)}</p>
-                      <p className="text-xs text-gray-400 mt-1">{(register.cardSales + register.transferSales + register.creditSales) * gsRate.toLocaleString("es-PY")} Gs</p>
+                      <p className="text-xs text-gray-400 mt-1">{((register.cardSales + register.transferSales + register.creditSales) * gsRate).toLocaleString("es-PY")} Gs</p>
                     </div>
 
                     <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl shadow-lg p-5 text-white">
