@@ -152,35 +152,34 @@ exports.getSummary = async (req, res) => {
   try {
     const now = new Date();
     
-    const toLocalDate = (date) => {
-      const offset = -4 * 60;
-      return new Date(date.getTime() + offset * 60 * 1000);
-    };
+    const localDate = new Date(now.getTime() - 4 * 60 * 60 * 1000);
+    const todayStart = new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate());
+    todayStart.setHours(0, 0, 0, 0);
     
-    const localNow = toLocalDate(now);
-    const todayStart = new Date(localNow.getFullYear(), localNow.getMonth(), localNow.getDate());
-    const todayEnd = new Date(localNow.getFullYear(), localNow.getMonth(), localNow.getDate(), 23, 59, 59, 999);
+    const todayEnd = new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate());
+    todayEnd.setHours(23, 59, 59, 999);
+    
     const startOfMonth = new Date(todayStart.getFullYear(), todayStart.getMonth(), 1);
     
     const todayRegister = await CashRegister.findOne({
       date: todayStart,
       user: req.user._id
-    });
+    }).lean();
     
     let todayStatus = 'not_opened';
     if (todayRegister) {
       todayStatus = todayRegister.status;
     }
 
-    let todaySales = await Sale.find({
+    const todaySales = await Sale.find({
       createdAt: { $gte: todayStart, $lte: todayEnd },
       status: { $ne: 'cancelled' }
-    });
+    }).lean();
     
-    let monthSales = await Sale.find({
+    const monthSales = await Sale.find({
       createdAt: { $gte: startOfMonth, $lte: todayEnd },
       status: { $ne: 'cancelled' }
-    });
+    }).lean();
 
     let cashSales = 0;
     let cardSales = 0;
@@ -225,6 +224,7 @@ exports.getSummary = async (req, res) => {
       monthTotal,
       monthCash: monthCashSales,
       monthSalesCount: monthSales.length,
+      serverTime: new Date().toISOString(),
     });
   } catch (err) {
     res.status(500).json({ message: err.message });

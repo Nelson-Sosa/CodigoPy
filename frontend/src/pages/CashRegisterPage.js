@@ -40,14 +40,19 @@ const CashRegisterPage = () => {
         try {
             setLoading(true);
             setError(null);
-            const now = new Date();
-            const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
-            const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+            const localDate = new Date(new Date().getTime() - 4 * 60 * 60 * 1000);
+            const todayStart = new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate());
+            todayStart.setHours(0, 0, 0, 0);
+            const todayEnd = new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate());
+            todayEnd.setHours(23, 59, 59, 999);
             const [summaryRes, historyRes, salesRes] = await Promise.all([
                 cashRegisterService.getSummary(),
                 cashRegisterService.getHistory({ page: 1, limit: 10 }),
                 saleService.getAll(),
             ]);
+            console.log('API Response:', summaryRes.data);
+            console.log('Today Start:', todayStart.toISOString());
+            console.log('Today End:', todayEnd.toISOString());
             setSummary(summaryRes.data);
             setHistory(historyRes.data.history || []);
             const filteredSales = (salesRes.data.sales || salesRes.data || []).filter((s) => {
