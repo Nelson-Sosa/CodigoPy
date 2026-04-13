@@ -310,3 +310,26 @@ exports.fixIndexes = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+exports.forceCloseAll = async (req, res) => {
+  try {
+    const pyToday = getPyToday();
+    
+    const result = await CashRegister.updateMany(
+      { date: pyToday, user: req.user._id, status: 'open' },
+      { 
+        status: 'closed',
+        closedAt: new Date(),
+        closingAmount: 0,
+        notes: 'Cerrada por administrador'
+      }
+    );
+    
+    res.json({ 
+      message: `${result.modifiedCount} caja(s) cerrada(s) exitosamente`,
+      success: true 
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
