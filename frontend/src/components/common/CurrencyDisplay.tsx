@@ -26,17 +26,29 @@ const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
   };
 
   const flagSizes = {
-    sm: 'w-5 h-3.5',
-    md: 'w-6 h-4',
-    lg: 'w-8 h-5',
+    sm: 'w-4 h-3 !important',
+    md: 'w-5 h-3.5 !important',
+    lg: 'w-6 h-4 !important',
+  };
+
+  const flagEmojis: Record<string, string> = {
+    USD: '🇺🇸',
+    PYG: '🇵🇾',
+    ARS: '🇦🇷',
   };
 
   return (
-    <div className={`inline-flex items-center gap-1.5 ${className}`}>
+    <div className={`inline-flex items-center gap-1 ${className}`}>
       {showFlag && (
-        <div className={flagSizes[size]} title={config.name}>
-          {config.flagSvg}
-        </div>
+        <>
+          <img
+            src={`https://flagcdn.com/w20/${config.code === 'USD' ? 'us' : config.code === 'PYG' ? 'py' : 'ar'}.png`}
+            alt={config.name}
+            title={config.name}
+            className={flagSizes[size]}
+            style={{ display: 'inline-block', borderRadius: '2px' }}
+          />
+        </>
       )}
       <span className={`${sizeClasses[size]} font-medium text-gray-700`}>
         {formattedAmount}
