@@ -158,17 +158,11 @@ exports.getHistory = async (req, res) => {
 
 exports.getSummary = async (req, res) => {
   try {
-    const now = new Date();
-    const pyOffset = -4 * 60;
-    const pyDate = new Date(now.getTime() + pyOffset * 60 * 1000);
+    const pyToday = getPyToday();
     
-    const todayYear = pyDate.getUTCFullYear();
-    const todayMonth = pyDate.getUTCMonth();
-    const todayDay = pyDate.getUTCDate();
-    
-    const todayStart = new Date(Date.UTC(todayYear, todayMonth, todayDay, pyOffset / 60, 0, 0, 0));
-    const todayEnd = new Date(Date.UTC(todayYear, todayMonth, todayDay, pyOffset / 60 + 24, 0, 0, -1));
-    const startOfMonth = new Date(Date.UTC(todayYear, todayMonth, 1, pyOffset / 60, 0, 0, 0));
+    const todayStart = getPyStartOfDay();
+    const todayEnd = getPyEndOfDay();
+    const startOfMonth = new Date(Date.UTC(pyToday.getUTCFullYear(), pyToday.getUTCMonth(), 1, Math.abs(PY_OFFSET_HOURS), 0, 0, 0));
     
     const allRegisters = await CashRegister.find({
       user: req.user._id
@@ -177,10 +171,9 @@ exports.getSummary = async (req, res) => {
     let todayRegister = null;
     for (const reg of allRegisters) {
       const regDate = new Date(reg.date);
-      const regPyDate = new Date(regDate.getTime() + pyOffset * 60 * 1000);
-      if (regPyDate.getUTCFullYear() === todayYear && 
-          regPyDate.getUTCMonth() === todayMonth && 
-          regPyDate.getUTCDate() === todayDay) {
+      if (regDate.getUTCFullYear() === pyToday.getUTCFullYear() && 
+          regDate.getUTCMonth() === pyToday.getUTCMonth() && 
+          regDate.getUTCDate() === pyToday.getUTCDate()) {
         todayRegister = reg;
         break;
       }
