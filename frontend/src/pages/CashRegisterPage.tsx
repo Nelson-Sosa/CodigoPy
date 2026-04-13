@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { cashRegisterService, saleService } from "../services/api";
 import { DollarSign, Lock, Unlock, ShoppingCart, CreditCard, Banknote, ArrowRightLeft, History, X, Eye, TrendingUp } from "lucide-react";
 import { format } from "date-fns";
-import { formatPrice } from "../utils/formatters";
 import { useExchangeRate } from "../hooks/useExchangeRate";
 
 interface SaleItem {
@@ -72,15 +71,6 @@ interface HistoryItem {
   salesCount: number;
 }
 
-const FlagIcon = ({ code }: { code: string }) => (
-  <img
-    src={`https://flagcdn.com/w40/${code}.png`}
-    alt={code.toUpperCase()}
-    className="inline-block rounded-sm shadow-sm w-5 h-auto"
-    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-  />
-);
-
 const CashRegisterPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -101,25 +91,6 @@ const CashRegisterPage = () => {
   const isClosedYesterday = summary?.todayStatus === 'closed';
   const shouldShowOpenCaja = !isOpen && !isClosedYesterday;
   const register = summary?.todayRegister;
-
-  const showPrice = (amount: number, className: string = "") => (
-    <span className={`inline-flex flex-wrap items-center gap-x-2 gap-y-0.5 ${className}`}>
-      <span className="inline-flex items-center gap-0.5">
-        <FlagIcon code="us" />
-        <span className="font-bold text-green-600 text-lg">{formatPrice(amount)} US</span>
-      </span>
-      <span className="text-gray-300">|</span>
-      <span className="inline-flex items-center gap-0.5">
-        <FlagIcon code="py" />
-        <span className="text-gray-500 text-xs">{(amount * gsRate).toLocaleString("es-PY")} Py</span>
-      </span>
-      <span className="text-gray-300">|</span>
-      <span className="inline-flex items-center gap-0.5">
-        <FlagIcon code="ar" />
-        <span className="text-gray-500 text-xs">{(amount * arsRate).toLocaleString("es-AR")} $a</span>
-      </span>
-    </span>
-  );
 
   const getPaymentIcon = (method: string) => {
     switch (method) {
@@ -203,22 +174,6 @@ const CashRegisterPage = () => {
       setShowPreCloseModal(false);
     } catch (err: any) {
       alert(err.response?.data?.message || "Error al cerrar caja");
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleCancelSaleFromModal = async (sale: Sale) => {
-    if (!confirm(`¿Cancelar venta #${sale.invoiceNumber}?\n\nTotal: $${sale.total.toFixed(2)}\n\nEsta acción reversará el stock.`)) {
-      return;
-    }
-    setActionLoading(true);
-    try {
-      await saleService.cancel(sale._id);
-      alert("Venta cancelada");
-      fetchData();
-    } catch (err: any) {
-      alert(err.response?.data?.message || "Error al cancelar venta");
     } finally {
       setActionLoading(false);
     }
