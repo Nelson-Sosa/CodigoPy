@@ -17,6 +17,7 @@ interface Sale {
   clientName: string;
   items: SaleItem[];
   total: number;
+  profit: number;
   paymentMethod: string;
   status: string;
   createdAt: string;
@@ -638,6 +639,12 @@ const CashRegisterPage = () => {
                 <span className="font-bold text-gray-900">Total:</span>
                 <span className="text-2xl font-bold text-green-600">${selectedSale.total.toFixed(2)}</span>
               </div>
+              {selectedSale.profit > 0 && (
+                <div className="bg-green-50 rounded-xl p-3 flex justify-between items-center">
+                  <span className="text-sm text-green-700">Ganancia:</span>
+                  <span className="text-lg font-bold text-green-600">+${selectedSale.profit.toFixed(2)}</span>
+                </div>
+              )}
             </div>
             <div className="px-6 py-4 border-t bg-gray-50 flex gap-3">
               <button
