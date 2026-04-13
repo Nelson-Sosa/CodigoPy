@@ -398,7 +398,7 @@ const CashRegisterPage = () => {
                         </div>
                         <span className="text-sm text-gray-500 font-medium">Caja Inicial</span>
                       </div>
-                      <p className="text-2xl font-bold text-gray-900">${register.openingAmount.toFixed(2)}</p>
+                      <CurrencyDisplay amount={register.openingAmount} currency="USD" size="md" />
                       <CurrencyDisplay amount={register.openingAmount * gsRate} currency="PYG" size="sm" />
                       <CurrencyDisplay amount={register.openingAmount * arsRate} currency="ARS" size="sm" />
                     </div>
@@ -410,7 +410,7 @@ const CashRegisterPage = () => {
                         </div>
                         <span className="text-sm text-gray-500 font-medium">Efectivo</span>
                       </div>
-                      <p className="text-2xl font-bold text-green-600">${register.cashSales.toFixed(2)}</p>
+                      <CurrencyDisplay amount={register.cashSales} currency="USD" size="md" />
                       <CurrencyDisplay amount={register.cashSales * gsRate} currency="PYG" size="sm" />
                       <CurrencyDisplay amount={register.cashSales * arsRate} currency="ARS" size="sm" />
                     </div>
@@ -422,7 +422,7 @@ const CashRegisterPage = () => {
                         </div>
                         <span className="text-sm text-gray-500 font-medium">Otros</span>
                       </div>
-                      <p className="text-2xl font-bold text-purple-600">${(register.cardSales + register.transferSales + register.creditSales).toFixed(2)}</p>
+                      <CurrencyDisplay amount={(register.cardSales + register.transferSales + register.creditSales)} currency="USD" size="md" />
                       <CurrencyDisplay amount={(register.cardSales + register.transferSales + register.creditSales) * gsRate} currency="PYG" size="sm" />
                       <CurrencyDisplay amount={(register.cardSales + register.transferSales + register.creditSales) * arsRate} currency="ARS" size="sm" />
                     </div>
@@ -434,8 +434,10 @@ const CashRegisterPage = () => {
                         </div>
                         <span className="text-sm text-indigo-100 font-medium">Total Ventas</span>
                       </div>
-                      <p className="text-2xl font-bold">${register.totalSales.toFixed(2)}</p>
-                      <p className="text-xs text-indigo-200">{register.salesCount} ventas</p>
+                      <CurrencyDisplay amount={register.totalSales} currency="USD" size="md" />
+                      <CurrencyDisplay amount={register.totalSales * gsRate} currency="PYG" size="sm" showFlag={false} />
+                      <CurrencyDisplay amount={register.totalSales * arsRate} currency="ARS" size="sm" showFlag={false} />
+                      <p className="text-xs text-indigo-200 mt-2">{register.salesCount} ventas</p>
                     </div>
                   </div>
 
