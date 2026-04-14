@@ -190,7 +190,7 @@ const SalesPage = () => {
     try {
       const saleData: any = {
         items: items.map(item => ({
-          productId: item.productId,
+          product: item.product,
           productName: item.productName,
           quantity: item.quantity,
           unitPrice: item.unitPrice,
