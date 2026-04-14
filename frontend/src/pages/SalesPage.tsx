@@ -5,8 +5,7 @@ import { printInvoice } from "../components/invoice/InvoiceGenerator";
 import { printTicket } from "../utils/ticketPrinter";
 
 interface SaleItem {
-  product?: string | { _id: string; name: string };
-  productId: string;
+  product: string;
   productName: string;
   sku: string;
   quantity: number;
@@ -117,20 +116,20 @@ const SalesPage = () => {
       return;
     }
 
-    const existing = items.find(item => item.productId === product._id);
+    const existing = items.find(item => item.product === product._id);
     if (existing) {
       if (existing.quantity >= product.stock) {
         alert("No hay suficiente stock");
         return;
       }
       setItems(items.map(item =>
-        item.productId === product._id
+        item.product === product._id
           ? { ...item, quantity: item.quantity + 1, subtotal: (item.quantity + 1) * item.unitPrice }
           : item
       ));
     } else {
       setItems([...items, {
-        productId: product._id,
+        product: product._id,
         productName: product.name,
         sku: product.sku,
         quantity: 1,
@@ -160,20 +159,20 @@ const SalesPage = () => {
       removeItem(productId);
       return;
     }
-    const item = items.find(i => i.productId === productId);
+    const item = items.find(i => i.product === productId);
     if (item && quantity > products.find(p => p._id === productId)?.stock!) {
       alert("No hay suficiente stock");
       return;
     }
     setItems(items.map(item =>
-      item.productId === productId
+      item.product === productId
         ? { ...item, quantity, subtotal: quantity * item.unitPrice }
         : item
     ));
   };
 
   const removeItem = (productId: string) => {
-    setItems(items.filter(item => item.productId !== productId));
+    setItems(items.filter(item => item.product !== productId));
   };
 
   const subtotal = items.reduce((acc, item) => acc + item.subtotal, 0);
@@ -239,15 +238,15 @@ const SalesPage = () => {
   const openEditForm = (sale: Sale) => {
     setEditingSale(sale);
     setClientId(sale.client?._id || "");
-    setItems(sale.items.map(item => ({
-      productId: typeof item.product === 'object' ? (item.product as any)._id : item.productId,
-      productName: item.productName,
-      sku: item.sku || "",
-      quantity: item.quantity,
-      unitPrice: item.unitPrice,
-      costPrice: item.costPrice,
-      subtotal: item.subtotal,
-    })));
+      setItems(sale.items.map(item => ({
+        product: typeof item.product === 'object' ? (item.product as any)._id : item.product,
+        productName: item.productName,
+        sku: item.sku || "",
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        costPrice: item.costPrice,
+        subtotal: item.subtotal,
+      })));
     setPaymentMethod(sale.paymentMethod);
     setDiscount(sale.discount);
     setNotes(sale.notes || "");
@@ -479,7 +478,7 @@ const SalesPage = () => {
                     </thead>
                     <tbody>
                       {items.map(item => (
-                        <tr key={item.productId} className="border-t">
+                        <tr key={item.product} className="border-t">
                           <td className="p-3">
                             <span className="font-medium">{item.productName}</span>
                             <span className="text-gray-400 text-xs block">{item.sku}</span>
@@ -487,7 +486,7 @@ const SalesPage = () => {
                           <td className="p-3">
                             <div className="flex items-center gap-1">
                               <button
-                                onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                                onClick={() => updateQuantity(item.product, item.quantity - 1)}
                                 className="w-7 h-7 bg-gray-200 rounded hover:bg-gray-300 font-bold"
                               >
                                 -
@@ -496,11 +495,11 @@ const SalesPage = () => {
                                 type="number"
                                 min="1"
                                 value={item.quantity}
-                                onChange={(e) => updateQuantity(item.productId, Number(e.target.value))}
+                                onChange={(e) => updateQuantity(item.product, Number(e.target.value))}
                                 className="w-14 border rounded px-2 py-1 text-center"
                               />
                               <button
-                                onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                                onClick={() => updateQuantity(item.product, item.quantity + 1)}
                                 className="w-7 h-7 bg-gray-200 rounded hover:bg-gray-300 font-bold"
                               >
                                 +
@@ -511,7 +510,7 @@ const SalesPage = () => {
                           <td className="p-3 font-medium">${item.subtotal.toFixed(2)}</td>
                           <td className="p-3">
                             <button 
-                              onClick={() => removeItem(item.productId)} 
+                              onClick={() => removeItem(item.product)} 
                               className="text-red-500 hover:text-red-700 p-1"
                             >
                               <Trash2 size={16} />

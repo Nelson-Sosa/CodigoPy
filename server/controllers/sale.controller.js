@@ -110,7 +110,7 @@ exports.create = async (req, res) => {
 
     // Actualizar stock y crear movimientos
     for (const item of items) {
-      const product = await Product.findById(item.productId);
+      const product = await Product.findById(item.product);
       const prevStock = product.stock;
       product.stock -= item.quantity;
       await product.save();
