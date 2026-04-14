@@ -59,9 +59,9 @@ exports.create = async (req, res) => {
     const saleItems = [];
 
     for (const item of items) {
-      const product = await Product.findById(item.productId);
+      const product = await Product.findById(item.product);
       if (!product)
-        return res.status(404).json({ message: `Producto no encontrado: ${item.productId}` });
+        return res.status(404).json({ message: `Producto no encontrado: ${item.product}` });
       if (product.stock < item.quantity)
         return res.status(400).json({ message: `Stock insuficiente para "${product.name}". Disponible: ${product.stock}` });
 
@@ -217,9 +217,9 @@ exports.update = async (req, res) => {
     const saleItems = [];
 
     for (const item of items) {
-      const product = await Product.findById(item.productId);
+      const product = await Product.findById(item.product);
       if (!product)
-        return res.status(404).json({ message: `Producto no encontrado: ${item.productId}` });
+        return res.status(404).json({ message: `Producto no encontrado: ${item.product}` });
       if (product.stock < item.quantity)
         return res.status(400).json({ message: `Stock insuficiente para "${product.name}". Disponible: ${product.stock}` });
 
