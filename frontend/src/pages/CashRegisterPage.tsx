@@ -115,12 +115,6 @@ const CashRegisterPage = () => {
       setLoading(true);
       setError(null);
       
-      const localDate = new Date(new Date().getTime() - 4 * 60 * 60 * 1000);
-      const todayStart = new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate());
-      todayStart.setHours(0, 0, 0, 0);
-      const todayEnd = new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate());
-      todayEnd.setHours(23, 59, 59, 999);
-
       const [summaryRes, historyRes, salesRes] = await Promise.all([
         cashRegisterService.getSummary(),
         cashRegisterService.getHistory({ page: 1, limit: 10 }),
@@ -130,9 +124,15 @@ const CashRegisterPage = () => {
       setSummary(summaryRes.data);
       setHistory(historyRes.data.history || []);
       
+      const summary = summaryRes.data;
+      const todayRegister = summary?.todayRegister;
+      const openedAt = todayRegister?.openedAt ? new Date(todayRegister.openedAt) : null;
+      
       const filteredSales = (salesRes.data.sales || salesRes.data || []).filter((s: Sale) => {
         const saleDate = new Date(s.createdAt);
-        return saleDate >= todayStart && saleDate <= todayEnd && s.status !== 'cancelled';
+        if (s.status === 'cancelled') return false;
+        if (openedAt && saleDate < openedAt) return false;
+        return true;
       });
       setTodaySales(filteredSales);
     } catch (err: any) {
