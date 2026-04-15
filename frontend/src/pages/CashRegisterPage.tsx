@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { cashRegisterService, saleService } from "../services/api";
 import { DollarSign, Lock, Unlock, ShoppingCart, CreditCard, Banknote, ArrowRightLeft, History, X, Eye, TrendingUp } from "lucide-react";
 import { format } from "date-fns";
+import { useExchangeRate } from "../hooks/useExchangeRate";
+import CurrencyDisplay from "../components/common/CurrencyDisplay";
 
 const PY_TIMEZONE_OFFSET = -4;
 
@@ -9,8 +11,8 @@ const toPyTime = (date: Date | string) => {
   const d = new Date(date);
   return new Date(d.getTime() + PY_TIMEZONE_OFFSET * 60 * 60 * 1000);
 };
-import { useExchangeRate } from "../hooks/useExchangeRate";
-import CurrencyDisplay from "../components/common/CurrencyDisplay";
+
+const getPyNow = () => toPyTime(new Date());
 
 interface SaleItem {
   productName: string;
@@ -131,11 +133,10 @@ const CashRegisterPage = () => {
       setSummary(summaryRes.data);
       setHistory(historyRes.data.history || []);
       
-      const pyNow = toPyTime(new Date());
-      const pyTodayStart = new Date(pyNow);
-      pyTodayStart.setHours(0, 0, 0, 0);
-      const pyTodayEnd = new Date(pyNow);
-      pyTodayEnd.setHours(23, 59, 59, 999);
+      const pyNow = getPyNow();
+      const pyTodayStr = pyNow.toISOString().split('T')[0];
+      const pyTodayStart = new Date(pyTodayStr + 'T00:00:00');
+      const pyTodayEnd = new Date(pyTodayStr + 'T23:59:59.999');
       
       const filteredSales = (salesRes.data.sales || salesRes.data || []).filter((s: Sale) => {
         const saleDate = toPyTime(s.createdAt);
