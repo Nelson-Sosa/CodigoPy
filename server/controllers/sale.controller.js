@@ -2,6 +2,7 @@ const Sale     = require('../models/Sale');
 const Product  = require('../models/Product');
 const Movement = require('../models/Movement');
 const Client   = require('../models/Client');
+const { getPyDateKey } = require('../utils/date');
 
 exports.getAll = async (req, res) => {
   try {
@@ -94,6 +95,7 @@ exports.create = async (req, res) => {
     }
 
     const sale = await Sale.create({
+      dateKey: getPyDateKey(),
       client: clientId || null,
       clientName,
       clientRuc,

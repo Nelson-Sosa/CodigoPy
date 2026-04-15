@@ -10,6 +10,7 @@ const saleItemSchema = new mongoose.Schema({
 });
 
 const saleSchema = new mongoose.Schema({
+  dateKey:       { type: Number, required: true, index: true }, // YYYYMMDD (Paraguay)
   invoiceNumber: { type: String, unique: true },
   client:        { type: mongoose.Schema.Types.ObjectId, ref: 'Client' },
   clientName:    { type: String, default: 'Cliente General' },

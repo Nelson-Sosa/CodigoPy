@@ -1,45 +1,28 @@
 import { useEffect, useState } from "react";
 import { cashRegisterService, saleService } from "../services/api";
 import { DollarSign, Lock, Unlock, ShoppingCart, CreditCard, Banknote, ArrowRightLeft, History, X, Eye, TrendingUp } from "lucide-react";
-import { format } from "date-fns";
 import { useExchangeRate } from "../hooks/useExchangeRate";
 import CurrencyDisplay from "../components/common/CurrencyDisplay";
 
-// const getPyTodayStr = () => {
-//   return new Intl.DateTimeFormat('en-CA', {
-//     timeZone: 'America/Asuncion',
-//     year: 'numeric',
-//     month: '2-digit',
-//     day: '2-digit'
-//   }).format(new Date());
-// };
-const getPyTodayStr = () => {
+const getPyDateKey = (): number => {
   const now = new Date();
-
-  return now.toLocaleDateString('en-CA', {
-    timeZone: 'America/Asuncion'
-  }); // YYYY-MM-DD
-};
-
-const isDateString = (date: string | Date | undefined): boolean => {
-  if (!date) return false;
-  if (typeof date !== 'string') return false;
-  return /^\d{4}-\d{2}-\d{2}$/.test(date);
-};
-
-const formatDate = (date: string | Date | undefined): string => {
-  if (!date) return '-';
-  const dateStr = String(date);
-  if (isDateString(dateStr)) {
-    const [y, m, d] = dateStr.split('-');
-    return `${d}/${m}/${y}`;
-  }
-  return new Intl.DateTimeFormat('es-PY', {
+  const parts = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'America/Asuncion',
-    day: '2-digit',
+    year: 'numeric',
     month: '2-digit',
-    year: 'numeric'
-  }).format(new Date(date));
+    day: '2-digit'
+  }).formatToParts(now);
+  const year = parts.find(p => p.type === 'year').value;
+  const month = parts.find(p => p.type === 'month').value;
+  const day = parts.find(p => p.type === 'day').value;
+  return Number(`${year}${month}${day}`);
+};
+
+const formatDateKey = (key: number | string | undefined): string => {
+  if (!key) return '-';
+  const str = String(key);
+  if (str.length !== 8) return String(key);
+  return `${str.slice(6, 8)}/${str.slice(4, 6)}/${str.slice(0, 4)}`;
 };
 
 const formatTime = (date: string | Date | undefined): string => {
@@ -171,14 +154,10 @@ const CashRegisterPage = () => {
       setSummary(summaryRes.data);
       setHistory(historyRes.data.history || []);
       
-      const pyTodayStr = getPyTodayStr();
-      const pyTodayStart = new Date(`${pyTodayStr}T00:00:00-04:00`);
-      const pyTodayEnd = new Date(`${pyTodayStr}T23:59:59.999-04:00`);
-      
+      const todayKey = getPyDateKey();
       const filteredSales = (salesRes.data.sales || salesRes.data || []).filter((s: Sale) => {
-        const saleDate = new Date(s.createdAt);
         if (s.status === 'cancelled') return false;
-        return saleDate >= pyTodayStart && saleDate <= pyTodayEnd;
+        return s.dateKey === todayKey;
       });
       setTodaySales(filteredSales);
     } catch (err: any) {
@@ -280,7 +259,7 @@ const CashRegisterPage = () => {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">Caja</h1>
-                <p className="text-sm text-gray-500">{formatDate(new Date())}</p>
+                <p className="text-sm text-gray-500">{formatDateKey(getPyDateKey())}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -341,7 +320,7 @@ const CashRegisterPage = () => {
                 <tbody className="divide-y divide-gray-100">
                   {history.map((item) => (
                     <tr key={item._id} className="hover:bg-gray-50 transition-all duration-200">
-                      <td className="px-6 py-4 text-sm text-gray-900">{formatDate(item.date)}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{formatDateKey(item.dateKey)}</td>
                       <td className="px-6 py-4 text-sm text-gray-600">{item.user?.name}</td>
                       <td className="px-6 py-4 text-sm text-gray-600 text-right">{item.salesCount}</td>
                       <td className="px-6 py-4 text-sm text-gray-600 text-right">${item.cashSales.toFixed(2)}</td>

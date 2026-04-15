@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const cashRegisterSchema = new mongoose.Schema({
-  date: { type: String, required: true }, // YYYY-MM-DD format (Paraguay timezone)
+  dateKey: { type: Number, required: true, index: true }, // YYYYMMDD format (Paraguay)
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   
   openingAmount: { type: Number, required: true, default: 0 },
@@ -27,7 +27,7 @@ const cashRegisterSchema = new mongoose.Schema({
   salesCount: { type: Number, default: 0 },
 }, { timestamps: true });
 
-cashRegisterSchema.index({ date: 1, user: 1 });
+cashRegisterSchema.index({ dateKey: 1, user: 1 });
 
 cashRegisterSchema.virtual('id').get(function () { return this._id.toString(); });
 cashRegisterSchema.set('toJSON', { virtuals: true });

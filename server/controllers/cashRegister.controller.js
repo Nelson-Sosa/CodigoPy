@@ -1,31 +1,13 @@
 const CashRegister = require('../models/CashRegister');
 const Sale = require('../models/Sale');
-
-const getPyTodayStr = () => {
-  return new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'America/Asuncion',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit'
-  }).format(new Date());
-};
-
-const getPyStartOfDay = () => {
-  const today = getPyTodayStr();
-  return new Date(`${today}T00:00:00-04:00`);
-};
-
-const getPyEndOfDay = () => {
-  const today = getPyTodayStr();
-  return new Date(`${today}T23:59:59.999-04:00`);
-};
+const { getPyDateKey } = require('../utils/date');
 
 exports.getToday = async (req, res) => {
   try {
-    const pyTodayStr = getPyTodayStr();
+    const dateKey = getPyDateKey();
     // Busca cualquier caja abierta del día (sin filtrar por usuario)
     let cashRegister = await CashRegister.findOne({ 
-      date: pyTodayStr,
+      dateKey,
       status: 'open'
     });
 
@@ -42,7 +24,7 @@ exports.getToday = async (req, res) => {
 exports.open = async (req, res) => {
   try {
     const { openingAmount = 0 } = req.body;
-    const pyTodayStr = getPyTodayStr();
+    const dateKey = getPyDateKey();
 
     // Solo el admin puede abrir caja
     if (req.user.role !== 'admin') {
@@ -50,7 +32,7 @@ exports.open = async (req, res) => {
     }
 
     const existing = await CashRegister.findOne({
-      date: pyTodayStr,
+      dateKey,
       status: 'open'
     });
 
@@ -59,7 +41,7 @@ exports.open = async (req, res) => {
     }
 
     const cashRegister = await CashRegister.create({
-      date: pyTodayStr,
+      dateKey,
       user: req.user._id,
       openingAmount,
       status: 'open',
@@ -75,7 +57,7 @@ exports.open = async (req, res) => {
 exports.close = async (req, res) => {
   try {
     const { closingAmount, notes } = req.body;
-    const pyTodayStr = getPyTodayStr();
+    const dateKey = getPyDateKey();
 
     // Solo el admin puede cerrar caja
     if (req.user.role !== 'admin') {
@@ -83,7 +65,7 @@ exports.close = async (req, res) => {
     }
 
     const cashRegister = await CashRegister.findOne({
-      date: pyTodayStr,
+      dateKey,
       status: 'open'
     });
 
@@ -91,11 +73,8 @@ exports.close = async (req, res) => {
       return res.status(400).json({ message: 'No hay caja abierta para hoy' });
     }
 
-    const startOfDay = getPyStartOfDay();
-    const endOfDay = getPyEndOfDay();
-
     const sales = await Sale.find({
-      createdAt: { $gte: startOfDay, $lte: endOfDay },
+      dateKey,
       status: { $ne: 'cancelled' }
     }).lean();
 
@@ -150,7 +129,7 @@ exports.getHistory = async (req, res) => {
     
     const history = await CashRegister.find()
       .populate('user', 'name')
-      .sort({ date: -1 })
+      .sort({ dateKey: -1 })
       .skip((page - 1) * limit)
       .limit(Number(limit));
 
@@ -164,15 +143,13 @@ exports.getHistory = async (req, res) => {
 
 exports.getSummary = async (req, res) => {
   try {
-    const pyTodayStr = getPyTodayStr();
-    const todayStart = getPyStartOfDay();
-    const todayEnd = getPyEndOfDay();
-    const [y, m] = pyTodayStr.split('-').map(Number);
-    const startOfMonth = new Date(`${y}-${String(m).padStart(2,'0')}-01T00:00:00-04:00`);
+    const dateKey = getPyDateKey();
+    const dateKeyStr = dateKey.toString();
+    const monthStart = Number(dateKeyStr.slice(0, 6) + '01');
     
     // Busca cualquier caja abierta del día (sin filtrar por usuario)
     const todayRegister = await CashRegister.findOne({
-      date: pyTodayStr,
+      dateKey,
       status: 'open'
     });
     
@@ -185,12 +162,12 @@ exports.getSummary = async (req, res) => {
     }
 
     const todaySales = await Sale.find({
-      createdAt: { $gte: todayStart, $lte: todayEnd },
+      dateKey,
       status: { $ne: 'cancelled' }
     }).lean();
     
     const monthSales = await Sale.find({
-      createdAt: { $gte: startOfMonth, $lte: todayEnd },
+      dateKey: { $gte: monthStart, $lte: dateKey },
       status: { $ne: 'cancelled' }
     }).lean();
 
@@ -254,10 +231,10 @@ exports.getSummary = async (req, res) => {
 exports.reopen = async (req, res) => {
   try {
     const { openingAmount = 0 } = req.body;
-    const pyTodayStr = getPyTodayStr();
+    const dateKey = getPyDateKey();
 
     const existing = await CashRegister.findOne({
-      date: pyTodayStr,
+      dateKey,
       user: req.user._id,
       status: 'closed'
     });
@@ -299,7 +276,7 @@ exports.fixIndexes = async (req, res) => {
     const CashRegisterModel = require('../models/CashRegister');
     await CashRegisterModel.collection.dropIndexes();
     
-    await CashRegisterModel.collection.createIndex({ date: 1, user: 1 });
+    await CashRegisterModel.collection.createIndex({ dateKey: 1, user: 1 });
     
     res.json({ 
       message: 'Índices corregidos exitosamente',
@@ -312,10 +289,10 @@ exports.fixIndexes = async (req, res) => {
 
 exports.forceCloseAll = async (req, res) => {
   try {
-    const pyTodayStr = getPyTodayStr();
+    const dateKey = getPyDateKey();
     
     const result = await CashRegister.updateMany(
-      { date: pyTodayStr, status: 'open' },
+      { dateKey, status: 'open' },
       { 
         status: 'closed',
         closedAt: new Date(),
