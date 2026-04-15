@@ -131,9 +131,6 @@ const CashRegisterPage = () => {
       setSummary(summaryRes.data);
       setHistory(historyRes.data.history || []);
       
-      const summary = summaryRes.data;
-      const history = historyRes.data.history || [];
-      
       const pyNow = toPyTime(new Date());
       const pyTodayStart = new Date(pyNow);
       pyTodayStart.setHours(0, 0, 0, 0);
