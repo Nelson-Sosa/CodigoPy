@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { cashRegisterService, saleService } from "../services/api";
 import { DollarSign, Lock, Unlock, ShoppingCart, CreditCard, Banknote, ArrowRightLeft, History, X, Eye, TrendingUp } from "lucide-react";
+import { format } from "date-fns";
 import { useExchangeRate } from "../hooks/useExchangeRate";
 import CurrencyDisplay from "../components/common/CurrencyDisplay";
 
@@ -12,9 +13,9 @@ const getPyDateKey = (): number => {
     month: '2-digit',
     day: '2-digit'
   }).formatToParts(now);
-  const year = parts.find(p => p.type === 'year').value;
-  const month = parts.find(p => p.type === 'month').value;
-  const day = parts.find(p => p.type === 'day').value;
+  const year = parts.find(p => p.type === 'year')?.value || '2026';
+  const month = parts.find(p => p.type === 'month')?.value || '01';
+  const day = parts.find(p => p.type === 'day')?.value || '01';
   return Number(`${year}${month}${day}`);
 };
 
@@ -44,6 +45,7 @@ interface SaleItem {
 
 interface Sale {
   _id: string;
+  dateKey: number;
   invoiceNumber: string;
   clientName: string;
   items: SaleItem[];
@@ -88,7 +90,7 @@ interface Summary {
 
 interface HistoryItem {
   _id: string;
-  date: string;
+  dateKey: number;
   user: { name: string };
   openingAmount: number;
   closingAmount: number;
