@@ -22,6 +22,7 @@ interface Sale {
   paymentMethod: string;
   status: string;
   createdAt: string;
+  createdBy?: { name: string };
 }
 
 interface CashRegister {
@@ -453,6 +454,7 @@ const CashRegisterPage = () => {
                             <th className="px-6 py-3">Factura</th>
                             <th className="px-6 py-3">Hora</th>
                             <th className="px-6 py-3">Cliente</th>
+                            <th className="px-6 py-3">Vendedor</th>
                             <th className="px-6 py-3">Pago</th>
                             <th className="px-6 py-3 text-right">Total</th>
                             <th className="px-6 py-3 text-center">Acciones</th>
@@ -464,6 +466,7 @@ const CashRegisterPage = () => {
                               <td className="px-6 py-4 text-sm font-mono text-gray-900">{sale.invoiceNumber}</td>
                               <td className="px-6 py-4 text-sm text-gray-600">{format(new Date(sale.createdAt), 'HH:mm')}</td>
                               <td className="px-6 py-4 text-sm text-gray-600">{sale.clientName || 'Consumidor Final'}</td>
+                              <td className="px-6 py-4 text-sm text-gray-600">{sale.createdBy?.name || '-'}</td>
                               <td className="px-6 py-4">
                                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-gray-100 text-gray-700">
                                   {getPaymentIcon(sale.paymentMethod)}
@@ -494,7 +497,7 @@ const CashRegisterPage = () => {
                           ))}
                           {todaySales.length === 0 && (
                             <tr>
-                              <td colSpan={6} className="px-6 py-12 text-center text-gray-400">No hay ventas registradas</td>
+                              <td colSpan={7} className="px-6 py-12 text-center text-gray-400">No hay ventas registradas</td>
                             </tr>
                           )}
                         </tbody>
