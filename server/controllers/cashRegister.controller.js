@@ -26,9 +26,10 @@ const getPyEndOfDay = () => {
 exports.getToday = async (req, res) => {
   try {
     const pyToday = getPyToday();
+    // Busca cualquier caja abierta del día (sin filtrar por usuario)
     let cashRegister = await CashRegister.findOne({ 
       date: pyToday,
-      user: req.user._id 
+      status: 'open'
     });
 
     if (!cashRegister) {
@@ -46,18 +47,18 @@ exports.open = async (req, res) => {
     const { openingAmount = 0 } = req.body;
     const pyToday = getPyToday();
 
+    // Solo el admin puede abrir caja
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Solo el administrador puede abrir la caja' });
+    }
+
     const existing = await CashRegister.findOne({
       date: pyToday,
-      user: req.user._id
+      status: 'open'
     });
 
     if (existing) {
-      if (existing.status === 'open') {
-        return res.status(400).json({ message: 'La caja ya está abierta para hoy' });
-      }
-      if (existing.status === 'closed') {
-        return res.status(400).json({ message: 'Ya tienes una caja registrada para hoy. Cierra la caja actual antes de abrir una nueva.' });
-      }
+      return res.status(400).json({ message: 'La caja ya está abierta para hoy' });
     }
 
     const cashRegister = await CashRegister.create({
@@ -79,9 +80,13 @@ exports.close = async (req, res) => {
     const { closingAmount, notes } = req.body;
     const pyToday = getPyToday();
 
+    // Solo el admin puede cerrar caja
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Solo el administrador puede cerrar la caja' });
+    }
+
     const cashRegister = await CashRegister.findOne({
       date: pyToday,
-      user: req.user._id,
       status: 'open'
     });
 
