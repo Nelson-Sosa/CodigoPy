@@ -28,7 +28,7 @@ const Sidebar = ({ onClose }: SidebarProps) => {
     { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard, roles: ["admin", "vendedor"] },
     { label: "Caja", path: "/cash-register", icon: DollarSign, roles: ["admin", "vendedor"] },
     { label: "Ventas", path: "/sales", icon: ShoppingCart, roles: ["admin", "vendedor"] },
-    { label: "Productos", path: "/products", icon: Package, roles: ["admin"] },
+    { label: "Productos", path: "/products", icon: Package, roles: ["admin", "vendedor"] },
     { label: "Categorías", path: "/categories", icon: Tag, roles: ["admin"] },
     { label: "Movimientos", path: "/movements", icon: ArrowLeftRight, roles: ["admin"] },
     { label: "Clientes", path: "/clients", icon: Users, roles: ["admin", "vendedor"] },
