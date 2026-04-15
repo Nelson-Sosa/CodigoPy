@@ -132,20 +132,18 @@ const CashRegisterPage = () => {
       setHistory(historyRes.data.history || []);
       
       const summary = summaryRes.data;
-      const todayRegister = summary?.todayRegister;
-      const openedAt = todayRegister?.openedAt ? toPyTime(todayRegister.openedAt) : null;
+      const history = historyRes.data.history || [];
       
-      const pyToday = new Date(toPyTime(new Date()));
-      pyToday.setHours(0, 0, 0, 0);
+      const pyNow = toPyTime(new Date());
+      const pyTodayStart = new Date(pyNow);
+      pyTodayStart.setHours(0, 0, 0, 0);
+      const pyTodayEnd = new Date(pyNow);
+      pyTodayEnd.setHours(23, 59, 59, 999);
       
       const filteredSales = (salesRes.data.sales || salesRes.data || []).filter((s: Sale) => {
         const saleDate = toPyTime(s.createdAt);
         if (s.status === 'cancelled') return false;
-        if (openedAt) {
-          if (saleDate >= openedAt) return true;
-          return false;
-        }
-        return saleDate >= pyToday;
+        return saleDate >= pyTodayStart && saleDate <= pyTodayEnd;
       });
       setTodaySales(filteredSales);
     } catch (err: any) {
