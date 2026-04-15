@@ -455,17 +455,17 @@ const CashRegisterPage = () => {
                       <CurrencyDisplay amount={(register.cardSales + register.transferSales + register.creditSales) * arsRate} currency="ARS" size="sm" />
                     </div>
 
-                    <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl shadow-lg p-5 text-white">
+                    <div className="bg-white rounded-2xl shadow-lg border border-indigo-200 p-5">
                       <div className="flex items-center gap-3 mb-3">
-                        <div className="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center">
-                          <TrendingUp className="text-white" size={22} />
+                        <div className="w-11 h-11 rounded-xl bg-indigo-100 flex items-center justify-center">
+                          <TrendingUp className="text-indigo-600" size={22} />
                         </div>
-                        <span className="text-sm text-indigo-100 font-medium">Total Ventas</span>
+                        <span className="text-sm text-indigo-600 font-medium">Total Ventas</span>
                       </div>
-                      <CurrencyDisplay amount={register.totalSales} currency="USD" size="md" />
-                      <CurrencyDisplay amount={register.totalSales * gsRate} currency="PYG" size="sm" />
-                      <CurrencyDisplay amount={register.totalSales * arsRate} currency="ARS" size="sm" />
-                      <p className="text-xs text-indigo-200 mt-2">{register.salesCount} ventas</p>
+                      <CurrencyDisplay amount={register.totalSales} currency="USD" size="md" darkMode={false} />
+                      <CurrencyDisplay amount={register.totalSales * gsRate} currency="PYG" size="sm" darkMode={false} />
+                      <CurrencyDisplay amount={register.totalSales * arsRate} currency="ARS" size="sm" darkMode={false} />
+                      <p className="text-xs text-gray-500 mt-2">{register.salesCount} ventas</p>
                     </div>
                   </div>
 
