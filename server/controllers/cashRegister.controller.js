@@ -25,12 +25,12 @@ const getPyToday = () => {
 
 const getPyStartOfDay = () => {
   const pyTodayStr = getPyTodayStr();
-  return new Date(pyTodayStr + 'T00:00:00');
+  return new Date(pyTodayStr + 'T00:00:00-04:00');
 };
 
 const getPyEndOfDay = () => {
   const pyTodayStr = getPyTodayStr();
-  return new Date(pyTodayStr + 'T23:59:59.999');
+  return new Date(pyTodayStr + 'T23:59:59.999-04:00');
 };
 
 exports.getToday = async (req, res) => {
@@ -185,7 +185,9 @@ exports.getSummary = async (req, res) => {
     
     const todayStart = getPyStartOfDay();
     const todayEnd = getPyEndOfDay();
-    const startOfMonth = new Date(Date.UTC(pyToday.getUTCFullYear(), pyToday.getUTCMonth(), 1, Math.abs(PY_OFFSET_HOURS), 0, 0, 0));
+    const pyTodayStr = getPyTodayStr();
+    const [y, m] = pyTodayStr.split('-').map(Number);
+    const startOfMonth = new Date(`${y}-${String(m).padStart(2,'0')}-01T00:00:00-04:00`);
     
     // Busca cualquier caja abierta del día (sin filtrar por usuario)
     const todayRegister = await CashRegister.findOne({

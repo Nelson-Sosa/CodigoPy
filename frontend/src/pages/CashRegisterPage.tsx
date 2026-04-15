@@ -134,9 +134,9 @@ const CashRegisterPage = () => {
       setHistory(historyRes.data.history || []);
       
       const pyNow = getPyNow();
-      const pyTodayStr = pyNow.toISOString().split('T')[0];
-      const pyTodayStart = new Date(pyTodayStr + 'T00:00:00');
-      const pyTodayEnd = new Date(pyTodayStr + 'T23:59:59.999');
+      const pyTodayStr = `${pyNow.getUTCFullYear()}-${String(pyNow.getUTCMonth()+1).padStart(2,'0')}-${String(pyNow.getUTCDate()).padStart(2,'0')}`;
+      const pyTodayStart = new Date(pyTodayStr + 'T00:00:00-04:00');
+      const pyTodayEnd = new Date(pyTodayStr + 'T23:59:59.999-04:00');
       
       const filteredSales = (salesRes.data.sales || salesRes.data || []).filter((s: Sale) => {
         const saleDate = toPyTime(s.createdAt);
@@ -243,7 +243,7 @@ const CashRegisterPage = () => {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">Caja</h1>
-                <p className="text-sm text-gray-500">{format(new Date(), 'EEEE, d MMMM yyyy')}</p>
+                <p className="text-sm text-gray-500">{format(getPyNow(), 'EEEE, d MMMM yyyy')}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -473,7 +473,7 @@ const CashRegisterPage = () => {
                           {todaySales.map((sale) => (
                             <tr key={sale._id} className="hover:bg-gray-50 transition-all duration-200">
                               <td className="px-6 py-4 text-sm font-mono text-gray-900">{sale.invoiceNumber}</td>
-                              <td className="px-6 py-4 text-sm text-gray-600">{format(new Date(sale.createdAt), 'HH:mm')}</td>
+                              <td className="px-6 py-4 text-sm text-gray-600">{format(toPyTime(sale.createdAt), 'HH:mm')}</td>
                               <td className="px-6 py-4 text-sm text-gray-600">{sale.clientName || 'Consumidor Final'}</td>
                               <td className="px-6 py-4 text-sm text-gray-600">{sale.createdBy?.name || '-'}</td>
                               <td className="px-6 py-4">
