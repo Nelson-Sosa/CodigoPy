@@ -4,6 +4,7 @@ import { DollarSign, Lock, Unlock, ShoppingCart, CreditCard, Banknote, ArrowRigh
 import { format } from "date-fns";
 import { useExchangeRate } from "../hooks/useExchangeRate";
 import CurrencyDisplay from "../components/common/CurrencyDisplay";
+import { ToastContainer, useToast } from "../components/common/Toast";
 
 const getPyDateKey = (): number => {
   const now = new Date();
@@ -122,6 +123,7 @@ const CashRegisterPage = () => {
   const [reopenAmount, setReopenAmount] = useState(0);
 
   const { gsRate, arsRate } = useExchangeRate();
+  const { toasts, addToast, removeToast } = useToast();
 
   const isOpen = summary?.todayStatus === 'open';
   const isClosedYesterday = summary?.todayStatus === 'closed';
@@ -190,12 +192,14 @@ const CashRegisterPage = () => {
     if (confirm("¿Reabrir caja con $ " + reopenAmount + "?")) {
       setActionLoading(true);
       try {
+        const now = new Date();
+        const time = now.toLocaleTimeString('es-PY', { hour: '2-digit', minute: '2-digit' });
         await cashRegisterService.reopen(reopenAmount);
-        alert("Caja reopenta exitosamente");
+        addToast(`Caja reabierta a las ${time}`, 'success');
         fetchData();
         setReopenAmount(0);
       } catch (err: any) {
-        alert(err.response?.data?.message || "Error al reabrir caja");
+        addToast(err.response?.data?.message || "Error al reabrir caja", 'error');
       } finally {
         setActionLoading(false);
       }
@@ -830,6 +834,8 @@ const CashRegisterPage = () => {
           </div>
         </div>
       )}
+
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 };
