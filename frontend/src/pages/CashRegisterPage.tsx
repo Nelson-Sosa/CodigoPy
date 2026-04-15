@@ -14,19 +14,24 @@ const getPyTodayStr = () => {
   }).format(new Date());
 };
 
-const formatDateStr = (dateStr: string | undefined) => {
-  if (!dateStr) return '-';
-  const parts = dateStr.split('-');
-  if (parts.length !== 3) return dateStr;
-  return `${parts[2]}/${parts[1]}/${parts[0]}`;
+const formatDate = (date: string | Date | undefined): string => {
+  if (!date) return '-';
+  return new Intl.DateTimeFormat('es-PY', {
+    timeZone: 'America/Asuncion',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  }).format(new Date(date));
 };
 
-const formatTimeStr = (dateStr: string | undefined) => {
-  if (!dateStr) return '-';
-  const date = new Date(dateStr);
-  const hours = String(date.getUTCHours() - 4).padStart(2, '0');
-  const mins = String(date.getUTCMinutes()).padStart(2, '0');
-  return `${hours}:${mins}`;
+const formatTime = (date: string | Date | undefined): string => {
+  if (!date) return '-';
+  return new Intl.DateTimeFormat('es-PY', {
+    timeZone: 'America/Asuncion',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  }).format(new Date(date));
 };
 
 interface SaleItem {
@@ -257,7 +262,7 @@ const CashRegisterPage = () => {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">Caja</h1>
-                <p className="text-sm text-gray-500">{getPyTodayStr().split('-').reverse().join('/')}</p>
+                <p className="text-sm text-gray-500">{formatDate(new Date())}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -318,7 +323,7 @@ const CashRegisterPage = () => {
                 <tbody className="divide-y divide-gray-100">
                   {history.map((item) => (
                     <tr key={item._id} className="hover:bg-gray-50 transition-all duration-200">
-                      <td className="px-6 py-4 text-sm text-gray-900">{formatDateStr(item.date)}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{formatDate(item.date)}</td>
                       <td className="px-6 py-4 text-sm text-gray-600">{item.user?.name}</td>
                       <td className="px-6 py-4 text-sm text-gray-600 text-right">{item.salesCount}</td>
                       <td className="px-6 py-4 text-sm text-gray-600 text-right">${item.cashSales.toFixed(2)}</td>
@@ -487,7 +492,7 @@ const CashRegisterPage = () => {
                           {todaySales.map((sale) => (
                             <tr key={sale._id} className="hover:bg-gray-50 transition-all duration-200">
                               <td className="px-6 py-4 text-sm font-mono text-gray-900">{sale.invoiceNumber}</td>
-                              <td className="px-6 py-4 text-sm text-gray-600">{formatTimeStr(sale.createdAt)}</td>
+                              <td className="px-6 py-4 text-sm text-gray-600">{formatTime(sale.createdAt)}</td>
                               <td className="px-6 py-4 text-sm text-gray-600">{sale.clientName || 'Consumidor Final'}</td>
                               <td className="px-6 py-4 text-sm text-gray-600">{sale.createdBy?.name || '-'}</td>
                               <td className="px-6 py-4">
