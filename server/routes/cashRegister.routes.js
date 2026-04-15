@@ -11,8 +11,8 @@ r.post('/reopen', protect, c.reopen);
 r.get('/fix-indexes', c.fixIndexes);
 r.get('/force-close', c.forceCloseAll);
 r.get('/force-close-all', c.forceCloseAllAny);
-r.delete('/delete-register', protect, c.admin, c.deleteRegister);
-r.post('/delete-by-user', protect, c.admin, c.deleteByUserName);
+r.delete('/delete-register', protect, admin, c.deleteRegister);
+r.post('/delete-by-user', protect, admin, c.deleteByUserName);
 r.post('/clean-duplicates', protect, admin, c.cleanDuplicates);
 
 module.exports = r;
