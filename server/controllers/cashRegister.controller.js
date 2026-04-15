@@ -189,7 +189,7 @@ exports.getSummary = async (req, res) => {
 
     const todayRegister = await CashRegister.findOne({
       dateKey,
-      status: 'open'
+      status: { $in: ['open', 'closed'] }
     });
     
     let todayStatus = 'not_opened';
