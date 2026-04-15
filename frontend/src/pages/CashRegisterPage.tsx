@@ -141,7 +141,6 @@ const CashRegisterPage = () => {
       setSummary(summaryRes.data);
       setHistory(historyRes.data.history || []);
       
-      const now = new Date();
       const pyTodayStr = getPyTodayStr();
       const pyTodayStart = new Date(`${pyTodayStr}T00:00:00-04:00`);
       const pyTodayEnd = new Date(`${pyTodayStr}T23:59:59.999-04:00`);
