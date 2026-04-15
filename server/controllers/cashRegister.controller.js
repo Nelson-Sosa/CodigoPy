@@ -49,8 +49,6 @@ exports.open = async (req, res) => {
       return res.status(403).json({ message: 'Solo el administrador puede abrir la caja' });
     }
 
-    const pyTodayStr = getPyTodayStr();
-    
     const existing = await CashRegister.findOne({
       date: pyTodayStr,
       status: 'open'
@@ -84,8 +82,6 @@ exports.close = async (req, res) => {
       return res.status(403).json({ message: 'Solo el administrador puede cerrar la caja' });
     }
 
-    const pyTodayStr = getPyTodayStr();
-    
     const cashRegister = await CashRegister.findOne({
       date: pyTodayStr,
       status: 'open'
@@ -168,11 +164,8 @@ exports.getHistory = async (req, res) => {
 
 exports.getSummary = async (req, res) => {
   try {
-    const pyTodayStr = getPyTodayStr();
-    
     const todayStart = getPyStartOfDay();
     const todayEnd = getPyEndOfDay();
-    const pyTodayStr = getPyTodayStr();
     const [y, m] = pyTodayStr.split('-').map(Number);
     const startOfMonth = new Date(`${y}-${String(m).padStart(2,'0')}-01T00:00:00-04:00`);
     
