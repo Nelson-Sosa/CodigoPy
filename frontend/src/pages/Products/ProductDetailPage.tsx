@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { productService } from "../../services/api";
 import { Package, Tag, Info, PackagePlus, Pencil, ArrowLeft, TrendingUp, TrendingDown } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 
 interface Product {
   _id: string;
@@ -37,6 +38,8 @@ interface Movement {
 const ProductDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
   const [product, setProduct] = useState<Product | null>(null);
   const [movements, setMovements] = useState<Movement[]>([]);
   const [loading, setLoading] = useState(true);
@@ -171,22 +174,24 @@ const ProductDetailPage = () => {
                 {product.brand || "Sin marca"}
               </p>
             </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => navigate(`/products/edit/${product.id}`)}
-                className="px-4 py-2 bg-white text-blue-600 rounded-lg flex items-center gap-2 hover:bg-blue-50 transition-colors"
-              >
-                <Pencil size={18} />
-                Editar
-              </button>
-              <button
-                onClick={() => setShowAdjustModal(true)}
-                className="px-4 py-2 bg-yellow-500 text-white rounded-lg flex items-center gap-2 hover:bg-yellow-600 transition-colors"
-              >
-                <PackagePlus size={18} />
-                Ajustar Stock
-              </button>
-            </div>
+            {isAdmin && (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => navigate(`/products/edit/${product.id}`)}
+                  className="px-4 py-2 bg-white text-blue-600 rounded-lg flex items-center gap-2 hover:bg-blue-50 transition-colors"
+                >
+                  <Pencil size={18} />
+                  Editar
+                </button>
+                <button
+                  onClick={() => setShowAdjustModal(true)}
+                  className="px-4 py-2 bg-yellow-500 text-white rounded-lg flex items-center gap-2 hover:bg-yellow-600 transition-colors"
+                >
+                  <PackagePlus size={18} />
+                  Ajustar Stock
+                </button>
+              </div>
+            )}
           </div>
         </div>
 

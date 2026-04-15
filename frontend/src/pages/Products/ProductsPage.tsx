@@ -3,9 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { productService, categoryService } from "../../services/api";
 import ProductTable from "../../components/products/ProductTable";
 import type { Product } from "../../types/Product";
+import { useAuth } from "../../context/AuthContext";
 
 const ProductsPage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
 
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
@@ -105,14 +108,16 @@ const ProductsPage = () => {
   return (
     <div className="p-6 space-y-4">
       <h1 className="text-2xl font-bold mb-4">Gestión de Productos</h1>
-      <div className="flex justify-between items-center mb-4">
-        <button
-          onClick={() => navigate("/products/new")}
-          className="bg-green-600 text-white px-4 py-2 rounded"
-        >
-          + Agregar producto
-        </button>
-      </div>
+      {isAdmin && (
+        <div className="flex justify-between items-center mb-4">
+          <button
+            onClick={() => navigate("/products/new")}
+            className="bg-green-600 text-white px-4 py-2 rounded"
+          >
+            + Agregar producto
+          </button>
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-2 items-center mb-4">
         <input
@@ -167,6 +172,7 @@ const ProductsPage = () => {
           onEdit={handleEdit}
           onAdjustStock={handleAdjustStock}
           onDelete={setDeleteProductId}
+          canEdit={isAdmin}
         />
       )}
 

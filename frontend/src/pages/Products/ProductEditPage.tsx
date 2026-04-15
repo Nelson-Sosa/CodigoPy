@@ -3,16 +3,25 @@ import { useState, useEffect } from "react";
 import { productService, categoryService } from "../../services/api";
 import type { Product } from "../../types/Product";
 import { Package, Tag, Info } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 
 const ProductEditPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
 
   const [form, setForm] = useState<Partial<Product>>({});
   const [categories, setCategories] = useState<any[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!isAdmin) {
+      navigate("/products");
+    }
+  }, [isAdmin, navigate]);
 
   useEffect(() => {
     const fetchData = async () => {

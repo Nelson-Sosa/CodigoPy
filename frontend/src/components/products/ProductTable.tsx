@@ -9,9 +9,10 @@ interface Props {
   onView: (id: string) => void;
   onEdit: (id: string) => void;
   onAdjustStock: (product: Product) => void;
+  canEdit?: boolean;
 }
 
-const ProductTable = ({ products, onDelete, onView, onEdit, onAdjustStock }: Props) => {
+const ProductTable = ({ products, onDelete, onView, onEdit, onAdjustStock, canEdit = false }: Props) => {
   const [sortField, setSortField] = useState<keyof Product | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
@@ -79,7 +80,7 @@ const ProductTable = ({ products, onDelete, onView, onEdit, onAdjustStock }: Pro
                 {p.createdAt ? new Date(p.createdAt).toLocaleDateString() : "N/A"}
               </td>
               <td className="px-3 py-2 capitalize">{p.status}</td>
-             <td className="px-3 py-2">
+              <td className="px-3 py-2">
   <div className="flex items-center gap-3">
     <button
       onClick={() => onView(p.id)}
@@ -89,29 +90,33 @@ const ProductTable = ({ products, onDelete, onView, onEdit, onAdjustStock }: Pro
       <Eye size={18} />
     </button>
 
-    <button
-      onClick={() => onEdit(p.id)}
-      className="text-yellow-600 hover:text-yellow-800"
-      title="Editar"
-    >
-      <Pencil size={18} />
-    </button>
+    {canEdit && (
+      <>
+        <button
+          onClick={() => onEdit(p.id)}
+          className="text-yellow-600 hover:text-yellow-800"
+          title="Editar"
+        >
+          <Pencil size={18} />
+        </button>
 
-    <button
-      onClick={() => onAdjustStock(p)}
-      className="text-purple-600 hover:text-purple-800"
-      title="Ajustar stock"
-    >
-      <PackagePlus size={18} />
-    </button>
+        <button
+          onClick={() => onAdjustStock(p)}
+          className="text-purple-600 hover:text-purple-800"
+          title="Ajustar stock"
+        >
+          <PackagePlus size={18} />
+        </button>
 
-    <button
-      onClick={() => onDelete(p.id)}
-      className="text-red-600 hover:text-red-800"
-      title="Eliminar"
-    >
-      <Trash2 size={18} />
-    </button>
+        <button
+          onClick={() => onDelete(p.id)}
+          className="text-red-600 hover:text-red-800"
+          title="Eliminar"
+        >
+          <Trash2 size={18} />
+        </button>
+      </>
+    )}
   </div>
 </td>
             </tr>
