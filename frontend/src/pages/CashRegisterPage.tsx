@@ -570,7 +570,7 @@ const CashRegisterPage = () => {
                     {preCloseClosingAmount > 0 && (
                       <div className={`p-4 rounded-xl mb-4 text-center ${preCloseClosingAmount === register.totalCash ? 'bg-green-50 border-2 border-green-200' : preCloseClosingAmount > register.totalCash ? 'bg-yellow-50 border-2 border-yellow-200' : 'bg-red-50 border-2 border-red-200'}`}>
                         <p className={`text-lg font-bold ${preCloseClosingAmount === register.totalCash ? 'text-green-700' : preCloseClosingAmount > register.totalCash ? 'text-yellow-700' : 'text-red-700'}`}>
-                          {preCloseClosingAmount === register.totalCash ? '¡Cuadrado!' : preCloseClosingAmount > register.totalCash ? 'Sobrante' : 'Faltante'}
+                          {preCloseClosingAmount === register.totalCash ? '¡Correcto!' : preCloseClosingAmount > register.totalCash ? 'Sobrante' : 'Faltante'}
                         </p>
                         <p className={`text-2xl font-bold ${preCloseClosingAmount === register.totalCash ? 'text-green-600' : preCloseClosingAmount > register.totalCash ? 'text-yellow-600' : 'text-red-600'}`}>
                           ${Math.abs(preCloseClosingAmount - register.totalCash).toFixed(2)}
