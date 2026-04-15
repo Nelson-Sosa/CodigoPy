@@ -5,14 +5,6 @@ import { format } from "date-fns";
 import { useExchangeRate } from "../hooks/useExchangeRate";
 import CurrencyDisplay from "../components/common/CurrencyDisplay";
 
-const toPyDate = (date: string | Date) => {
-  return new Date(
-    new Date(date).toLocaleString("en-US", {
-      timeZone: "America/Asuncion"
-    })
-  );
-};
-
 const getPyTodayStr = () => {
   return new Intl.DateTimeFormat('en-CA', {
     timeZone: 'America/Asuncion',
@@ -20,6 +12,13 @@ const getPyTodayStr = () => {
     month: '2-digit',
     day: '2-digit'
   }).format(new Date());
+};
+
+const formatDateStr = (dateStr: string | undefined) => {
+  if (!dateStr) return '-';
+  const parts = dateStr.split('-');
+  if (parts.length !== 3) return dateStr;
+  return `${parts[2]}/${parts[1]}/${parts[0]}`;
 };
 
 interface SaleItem {
@@ -311,7 +310,7 @@ const CashRegisterPage = () => {
                 <tbody className="divide-y divide-gray-100">
                   {history.map((item) => (
                     <tr key={item._id} className="hover:bg-gray-50 transition-all duration-200">
-                      <td className="px-6 py-4 text-sm text-gray-900">{item.date ? item.date.split('-').reverse().join('/') : '-'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{formatDateStr(item.date)}</td>
                       <td className="px-6 py-4 text-sm text-gray-600">{item.user?.name}</td>
                       <td className="px-6 py-4 text-sm text-gray-600 text-right">{item.salesCount}</td>
                       <td className="px-6 py-4 text-sm text-gray-600 text-right">${item.cashSales.toFixed(2)}</td>

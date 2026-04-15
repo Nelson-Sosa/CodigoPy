@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const cashRegisterSchema = new mongoose.Schema({
-  date: { type: Date, required: true },
+  date: { type: String, required: true }, // YYYY-MM-DD format (Paraguay timezone)
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   
   openingAmount: { type: Number, required: true, default: 0 },
