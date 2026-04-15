@@ -5,13 +5,20 @@ import { format } from "date-fns";
 import { useExchangeRate } from "../hooks/useExchangeRate";
 import CurrencyDisplay from "../components/common/CurrencyDisplay";
 
+// const getPyTodayStr = () => {
+//   return new Intl.DateTimeFormat('en-CA', {
+//     timeZone: 'America/Asuncion',
+//     year: 'numeric',
+//     month: '2-digit',
+//     day: '2-digit'
+//   }).format(new Date());
+// };
 const getPyTodayStr = () => {
-  return new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'America/Asuncion',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit'
-  }).format(new Date());
+  const now = new Date();
+
+  return now.toLocaleDateString('en-CA', {
+    timeZone: 'America/Asuncion'
+  }); // YYYY-MM-DD
 };
 
 const isDateString = (date: string | Date | undefined): boolean => {
