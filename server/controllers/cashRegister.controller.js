@@ -396,3 +396,23 @@ exports.cleanDuplicates = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+exports.deleteRegister = async (req, res) => {
+  try {
+    const { registerId } = req.body;
+    
+    if (!registerId) {
+      return res.status(400).json({ message: 'Falta registerId' });
+    }
+    
+    const result = await CashRegister.findByIdAndDelete(registerId);
+    
+    if (!result) {
+      return res.status(404).json({ message: 'Registro no encontrado' });
+    }
+    
+    res.json({ message: 'Registro eliminado' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
