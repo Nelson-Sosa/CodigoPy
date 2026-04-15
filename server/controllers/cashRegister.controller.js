@@ -3,14 +3,19 @@ const Sale = require('../models/Sale');
 
 const PY_OFFSET_HOURS = -4;
 
+const getPyNow = () => new Date();
+
 const getPyDate = () => {
-  const now = new Date();
+  const now = getPyNow();
   return new Date(now.getTime() + PY_OFFSET_HOURS * 60 * 60 * 1000);
 };
 
 const getPyTodayStr = () => {
   const py = getPyDate();
-  return py.toISOString().split('T')[0];
+  const year = py.getUTCFullYear();
+  const month = String(py.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(py.getUTCDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 };
 
 const getPyToday = () => {
