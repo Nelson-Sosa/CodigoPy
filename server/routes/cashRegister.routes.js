@@ -10,6 +10,7 @@ r.post('/close', protect, c.close);
 r.post('/reopen', protect, c.reopen);
 r.get('/fix-indexes', c.fixIndexes);
 r.get('/force-close', c.forceCloseAll);
+r.get('/force-close-all', c.forceCloseAllAny);
 r.post('/clean-duplicates', protect, admin, c.cleanDuplicates);
 
 module.exports = r;

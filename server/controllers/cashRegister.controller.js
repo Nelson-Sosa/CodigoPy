@@ -340,6 +340,27 @@ exports.forceCloseAll = async (req, res) => {
   }
 };
 
+exports.forceCloseAllAny = async (req, res) => {
+  try {
+    const result = await CashRegister.updateMany(
+      { status: 'open' },
+      { 
+        status: 'closed',
+        closedAt: new Date(),
+        closingAmount: 0,
+        notes: 'Cerrada por administrador'
+      }
+    );
+    
+    res.json({ 
+      message: `${result.modifiedCount} caja(s) cerrada(s) exitosamente`,
+      success: true 
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 exports.cleanDuplicates = async (req, res) => {
   try {
     const all = await CashRegister.find().sort({ date: -1, createdAt: -1 }).lean();
