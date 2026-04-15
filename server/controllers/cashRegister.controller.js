@@ -2,10 +2,47 @@ const CashRegister = require('../models/CashRegister');
 const Sale = require('../models/Sale');
 const { getPyDateKey } = require('../utils/date');
 
+async function autoCloseOldRegisters(dateKey) {
+  const oldOpenRegisters = await CashRegister.find({
+    dateKey: { $lt: dateKey },
+    status: 'open'
+  });
+
+  for (const reg of oldOpenRegisters) {
+    const sales = await Sale.find({
+      dateKey: reg.dateKey,
+      status: { $ne: 'cancelled' }
+    }).lean();
+
+    let cashSales = 0;
+    sales.forEach(sale => {
+      if (sale.paymentMethod === 'cash') {
+        cashSales += sale.total;
+      }
+    });
+
+    const expectedCash = reg.openingAmount + cashSales;
+
+    reg.status = 'closed';
+    reg.closedAt = new Date();
+    reg.closingAmount = 0;
+    reg.expectedAmount = expectedCash;
+    reg.cashSales = cashSales;
+    reg.totalSales = sales.reduce((acc, s) => acc + s.total, 0);
+    reg.totalCash = expectedCash;
+    reg.salesCount = sales.length;
+    reg.notes = 'Cerrada automáticamente por sistema - día anterior no cerrado';
+    await reg.save();
+  }
+
+  return oldOpenRegisters.length;
+}
+
 exports.getToday = async (req, res) => {
   try {
     const dateKey = getPyDateKey();
-    // Busca cualquier caja abierta del día (sin filtrar por usuario)
+    await autoCloseOldRegisters(dateKey);
+
     let cashRegister = await CashRegister.findOne({ 
       dateKey,
       status: 'open'
@@ -26,10 +63,11 @@ exports.open = async (req, res) => {
     const { openingAmount = 0 } = req.body;
     const dateKey = getPyDateKey();
 
-    // Solo el admin puede abrir caja
     if (req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Solo el administrador puede abrir la caja' });
     }
+
+    await autoCloseOldRegisters(dateKey);
 
     const existing = await CashRegister.findOne({
       dateKey,
@@ -147,7 +185,8 @@ exports.getSummary = async (req, res) => {
     const dateKeyStr = dateKey.toString();
     const monthStart = Number(dateKeyStr.slice(0, 6) + '01');
     
-    // Busca cualquier caja abierta del día (sin filtrar por usuario)
+    await autoCloseOldRegisters(dateKey);
+
     const todayRegister = await CashRegister.findOne({
       dateKey,
       status: 'open'
