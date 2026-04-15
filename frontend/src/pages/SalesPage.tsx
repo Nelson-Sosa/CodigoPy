@@ -307,6 +307,7 @@ const SalesPage = () => {
               <th className="p-4">Ganancia</th>
               <th className="p-4">Método</th>
               <th className="p-4">Fecha</th>
+              <th className="p-4">Vendedor</th>
               <th className="p-4">Estado</th>
               <th className="p-4">Acciones</th>
             </tr>
@@ -320,6 +321,9 @@ const SalesPage = () => {
                 <td className="p-4 text-blue-600">${(sale.profit || 0).toFixed(2)}</td>
                 <td className="p-4">{getPaymentLabel(sale.paymentMethod)}</td>
                 <td className="p-4 text-gray-500">{new Date(sale.createdAt).toLocaleDateString()}</td>
+                <td className="p-4 text-sm">
+                  {sale.createdBy?.name || <span className="text-gray-400">-</span>}
+                </td>
                 <td className="p-4">
                   <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusBadge(sale.status)}`}>
                     {sale.status === "completed" ? "Completada" : sale.status === "pending" ? "Pendiente" : "Cancelada"}
@@ -348,7 +352,7 @@ const SalesPage = () => {
             ))}
             {sales.length === 0 && (
               <tr>
-                <td colSpan={8} className="p-8 text-center text-gray-400">
+                <td colSpan={9} className="p-8 text-center text-gray-400">
                   No hay ventas registradas
                 </td>
               </tr>
