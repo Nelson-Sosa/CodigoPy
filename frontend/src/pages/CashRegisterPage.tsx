@@ -250,7 +250,7 @@ const CashRegisterPage = () => {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">Caja</h1>
-                <p className="text-sm text-gray-500">{format(toPyDate(new Date()), 'EEEE, d MMMM yyyy')}</p>
+                <p className="text-sm text-gray-500">{getPyTodayStr().split('-').reverse().join('/')}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -311,7 +311,7 @@ const CashRegisterPage = () => {
                 <tbody className="divide-y divide-gray-100">
                   {history.map((item) => (
                     <tr key={item._id} className="hover:bg-gray-50 transition-all duration-200">
-                      <td className="px-6 py-4 text-sm text-gray-900">{item.date ? format(toPyDate(item.date), 'dd/MM/yyyy') : '-'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{item.date ? item.date.split('-').reverse().join('/') : '-'}</td>
                       <td className="px-6 py-4 text-sm text-gray-600">{item.user?.name}</td>
                       <td className="px-6 py-4 text-sm text-gray-600 text-right">{item.salesCount}</td>
                       <td className="px-6 py-4 text-sm text-gray-600 text-right">${item.cashSales.toFixed(2)}</td>
