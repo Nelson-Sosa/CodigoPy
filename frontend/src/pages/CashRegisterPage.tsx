@@ -22,8 +22,9 @@ const isDateString = (date: string | Date | undefined): boolean => {
 
 const formatDate = (date: string | Date | undefined): string => {
   if (!date) return '-';
-  if (isDateString(date)) {
-    const [y, m, d] = date.split('-');
+  const dateStr = String(date);
+  if (isDateString(dateStr)) {
+    const [y, m, d] = dateStr.split('-');
     return `${d}/${m}/${y}`;
   }
   return new Intl.DateTimeFormat('es-PY', {
