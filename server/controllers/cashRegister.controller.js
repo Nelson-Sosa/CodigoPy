@@ -46,14 +46,18 @@ exports.open = async (req, res) => {
     const { openingAmount = 0 } = req.body;
     const pyToday = getPyToday();
 
-    const existingOpen = await CashRegister.findOne({
+    const existing = await CashRegister.findOne({
       date: pyToday,
-      user: req.user._id,
-      status: 'open'
+      user: req.user._id
     });
 
-    if (existingOpen) {
-      return res.status(400).json({ message: 'La caja ya está abierta para hoy' });
+    if (existing) {
+      if (existing.status === 'open') {
+        return res.status(400).json({ message: 'La caja ya está abierta para hoy' });
+      }
+      if (existing.status === 'closed') {
+        return res.status(400).json({ message: 'Ya tienes una caja registrada para hoy. Cierra la caja actual antes de abrir una nueva.' });
+      }
     }
 
     const cashRegister = await CashRegister.create({
