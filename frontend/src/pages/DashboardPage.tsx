@@ -160,7 +160,7 @@ const DashboardPage = () => {
     .slice(0, 5);
 
   const last7Days = Array.from({ length: 7 }, (_, i) => {
-    const date = new Date(now);
+    const date = new Date();
     date.setDate(date.getDate() - i);
     const dateStr = date.toISOString().split('T')[0];
     const daySales = sales.filter(s => 
