@@ -1,36 +1,23 @@
 const CashRegister = require('../models/CashRegister');
 const Sale = require('../models/Sale');
 
-const PY_OFFSET_HOURS = -4;
-
-const getPyNow = () => new Date();
-
-const getPyDate = () => {
-  const now = getPyNow();
-  return new Date(now.getTime() + PY_OFFSET_HOURS * 60 * 60 * 1000);
-};
-
 const getPyTodayStr = () => {
-  const py = getPyDate();
-  const year = py.getUTCFullYear();
-  const month = String(py.getUTCMonth() + 1).padStart(2, '0');
-  const day = String(py.getUTCDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
-
-const getPyToday = () => {
-  const py = getPyDate();
-  return new Date(py.getUTCFullYear(), py.getUTCMonth(), py.getUTCDate());
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Asuncion',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).format(new Date());
 };
 
 const getPyStartOfDay = () => {
-  const pyTodayStr = getPyTodayStr();
-  return new Date(pyTodayStr + 'T00:00:00-04:00');
+  const today = getPyTodayStr();
+  return new Date(`${today}T00:00:00-04:00`);
 };
 
 const getPyEndOfDay = () => {
-  const pyTodayStr = getPyTodayStr();
-  return new Date(pyTodayStr + 'T23:59:59.999-04:00');
+  const today = getPyTodayStr();
+  return new Date(`${today}T23:59:59.999-04:00`);
 };
 
 exports.getToday = async (req, res) => {
@@ -55,7 +42,7 @@ exports.getToday = async (req, res) => {
 exports.open = async (req, res) => {
   try {
     const { openingAmount = 0 } = req.body;
-    const pyToday = getPyToday();
+    const pyTodayStr = getPyTodayStr();
 
     // Solo el admin puede abrir caja
     if (req.user.role !== 'admin') {
@@ -90,7 +77,7 @@ exports.open = async (req, res) => {
 exports.close = async (req, res) => {
   try {
     const { closingAmount, notes } = req.body;
-    const pyToday = getPyToday();
+    const pyTodayStr = getPyTodayStr();
 
     // Solo el admin puede cerrar caja
     if (req.user.role !== 'admin') {
@@ -181,7 +168,7 @@ exports.getHistory = async (req, res) => {
 
 exports.getSummary = async (req, res) => {
   try {
-    const pyToday = getPyToday();
+    const pyTodayStr = getPyTodayStr();
     
     const todayStart = getPyStartOfDay();
     const todayEnd = getPyEndOfDay();

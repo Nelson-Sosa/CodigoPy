@@ -5,14 +5,22 @@ import { format } from "date-fns";
 import { useExchangeRate } from "../hooks/useExchangeRate";
 import CurrencyDisplay from "../components/common/CurrencyDisplay";
 
-const PY_TIMEZONE_OFFSET = -4;
-
-const toPyTime = (date: Date | string) => {
-  const d = new Date(date);
-  return new Date(d.getTime() + PY_TIMEZONE_OFFSET * 60 * 60 * 1000);
+const toPyDate = (date: string | Date) => {
+  return new Date(
+    new Date(date).toLocaleString("en-US", {
+      timeZone: "America/Asuncion"
+    })
+  );
 };
 
-const getPyNow = () => toPyTime(new Date());
+const getPyTodayStr = () => {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Asuncion',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).format(new Date());
+};
 
 interface SaleItem {
   productName: string;
@@ -133,13 +141,13 @@ const CashRegisterPage = () => {
       setSummary(summaryRes.data);
       setHistory(historyRes.data.history || []);
       
-      const pyNow = getPyNow();
-      const pyTodayStr = `${pyNow.getUTCFullYear()}-${String(pyNow.getUTCMonth()+1).padStart(2,'0')}-${String(pyNow.getUTCDate()).padStart(2,'0')}`;
-      const pyTodayStart = new Date(pyTodayStr + 'T00:00:00-04:00');
-      const pyTodayEnd = new Date(pyTodayStr + 'T23:59:59.999-04:00');
+      const now = new Date();
+      const pyTodayStr = getPyTodayStr();
+      const pyTodayStart = new Date(`${pyTodayStr}T00:00:00-04:00`);
+      const pyTodayEnd = new Date(`${pyTodayStr}T23:59:59.999-04:00`);
       
       const filteredSales = (salesRes.data.sales || salesRes.data || []).filter((s: Sale) => {
-        const saleDate = toPyTime(s.createdAt);
+        const saleDate = new Date(s.createdAt);
         if (s.status === 'cancelled') return false;
         return saleDate >= pyTodayStart && saleDate <= pyTodayEnd;
       });
@@ -243,7 +251,7 @@ const CashRegisterPage = () => {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">Caja</h1>
-                <p className="text-sm text-gray-500">{format(getPyNow(), 'EEEE, d MMMM yyyy')}</p>
+                <p className="text-sm text-gray-500">{format(toPyDate(new Date()), 'EEEE, d MMMM yyyy')}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -304,7 +312,7 @@ const CashRegisterPage = () => {
                 <tbody className="divide-y divide-gray-100">
                   {history.map((item) => (
                     <tr key={item._id} className="hover:bg-gray-50 transition-all duration-200">
-                      <td className="px-6 py-4 text-sm text-gray-900">{item.date ? format(toPyTime(item.date), 'dd/MM/yyyy') : '-'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{item.date ? format(toPyDate(item.date), 'dd/MM/yyyy') : '-'}</td>
                       <td className="px-6 py-4 text-sm text-gray-600">{item.user?.name}</td>
                       <td className="px-6 py-4 text-sm text-gray-600 text-right">{item.salesCount}</td>
                       <td className="px-6 py-4 text-sm text-gray-600 text-right">${item.cashSales.toFixed(2)}</td>
@@ -473,7 +481,7 @@ const CashRegisterPage = () => {
                           {todaySales.map((sale) => (
                             <tr key={sale._id} className="hover:bg-gray-50 transition-all duration-200">
                               <td className="px-6 py-4 text-sm font-mono text-gray-900">{sale.invoiceNumber}</td>
-                              <td className="px-6 py-4 text-sm text-gray-600">{format(toPyTime(sale.createdAt), 'HH:mm')}</td>
+                              <td className="px-6 py-4 text-sm text-gray-600">{format(toPyDate(sale.createdAt), 'HH:mm')}</td>
                               <td className="px-6 py-4 text-sm text-gray-600">{sale.clientName || 'Consumidor Final'}</td>
                               <td className="px-6 py-4 text-sm text-gray-600">{sale.createdBy?.name || '-'}</td>
                               <td className="px-6 py-4">
