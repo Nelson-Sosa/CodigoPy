@@ -416,3 +416,27 @@ exports.deleteRegister = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+exports.deleteByUserName = async (req, res) => {
+  try {
+    const { userName, date } = req.body;
+    
+    const User = require('../models/User');
+    const user = await User.findOne({ name: userName });
+    
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+    
+    const query = { user: user._id };
+    if (date) {
+      query.date = new Date(date);
+    }
+    
+    const result = await CashRegister.deleteMany(query);
+    
+    res.json({ message: `${result.deletedCount} registro(s) eliminado(s)` });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
