@@ -28,7 +28,7 @@ interface SettingsData {
 
 const SettingsPage = () => {
   const { user } = useAuth();
-  const isAdmin = user?.role === "admin" || user?.role === "supervisor";
+  const isAdmin = user?.role === "admin";
   const [settings, setSettings] = useState<SettingsData>({
     businessName: "",
     ruc: "",

@@ -10,7 +10,7 @@ const RegisterPage = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<"admin" | "supervisor" | "operator">("operator");
+  const [role, setRole] = useState<"admin" | "vendedor">("vendedor");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -122,12 +122,11 @@ const RegisterPage = () => {
               </label>
               <select
                 value={role}
-                onChange={(e) => setRole(e.target.value as "admin" | "supervisor" | "operator")}
+                onChange={(e) => setRole(e.target.value as "admin" | "vendedor")}
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none transition"
                 disabled={loading}
               >
-                <option value="operator">Operador</option>
-                <option value="supervisor">Supervisor</option>
+                <option value="vendedor">Vendedor</option>
                 <option value="admin">Administrador</option>
               </select>
             </div>

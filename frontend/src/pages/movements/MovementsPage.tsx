@@ -140,7 +140,7 @@ const MovementsPage = () => {
         >
           <option value="Todos">Todos</option>
           <option value="entrada">Entrada</option>
-          {(user?.role === "admin" || user?.role === "supervisor") && (
+          {user?.role === "admin" && (
             <option value="salida">Salida manual</option>
           )}
           <option value="ajuste">Ajuste</option>

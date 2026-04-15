@@ -25,8 +25,8 @@ const seedData = async () => {
     // Crear usuarios
     const users = await User.create([
       { name: 'Nelson', email: 'nelson@admin.com', password: '123456', role: 'admin' },
-      { name: 'Carlos', email: 'carlos@supervisor.com', password: '123456', role: 'supervisor' },
-      { name: 'María', email: 'maria@operator.com', password: '123456', role: 'operator' },
+      { name: 'Carlos', email: 'carlos@vendedor.com', password: '123456', role: 'vendedor' },
+      { name: 'María', email: 'maria@vendedor.com', password: '123456', role: 'vendedor' },
     ]);
     console.log('✅ Usuarios creados:', users.length);
 
@@ -240,7 +240,7 @@ const seedData = async () => {
 
     console.log('\n🎉 Seed completado exitosamente!');
     console.log('\n📊 Datos creados:');
-    console.log('   - Usuarios: 3 (nelson@admin.com, carlos@supervisor.com, maria@operator.com)');
+    console.log('   - Usuarios: 3 (nelson@admin.com, carlos@vendedor.com, maria@vendedor.com)');
     console.log('   - Clientes: 4');
     console.log('   - Categorías: 4');
     console.log('   - Productos: 7');

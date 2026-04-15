@@ -9,7 +9,7 @@ interface SidebarProps {
 const Sidebar = ({ onClose }: SidebarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
 
   const handleLogout = () => {
     logout();
@@ -22,18 +22,20 @@ const Sidebar = ({ onClose }: SidebarProps) => {
     onClose?.();
   };
 
+  const isAdmin = user?.role === "admin";
+
   const menuItems = [
-    { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-    { label: "Caja", path: "/cash-register", icon: DollarSign },
-    { label: "Ventas", path: "/sales", icon: ShoppingCart },
-    { label: "Productos", path: "/products", icon: Package },
-    { label: "Categorías", path: "/categories", icon: Tag },
-    { label: "Movimientos", path: "/movements", icon: ArrowLeftRight },
-    { label: "Clientes", path: "/clients", icon: Users },
-    { label: "Proveedores", path: "/suppliers", icon: Truck },
-    { label: "Reportes", path: "/reports", icon: BarChart3 },
-    { label: "Configuración", path: "/settings", icon: Settings },
-  ];
+    { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard, roles: ["admin", "vendedor"] },
+    { label: "Caja", path: "/cash-register", icon: DollarSign, roles: ["admin", "vendedor"] },
+    { label: "Ventas", path: "/sales", icon: ShoppingCart, roles: ["admin", "vendedor"] },
+    { label: "Productos", path: "/products", icon: Package, roles: ["admin"] },
+    { label: "Categorías", path: "/categories", icon: Tag, roles: ["admin"] },
+    { label: "Movimientos", path: "/movements", icon: ArrowLeftRight, roles: ["admin"] },
+    { label: "Clientes", path: "/clients", icon: Users, roles: ["admin", "vendedor"] },
+    { label: "Proveedores", path: "/suppliers", icon: Truck, roles: ["admin"] },
+    { label: "Reportes", path: "/reports", icon: BarChart3, roles: ["admin"] },
+    { label: "Configuración", path: "/settings", icon: Settings, roles: ["admin"] },
+  ].filter(item => user && item.roles.includes(user.role));
 
   return (
     <div className="w-64 h-screen bg-gray-900 text-white flex flex-col shadow-lg overflow-hidden">

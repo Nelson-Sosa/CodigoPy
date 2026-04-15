@@ -35,21 +35,21 @@ function App() {
           {/* Rutas protegidas dentro del layout */}
           <Route element={<MainLayout />}>
             
-            {/* Dashboard - todos los roles */}
+            {/* Dashboard - admin y vendedor */}
             <Route
               path="/dashboard"
               element={
-                <ProtectedRoute allowedRoles={["admin","supervisor","operador"]}>
+                <ProtectedRoute allowedRoles={["admin","vendedor"]}>
                   <DashboardPage />
                 </ProtectedRoute>
               }
             />
 
-            {/* Productos - solo admin y supervisor */}
+            {/* Productos - admin tiene todo, vendedor solo ve */}
             <Route
               path="/products"
               element={
-                <ProtectedRoute allowedRoles={["admin","supervisor"]}>
+                <ProtectedRoute allowedRoles={["admin"]}>
                   <ProductsPage />
                 </ProtectedRoute>
               }
@@ -57,7 +57,7 @@ function App() {
             <Route
               path="/products/new"
               element={
-                <ProtectedRoute allowedRoles={["admin","supervisor"]}>
+                <ProtectedRoute allowedRoles={["admin"]}>
                   <ProductForm />
                 </ProtectedRoute>
               }
@@ -65,7 +65,7 @@ function App() {
             <Route
               path="/products/edit/:id"
               element={
-                <ProtectedRoute allowedRoles={["admin","supervisor"]}>
+                <ProtectedRoute allowedRoles={["admin"]}>
                   <ProductEditPage />
                 </ProtectedRoute>
               }
@@ -73,87 +73,87 @@ function App() {
             <Route
               path="/products/:id"
               element={
-                <ProtectedRoute allowedRoles={["admin","supervisor","operador"]}>
+                <ProtectedRoute allowedRoles={["admin","vendedor"]}>
                   <ProductDetailPage />
                 </ProtectedRoute>
               }
             />
 
-            {/* Categorías - solo admin y supervisor */}
+            {/* Categorías - solo admin */}
             <Route
               path="/categories"
               element={
-                <ProtectedRoute allowedRoles={["admin","supervisor"]}>
+                <ProtectedRoute allowedRoles={["admin"]}>
                   <CategoriesPage />
                 </ProtectedRoute>
               }
             />
 
-            {/* Movimientos - todos los roles */}
+            {/* Movimientos - solo admin */}
             <Route
               path="/movements"
               element={
-                <ProtectedRoute allowedRoles={["admin","supervisor","operador"]}>
+                <ProtectedRoute allowedRoles={["admin"]}>
                   <MovementsPage />
                 </ProtectedRoute>
               }
             />
 
-            {/* Reportes - solo admin y supervisor */}
+            {/* Reportes - solo admin */}
             <Route
               path="/reports"
               element={
-                <ProtectedRoute allowedRoles={["admin","supervisor"]}>
+                <ProtectedRoute allowedRoles={["admin"]}>
                   <ReportsPage />
                 </ProtectedRoute>
               }
             />
 
-            {/* Proveedores - solo admin y supervisor */}
+            {/* Proveedores - solo admin */}
             <Route
               path="/suppliers"
               element={
-                <ProtectedRoute allowedRoles={["admin","supervisor"]}>
+                <ProtectedRoute allowedRoles={["admin"]}>
                   <SuppliersPage />
                 </ProtectedRoute>
               }
             />
 
-            {/* Ventas - todos los roles */}
+            {/* Ventas - admin y vendedor */}
             <Route
               path="/sales"
               element={
-                <ProtectedRoute allowedRoles={["admin","supervisor","operador"]}>
+                <ProtectedRoute allowedRoles={["admin","vendedor"]}>
                   <SalesPage />
                 </ProtectedRoute>
               }
             />
 
-            {/* Clientes - solo admin y supervisor */}
+            {/* Clientes - admin y vendedor */}
             <Route
               path="/clients"
               element={
-                <ProtectedRoute allowedRoles={["admin","supervisor"]}>
+                <ProtectedRoute allowedRoles={["admin","vendedor"]}>
                   <ClientsPage />
                 </ProtectedRoute>
               }
             />
 
-            {/* Caja - todos los roles */}
+            {/* Caja - admin y vendedor */}
             <Route
               path="/cash-register"
               element={
-                <ProtectedRoute allowedRoles={["admin","supervisor","operador"]}>
+                <ProtectedRoute allowedRoles={["admin","vendedor"]}>
                   <CashRegisterPage />
                 </ProtectedRoute>
               }
             />
 
-            {/* Configuración - admin y supervisor */}
+            {/* Configuración - solo admin */}
             <Route
               path="/settings"
               element={
-                <ProtectedRoute allowedRoles={["admin", "supervisor"]}>
+                <ProtectedRoute allowedRoles={["admin"]}>
                   <SettingsPage />
                 </ProtectedRoute>
               }

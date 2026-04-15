@@ -5,7 +5,7 @@ export interface User {
   name: string;
   email: string;
 
-  role: "admin" | "supervisor" | "operator";
+  role: "admin" | "vendedor";
 
   active: boolean;
   lastLogin: string;

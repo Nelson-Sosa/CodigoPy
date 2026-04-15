@@ -54,7 +54,7 @@ const MovementForm = ({ onMovementSaved }: Props) => {
   const [reason, setReason] = useState("");
   const [notes, setNotes] = useState("");
 
-  const canManualExit = user?.role === "admin" || user?.role === "supervisor";
+  const canManualExit = user?.role === "admin";
 
   useEffect(() => {
     const fetchProducts = async () => {

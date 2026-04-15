@@ -23,8 +23,8 @@ const seed = async () => {
     password: 'admin123', role: 'admin',
   });
   await User.create({
-    name: 'Operador Demo', email: 'operador@codigopy.com',
-    password: 'demo123', role: 'operator',
+    name: 'Vendedor Demo', email: 'vendedor@codigopy.com',
+    password: 'demo123', role: 'vendedor',
   });
   console.log('✅ Usuarios creados');
 

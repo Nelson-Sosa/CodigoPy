@@ -17,7 +17,7 @@ const AppRouter = () => {
       <Route
         path="/dashboard"
         element={
-          <ProtectedRoute allowedRoles={["admin", "supervisor", "operador"]}>
+          <ProtectedRoute allowedRoles={["admin", "vendedor"]}>
             <DashboardPage />
           </ProtectedRoute>
         }

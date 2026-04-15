@@ -11,7 +11,7 @@ const UserForm = ({ selectedUser, onSaved }: Props) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<User["role"]>("operator");
+  const [role, setRole] = useState<User["role"]>("vendedor");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -24,7 +24,7 @@ const UserForm = ({ selectedUser, onSaved }: Props) => {
     } else {
       setName("");
       setEmail("");
-      setRole("operator");
+      setRole("vendedor");
       setPassword("");
     }
   }, [selectedUser]);
@@ -89,9 +89,8 @@ const UserForm = ({ selectedUser, onSaved }: Props) => {
         onChange={(e) => setRole(e.target.value as User["role"])}
         className="w-full border p-2 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
       >
-        <option value="admin">Admin</option>
-        <option value="supervisor">Supervisor</option>
-        <option value="operator">Operador</option>
+        <option value="admin">Administrador</option>
+        <option value="vendedor">Vendedor</option>
       </select>
 
       <button
