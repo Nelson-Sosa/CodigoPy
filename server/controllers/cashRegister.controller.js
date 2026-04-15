@@ -173,20 +173,11 @@ exports.getSummary = async (req, res) => {
     const todayEnd = getPyEndOfDay();
     const startOfMonth = new Date(Date.UTC(pyToday.getUTCFullYear(), pyToday.getUTCMonth(), 1, Math.abs(PY_OFFSET_HOURS), 0, 0, 0));
     
-    const allRegisters = await CashRegister.find({
-      user: req.user._id
-    }).sort({ createdAt: -1 }).lean();
-    
-    let todayRegister = null;
-    for (const reg of allRegisters) {
-      const regDate = new Date(reg.date);
-      if (regDate.getUTCFullYear() === pyToday.getUTCFullYear() && 
-          regDate.getUTCMonth() === pyToday.getUTCMonth() && 
-          regDate.getUTCDate() === pyToday.getUTCDate()) {
-        todayRegister = reg;
-        break;
-      }
-    }
+    // Busca cualquier caja abierta del día (sin filtrar por usuario)
+    const todayRegister = await CashRegister.findOne({
+      date: pyToday,
+      status: 'open'
+    });
     
     let todayStatus = 'not_opened';
     let openingAmount = 0;
