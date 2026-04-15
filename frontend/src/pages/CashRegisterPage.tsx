@@ -21,6 +21,14 @@ const formatDateStr = (dateStr: string | undefined) => {
   return `${parts[2]}/${parts[1]}/${parts[0]}`;
 };
 
+const formatTimeStr = (dateStr: string | undefined) => {
+  if (!dateStr) return '-';
+  const date = new Date(dateStr);
+  const hours = String(date.getUTCHours() - 4).padStart(2, '0');
+  const mins = String(date.getUTCMinutes()).padStart(2, '0');
+  return `${hours}:${mins}`;
+};
+
 interface SaleItem {
   productName: string;
   quantity: number;
@@ -479,7 +487,7 @@ const CashRegisterPage = () => {
                           {todaySales.map((sale) => (
                             <tr key={sale._id} className="hover:bg-gray-50 transition-all duration-200">
                               <td className="px-6 py-4 text-sm font-mono text-gray-900">{sale.invoiceNumber}</td>
-                              <td className="px-6 py-4 text-sm text-gray-600">{format(toPyDate(sale.createdAt), 'HH:mm')}</td>
+                              <td className="px-6 py-4 text-sm text-gray-600">{formatTimeStr(sale.createdAt)}</td>
                               <td className="px-6 py-4 text-sm text-gray-600">{sale.clientName || 'Consumidor Final'}</td>
                               <td className="px-6 py-4 text-sm text-gray-600">{sale.createdBy?.name || '-'}</td>
                               <td className="px-6 py-4">
