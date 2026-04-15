@@ -164,6 +164,7 @@ exports.getHistory = async (req, res) => {
 
 exports.getSummary = async (req, res) => {
   try {
+    const pyTodayStr = getPyTodayStr();
     const todayStart = getPyStartOfDay();
     const todayEnd = getPyEndOfDay();
     const [y, m] = pyTodayStr.split('-').map(Number);
@@ -171,7 +172,7 @@ exports.getSummary = async (req, res) => {
     
     // Busca cualquier caja abierta del día (sin filtrar por usuario)
     const todayRegister = await CashRegister.findOne({
-      date: getPyTodayStr(),
+      date: pyTodayStr,
       status: 'open'
     });
     
