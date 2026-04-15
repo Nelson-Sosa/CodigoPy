@@ -14,8 +14,18 @@ const getPyTodayStr = () => {
   }).format(new Date());
 };
 
+const isDateString = (date: string | Date | undefined): boolean => {
+  if (!date) return false;
+  if (typeof date !== 'string') return false;
+  return /^\d{4}-\d{2}-\d{2}$/.test(date);
+};
+
 const formatDate = (date: string | Date | undefined): string => {
   if (!date) return '-';
+  if (isDateString(date)) {
+    const [y, m, d] = date.split('-');
+    return `${d}/${m}/${y}`;
+  }
   return new Intl.DateTimeFormat('es-PY', {
     timeZone: 'America/Asuncion',
     day: '2-digit',
