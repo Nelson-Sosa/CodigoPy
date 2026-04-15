@@ -534,19 +534,19 @@ const CashRegisterPage = () => {
                 </div>
 
                 <div className="space-y-6">
-                  <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-xl p-6 text-white">
+                  <div className="bg-white rounded-2xl shadow-xl border border-blue-200 p-6">
                     <div className="flex items-center justify-between mb-4">
-                      <span className="text-blue-100 font-medium">Dinero Esperado</span>
-                      <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
-                        <DollarSign size={24} />
+                      <span className="text-blue-600 font-semibold">Dinero Esperado</span>
+                      <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
+                        <DollarSign size={24} className="text-blue-600" />
                       </div>
                     </div>
-                    <CurrencyDisplay amount={register.totalCash} currency="USD" size="lg" />
+                    <CurrencyDisplay amount={register.totalCash} currency="USD" size="lg" darkMode={false} />
                     <div className="mt-1">
-                      <CurrencyDisplay amount={register.totalCash * gsRate} currency="PYG" size="sm" />
+                      <CurrencyDisplay amount={register.totalCash * gsRate} currency="PYG" size="sm" darkMode={false} />
                     </div>
                     <div className="mt-1">
-                      <CurrencyDisplay amount={register.totalCash * arsRate} currency="ARS" size="sm" />
+                      <CurrencyDisplay amount={register.totalCash * arsRate} currency="ARS" size="sm" darkMode={false} />
                     </div>
                   </div>
 
