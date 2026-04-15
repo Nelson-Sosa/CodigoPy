@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { settingsService } from "../services/api";
+import { settingsService, cashRegisterService } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import ExchangeRateDisplay from "../components/common/ExchangeRateDisplay";
-import { Settings, Save, Building2, Receipt, FileText } from "lucide-react";
+import { Settings, Save, Building2, Receipt, FileText, Trash2 } from "lucide-react";
 
 interface SettingsData {
   businessName: string;
@@ -53,6 +53,7 @@ const SettingsPage = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [cleaning, setCleaning] = useState(false);
 
   useEffect(() => {
     fetchSettings();
@@ -376,6 +377,40 @@ const SettingsPage = () => {
 
         {isAdmin && (
           <ExchangeRateDisplay isAdmin={true} />
+        )}
+
+        {isAdmin && (
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <Trash2 className="text-red-500" size={20} />
+              Mantenimiento
+            </h2>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Limpiar registros duplicados de caja</p>
+                <p className="text-xs text-gray-400">Elimina múltiples registros de caja en la misma fecha</p>
+              </div>
+              <button
+                type="button"
+                onClick={async () => {
+                  if (!window.confirm("¿Eliminar registros duplicados de caja? Se mantendrá el más reciente.")) return;
+                  setCleaning(true);
+                  try {
+                    const res = await cashRegisterService.cleanDuplicates();
+                    alert(res.data.message);
+                  } catch (err) {
+                    alert("Error al limpiar duplicados");
+                  } finally {
+                    setCleaning(false);
+                  }
+                }}
+                disabled={cleaning}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
+              >
+                {cleaning ? "Limpiando..." : "Limpiar Duplicados"}
+              </button>
+            </div>
+          </div>
         )}
 
         <div className="flex justify-end">

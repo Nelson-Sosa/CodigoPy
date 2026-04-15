@@ -121,6 +121,7 @@ export const cashRegisterService = {
   open: (openingAmount: number) => api.post('/cash-register/open', { openingAmount }),
   close: (data: { closingAmount: number; notes?: string }) => api.post('/cash-register/close', data),
   reopen: (openingAmount: number) => api.post('/cash-register/reopen', { openingAmount }),
+  cleanDuplicates: () => api.post('/cash-register/clean-duplicates'),
 };
 
 export const exchangeRateService = {

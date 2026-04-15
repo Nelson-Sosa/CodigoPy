@@ -339,3 +339,34 @@ exports.forceCloseAll = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+exports.cleanDuplicates = async (req, res) => {
+  try {
+    const all = await CashRegister.find().sort({ date: -1, createdAt: -1 }).lean();
+    
+    const toDelete = [];
+    const seen = new Set();
+    
+    for (const reg of all) {
+      const key = `${reg.date?.toISOString().split('T')[0]}-${reg.user}`;
+      if (seen.has(key)) {
+        toDelete.push(reg._id);
+      } else {
+        seen.add(key);
+      }
+    }
+    
+    if (toDelete.length === 0) {
+      return res.json({ message: 'No hay registros duplicados', deleted: 0 });
+    }
+    
+    await CashRegister.deleteMany({ _id: { $in: toDelete } });
+    
+    res.json({ 
+      message: `Se eliminaron ${toDelete.length} registros duplicados`,
+      deleted: toDelete.length 
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
