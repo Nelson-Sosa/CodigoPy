@@ -15,6 +15,33 @@ import {
 } from "recharts";
 import { Package, TrendingUp, AlertTriangle, DollarSign, ShoppingCart } from "lucide-react";
 
+const getPyDateKey = (): number => {
+  const now = new Date();
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Asuncion',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).formatToParts(now);
+  const year = parts.find(p => p.type === 'year')?.value || '2026';
+  const month = parts.find(p => p.type === 'month')?.value || '01';
+  const day = parts.find(p => p.type === 'day')?.value || '01';
+  return Number(`${year}${month}${day}`);
+};
+
+const getMonthStartKey = (): number => {
+  const now = new Date();
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Asuncion',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).formatToParts(now);
+  const year = parts.find(p => p.type === 'year')?.value || '2026';
+  const month = parts.find(p => p.type === 'month')?.value || '01';
+  return Number(`${year}${month}01`);
+};
+
 interface Product {
   _id: string;
   id: string;
@@ -28,6 +55,7 @@ interface Product {
 
 interface Sale {
   _id: string;
+  dateKey: number;
   invoiceNumber: string;
   clientName: string;
   items: { productName: string; quantity: number; unitPrice: number; subtotal: number }[];
@@ -97,12 +125,11 @@ const DashboardPage = () => {
     );
   }
 
-  const now = new Date();
-  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const todayKey = getPyDateKey();
+  const monthStartKey = getMonthStartKey();
 
-  const salesToday = sales.filter(s => new Date(s.createdAt) >= startOfDay && s.status !== "cancelled");
-  const salesMonth = sales.filter(s => new Date(s.createdAt) >= startOfMonth && s.status !== "cancelled");
+  const salesToday = sales.filter(s => s.dateKey === todayKey && s.status !== "cancelled");
+  const salesMonth = sales.filter(s => s.dateKey >= monthStartKey && s.dateKey <= todayKey && s.status !== "cancelled");
 
   const totalSalesToday = salesToday.reduce((acc, s) => acc + s.total, 0);
   const totalSalesMonth = salesMonth.reduce((acc, s) => acc + s.total, 0);
