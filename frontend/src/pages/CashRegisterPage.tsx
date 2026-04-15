@@ -2,6 +2,13 @@ import { useEffect, useState } from "react";
 import { cashRegisterService, saleService } from "../services/api";
 import { DollarSign, Lock, Unlock, ShoppingCart, CreditCard, Banknote, ArrowRightLeft, History, X, Eye, TrendingUp } from "lucide-react";
 import { format } from "date-fns";
+
+const PY_TIMEZONE_OFFSET = -4;
+
+const toPyTime = (date: Date | string) => {
+  const d = new Date(date);
+  return new Date(d.getTime() + PY_TIMEZONE_OFFSET * 60 * 60 * 1000);
+};
 import { useExchangeRate } from "../hooks/useExchangeRate";
 import CurrencyDisplay from "../components/common/CurrencyDisplay";
 
@@ -126,13 +133,19 @@ const CashRegisterPage = () => {
       
       const summary = summaryRes.data;
       const todayRegister = summary?.todayRegister;
-      const openedAt = todayRegister?.openedAt ? new Date(todayRegister.openedAt) : null;
+      const openedAt = todayRegister?.openedAt ? toPyTime(todayRegister.openedAt) : null;
+      
+      const pyToday = new Date(toPyTime(new Date()));
+      pyToday.setHours(0, 0, 0, 0);
       
       const filteredSales = (salesRes.data.sales || salesRes.data || []).filter((s: Sale) => {
-        const saleDate = new Date(s.createdAt);
+        const saleDate = toPyTime(s.createdAt);
         if (s.status === 'cancelled') return false;
-        if (openedAt && saleDate < openedAt) return false;
-        return true;
+        if (openedAt) {
+          if (saleDate >= openedAt) return true;
+          return false;
+        }
+        return saleDate >= pyToday;
       });
       setTodaySales(filteredSales);
     } catch (err: any) {
@@ -295,7 +308,7 @@ const CashRegisterPage = () => {
                 <tbody className="divide-y divide-gray-100">
                   {history.map((item) => (
                     <tr key={item._id} className="hover:bg-gray-50 transition-all duration-200">
-                      <td className="px-6 py-4 text-sm text-gray-900">{item.date ? format(new Date(item.date), 'dd/MM/yyyy') : '-'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{item.date ? format(toPyTime(item.date), 'dd/MM/yyyy') : '-'}</td>
                       <td className="px-6 py-4 text-sm text-gray-600">{item.user?.name}</td>
                       <td className="px-6 py-4 text-sm text-gray-600 text-right">{item.salesCount}</td>
                       <td className="px-6 py-4 text-sm text-gray-600 text-right">${item.cashSales.toFixed(2)}</td>
