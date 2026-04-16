@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useMemo } from "react";
 import { saleService, clientService, productService, authService } from "../services/api";
-import { ShoppingCart, Plus, Eye, X, Trash2, Search, User, Package, Edit2, Printer, Receipt, TrendingUp, DollarSign, Calendar } from "lucide-react";
+import { ShoppingCart, Plus, Eye, X, Trash2, Search, User, Package, Edit2, Printer, Receipt, TrendingUp, DollarSign, Calendar, Check, FileText, Ticket } from "lucide-react";
 import { printInvoice } from "../components/invoice/InvoiceGenerator";
 import { printTicket } from "../utils/ticketPrinter";
 import { useAuth } from "../context/AuthContext";
@@ -67,6 +67,8 @@ const SalesPage = () => {
   const [editingSale, setEditingSale] = useState<Sale | null>(null);
   const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
   const [saving, setSaving] = useState(false);
+  const [completedSale, setCompletedSale] = useState<any>(null);
+  const [showPrintModal, setShowPrintModal] = useState(false);
   const [filterUserId, setFilterUserId] = useState<string>("");
   const [filterStartDate, setFilterStartDate] = useState<string>("");
   const [filterEndDate, setFilterEndDate] = useState<string>("");
@@ -252,18 +254,25 @@ const SalesPage = () => {
         saleData.clientId = clientId;
       }
 
+      let newSale;
       if (editingSale) {
         await saleService.update(editingSale._id, saleData);
-        alert("¡Venta actualizada exitosamente!");
       } else {
-        await saleService.create(saleData);
-        alert("¡Venta registrada exitosamente!");
+        const res = await saleService.create(saleData);
+        newSale = res.data;
       }
 
       setShowForm(false);
       resetForm();
       fetchData();
       window.dispatchEvent(new Event('inventoryUpdate'));
+
+      if (newSale) {
+        setCompletedSale(newSale);
+        setShowPrintModal(true);
+      } else {
+        alert("¡Venta actualizada exitosamente!");
+      }
     } catch (err: any) {
       alert(err.response?.data?.message || "Error al guardar venta");
     } finally {
@@ -920,6 +929,67 @@ const SalesPage = () => {
                   </button>
                 </>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPrintModal && completedSale && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-scale-in">
+            <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-6 text-center text-white">
+              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Check size={32} className="text-white" />
+              </div>
+              <h3 className="text-xl font-bold">¡Venta Completada!</h3>
+              <p className="text-green-100 text-sm mt-1">{completedSale.invoiceNumber}</p>
+            </div>
+            
+            <div className="p-6">
+              <p className="text-gray-600 text-center mb-6">¿Desea imprimir un comprobante?</p>
+              
+              <div className="space-y-3">
+                <button
+                  onClick={() => {
+                    printTicket(completedSale);
+                    setShowPrintModal(false);
+                    setCompletedSale(null);
+                  }}
+                  className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg shadow-blue-500/30"
+                >
+                  <Ticket size={22} />
+                  <div className="text-left">
+                    <span className="font-semibold block">Imprimir Ticket</span>
+                    <span className="text-xs text-blue-100">Comprobante corto</span>
+                  </div>
+                </button>
+                
+                <button
+                  onClick={() => {
+                    printInvoice(completedSale);
+                    setShowPrintModal(false);
+                    setCompletedSale(null);
+                  }}
+                  className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all shadow-lg shadow-purple-500/30"
+                >
+                  <FileText size={22} />
+                  <div className="text-left">
+                    <span className="font-semibold block">Imprimir Factura</span>
+                    <span className="text-xs text-purple-100">Comprobante completo</span>
+                  </div>
+                </button>
+                
+                <button
+                  onClick={() => {
+                    setShowPrintModal(false);
+                    setCompletedSale(null);
+                  }}
+                  className="w-full flex items-center justify-center gap-3 px-6 py-3 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-all"
+                >
+                  <X size={20} />
+                  <span className="font-medium">No imprimir</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
