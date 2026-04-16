@@ -6,11 +6,12 @@ const { getPyDateKey } = require('../utils/date');
 
 exports.getAll = async (req, res) => {
   try {
-    const { startDate, endDate, status, client, page = 1, limit = 20 } = req.query;
+    const { startDate, endDate, status, client, userId, page = 1, limit = 20 } = req.query;
     const filter = {};
 
     if (status) filter.status = status;
     if (client) filter.client = client;
+    if (userId) filter.createdBy = userId;
     if (startDate || endDate) {
       filter.createdAt = {};
       if (startDate) filter.createdAt.$gte = new Date(startDate);
@@ -26,6 +27,137 @@ exports.getAll = async (req, res) => {
       .limit(Number(limit));
 
     res.json({ sales, total, pages: Math.ceil(total / limit), page: Number(page) });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.getMySales = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const userId = req.user._id;
+    const todayKey = getPyDateKey();
+    const dateKeyStr = todayKey.toString();
+    const monthStart = Number(dateKeyStr.slice(0, 6) + '01');
+
+    const baseFilter = { status: { $ne: 'cancelled' }, createdBy: userId };
+    const dateFilter = { ...baseFilter };
+    
+    if (startDate || endDate) {
+      dateFilter.createdAt = {};
+      if (startDate) dateFilter.createdAt.$gte = new Date(startDate);
+      if (endDate) dateFilter.createdAt.$lte = new Date(endDate + 'T23:59:59');
+    }
+
+    const todaySales = await Sale.find({ ...baseFilter, dateKey: todayKey }).lean();
+    const monthSales = await Sale.find({ ...baseFilter, dateKey: { $gte: monthStart, $lte: todayKey } }).lean();
+    const allSales = await Sale.find({ ...baseFilter }).lean();
+
+    const calcStats = (sales) => ({
+      count: sales.length,
+      total: sales.reduce((acc, s) => acc + s.total, 0),
+      profit: sales.reduce((acc, s) => acc + (s.profit || 0), 0),
+      products: sales.reduce((acc, s) => acc + s.items.reduce((i, item) => i + item.quantity, 0), 0),
+    });
+
+    const todayStats = calcStats(todaySales);
+    const monthStats = calcStats(monthSales);
+    const allStats = calcStats(allSales);
+
+    const recentSales = await Sale.find(baseFilter)
+      .populate('client', 'name')
+      .sort({ createdAt: -1 })
+      .limit(10);
+
+    res.json({
+      today: todayStats,
+      month: monthStats,
+      all: allStats,
+      recentSales,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.getUserStats = async (req, res) => {
+  try {
+    const todayKey = getPyDateKey();
+    const dateKeyStr = todayKey.toString();
+    const monthStart = Number(dateKeyStr.slice(0, 6) + '01');
+
+    const users = await Sale.aggregate([
+      { $match: { status: { $ne: 'cancelled' } } },
+      {
+        $group: {
+          _id: '$createdBy',
+          salesCount: { $sum: 1 },
+          totalSales: { $sum: '$total' },
+          totalProfit: { $sum: '$profit' },
+          productsSold: { $sum: { $sum: '$items.quantity' } },
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      { $unwind: '$user' },
+      {
+        $project: {
+          _id: 1,
+          name: '$user.name',
+          email: '$user.email',
+          role: '$user.role',
+          salesCount: 1,
+          totalSales: { $round: ['$totalSales', 2] },
+          totalProfit: { $round: ['$totalProfit', 2] },
+          productsSold: 1,
+        },
+      },
+      { $sort: { totalSales: -1 } },
+    ]);
+
+    const todaySales = await Sale.aggregate([
+      { $match: { dateKey: todayKey, status: { $ne: 'cancelled' } } },
+      {
+        $group: {
+          _id: '$createdBy',
+          salesCount: { $sum: 1 },
+          totalSales: { $sum: '$total' },
+        },
+      },
+    ]);
+
+    const monthSales = await Sale.aggregate([
+      { $match: { dateKey: { $gte: monthStart, $lte: todayKey }, status: { $ne: 'cancelled' } } },
+      {
+        $group: {
+          _id: '$createdBy',
+          salesCount: { $sum: 1 },
+          totalSales: { $sum: '$total' },
+          totalProfit: { $sum: '$profit' },
+        },
+      },
+    ]);
+
+    const result = users.map((u) => {
+      const tSales = todaySales.find((t) => t._id.toString() === u._id.toString()) || { salesCount: 0, totalSales: 0 };
+      const mSales = monthSales.find((m) => m._id.toString() === u._id.toString()) || { salesCount: 0, totalSales: 0, totalProfit: 0 };
+      return {
+        ...u,
+        todayCount: tSales.salesCount,
+        todaySales: tSales.totalSales,
+        monthCount: mSales.salesCount,
+        monthSales: mSales.totalSales,
+        monthProfit: mSales.totalProfit,
+      };
+    });
+
+    res.json(result);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

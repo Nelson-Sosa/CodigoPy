@@ -1,7 +1,9 @@
 const r = require('express').Router();
 const c = require('../controllers/sale.controller');
-const { protect, adminOrSupervisor } = require('../middleware/auth.middleware');
+const { protect, adminOnly, adminOrSupervisor } = require('../middleware/auth.middleware');
 r.get('/',              protect, c.getAll);
+r.get('/my-sales',     protect, c.getMySales);
+r.get('/user-stats',    protect, adminOnly, c.getUserStats);
 r.get('/:id',           protect, c.getById);
 r.post('/',             protect, c.create);
 r.put('/:id',           protect, adminOrSupervisor, c.update);

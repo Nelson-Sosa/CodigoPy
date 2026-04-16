@@ -84,7 +84,11 @@ export const clientService = {
 };
 
 export const saleService = {
-  getAll: () => api.get('/sales'),
+  getAll: (params?: { userId?: string; startDate?: string; endDate?: string; page?: number; limit?: number }) =>
+    api.get('/sales', { params }),
+  getMySales: (params?: { startDate?: string; endDate?: string }) =>
+    api.get('/sales/my-sales', { params }),
+  getUserStats: () => api.get('/sales/user-stats'),
   getById: (id: string) => api.get(`/sales/${id}`),
   create: (data: object) => api.post('/sales', data),
   update: (id: string, data: object) => api.put(`/sales/${id}`, data),

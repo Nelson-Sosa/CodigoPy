@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { saleService, productService, clientService } from "../services/api";
+import { saleService, productService, clientService, authService } from "../services/api";
 import { BarChart3, FileText, Download, TrendingUp, Users, Package, DollarSign, ShoppingCart } from "lucide-react";
 import { format } from "date-fns";
 
@@ -16,6 +16,7 @@ interface Sale {
   paymentMethod: string;
   status: string;
   createdAt: string;
+  createdBy?: { _id: string; name: string };
 }
 
 interface Product {
@@ -36,12 +37,20 @@ interface Client {
   totalSpent: number;
 }
 
+interface User {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+}
+
 type ReportType = "sales" | "inventory" | "profits" | "clients";
 
 const ReportsPage = () => {
   const [sales, setSales] = useState<Sale[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [activeReport, setActiveReport] = useState<ReportType>("sales");
@@ -51,22 +60,28 @@ const ReportsPage = () => {
     return d.toISOString().split('T')[0];
   });
   const [endDate, setEndDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [selectedUserId, setSelectedUserId] = useState<string>("");
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [selectedUserId]);
 
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [salesRes, productsRes, clientsRes] = await Promise.all([
-        saleService.getAll(),
+      const params: any = {};
+      if (selectedUserId) params.userId = selectedUserId;
+      
+      const [salesRes, productsRes, clientsRes, usersRes] = await Promise.all([
+        saleService.getAll(params),
         productService.getAll(),
         clientService.getAll(),
+        authService.getUsers(),
       ]);
       setSales(salesRes.data.sales || []);
       setProducts(productsRes.data || []);
       setClients(clientsRes.data || []);
+      setUsers(usersRes.data || []);
     } catch (err) {
       console.error("Error fetching data:", err);
     } finally {
@@ -229,9 +244,22 @@ const ReportsPage = () => {
 
       {activeReport === "sales" && (
         <div className="bg-white rounded-xl shadow-md p-6 space-y-4">
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center flex-wrap gap-4">
             <h2 className="text-lg font-bold">Reporte de Ventas</h2>
-            <div className="flex gap-4 items-center">
+            <div className="flex gap-4 items-center flex-wrap">
+              <div className="flex gap-2 items-center">
+                <label className="text-sm text-gray-600">Vendedor:</label>
+                <select
+                  value={selectedUserId}
+                  onChange={(e) => setSelectedUserId(e.target.value)}
+                  className="border rounded px-3 py-1.5 text-sm bg-white"
+                >
+                  <option value="">Todos</option>
+                  {users.map(user => (
+                    <option key={user._id} value={user._id}>{user.name}</option>
+                  ))}
+                </select>
+              </div>
               <div className="flex gap-2 items-center">
                 <label className="text-sm text-gray-600">Desde:</label>
                 <input
@@ -254,6 +282,7 @@ const ReportsPage = () => {
                 onClick={() => exportToCSV(
                   filteredSales.map(s => ({
                     Folio: s.invoiceNumber,
+                    Vendedor: s.createdBy?.name || 'Sistema',
                     Cliente: s.clientName,
                     'Subtotal': s.subtotal,
                     'Descuento': s.discount,
@@ -263,7 +292,7 @@ const ReportsPage = () => {
                     Fecha: format(new Date(s.createdAt), 'yyyy-MM-dd HH:mm')
                   })),
                   'reporte_ventas',
-                  ['Folio', 'Cliente', 'Subtotal', 'Descuento', 'Total', 'Ganancia', 'Método Pago', 'Fecha']
+                  ['Folio', 'Vendedor', 'Cliente', 'Subtotal', 'Descuento', 'Total', 'Ganancia', 'Método Pago', 'Fecha']
                 )}
                 className="bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-green-700 transition"
               >
@@ -278,6 +307,7 @@ const ReportsPage = () => {
               <thead className="bg-gray-50">
                 <tr className="text-left">
                   <th className="p-3 font-medium">Folio</th>
+                  <th className="p-3 font-medium">Vendedor</th>
                   <th className="p-3 font-medium">Cliente</th>
                   <th className="p-3 font-medium text-right">Subtotal</th>
                   <th className="p-3 font-medium text-right">Descuento</th>
@@ -291,6 +321,11 @@ const ReportsPage = () => {
                 {filteredSales.map(sale => (
                   <tr key={sale._id} className="border-t hover:bg-gray-50">
                     <td className="p-3 font-medium">{sale.invoiceNumber}</td>
+                    <td className="p-3 text-sm">
+                      <span className="px-2 py-1 rounded text-xs bg-blue-100 text-blue-700">
+                        {sale.createdBy?.name || 'Sistema'}
+                      </span>
+                    </td>
                     <td className="p-3">{sale.clientName}</td>
                     <td className="p-3 text-right">${sale.subtotal.toFixed(2)}</td>
                     <td className="p-3 text-right text-red-500">${sale.discount > 0 ? `-${sale.discount.toFixed(2)}` : '0.00'}</td>
@@ -302,7 +337,7 @@ const ReportsPage = () => {
                 ))}
                 {filteredSales.length === 0 && (
                   <tr>
-                    <td colSpan={8} className="p-8 text-center text-gray-400">
+                    <td colSpan={9} className="p-8 text-center text-gray-400">
                       No hay ventas en este período
                     </td>
                   </tr>
@@ -311,7 +346,7 @@ const ReportsPage = () => {
               {filteredSales.length > 0 && (
                 <tfoot className="bg-gray-50 font-bold">
                   <tr>
-                    <td colSpan={2} className="p-3">TOTALES</td>
+                    <td colSpan={3} className="p-3">TOTALES</td>
                     <td className="p-3 text-right">${filteredSales.reduce((a, s) => a + s.subtotal, 0).toFixed(2)}</td>
                     <td className="p-3 text-right">${filteredSales.reduce((a, s) => a + s.discount, 0).toFixed(2)}</td>
                     <td className="p-3 text-right text-green-600">${totalSalesAmount.toFixed(2)}</td>
