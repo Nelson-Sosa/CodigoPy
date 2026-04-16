@@ -88,10 +88,6 @@ const SalesPage = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetchData();
-  }, []);
-
-  useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setShowProductDropdown(false);
@@ -102,8 +98,10 @@ const SalesPage = () => {
   }, []);
 
   useEffect(() => {
-    fetchData();
-  }, [filterUserId, filterStartDate, filterEndDate]);
+    if (user) {
+      fetchData();
+    }
+  }, [filterUserId, filterStartDate, filterEndDate, user]);
 
   const fetchData = async () => {
     try {
