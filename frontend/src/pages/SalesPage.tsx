@@ -9,6 +9,7 @@ import { format } from "date-fns";
 interface SaleItem {
   product: string;
   productName: string;
+  description: string;
   sku: string;
   quantity: number;
   unitPrice: number;
@@ -168,6 +169,7 @@ const SalesPage = () => {
       setItems([...items, {
         product: product._id,
         productName: product.name,
+        description: product.description || '',
         sku: product.sku,
         quantity: 1,
         unitPrice: product.salePrice,
@@ -648,11 +650,16 @@ const SalesPage = () => {
                           className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b last:border-b-0 transition"
                         >
                           <div className="flex justify-between items-start">
-                            <div>
-                              <span className="font-semibold text-gray-800">{p.name}</span>
-                              <span className="text-gray-400 text-sm ml-2">SKU: {p.sku}</span>
+                            <div className="flex-1">
+                              <div className="font-semibold text-gray-800">{p.name}</div>
+                              <div className="text-xs text-gray-400 mt-0.5">
+                                SKU: {p.sku}
+                                {p.description && (
+                                  <span className="ml-2 text-gray-500">• {p.description}</span>
+                                )}
+                              </div>
                             </div>
-                            <div className="text-right">
+                            <div className="text-right ml-4">
                               <span className="text-green-600 font-bold">${p.salePrice.toFixed(2)}</span>
                               <span className={`block text-xs ${p.stock <= 5 ? 'text-red-500' : 'text-gray-400'}`}>
                                 Stock: {p.stock}
@@ -689,8 +696,13 @@ const SalesPage = () => {
                       {items.map(item => (
                         <tr key={item.product} className="border-t">
                           <td className="p-3">
-                            <span className="font-medium">{item.productName}</span>
-                            <span className="text-gray-400 text-xs block">SKU: {item.sku}</span>
+                            <div className="font-medium text-gray-800">{item.productName}</div>
+                            <div className="text-xs text-gray-400">
+                              SKU: {item.sku}
+                              {item.description && (
+                                <span className="ml-1">• {item.description}</span>
+                              )}
+                            </div>
                           </td>
                           <td className="p-3">
                             <div className="flex items-center justify-center gap-1">
