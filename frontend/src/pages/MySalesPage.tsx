@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { saleService } from "../../services/api";
 import { TrendingUp, DollarSign, Package, ShoppingCart, Calendar } from "lucide-react";
 import { format } from "date-fns";
-import CurrencyDisplay from "../common/CurrencyDisplay";
+import CurrencyDisplay from "../components/common/CurrencyDisplay";
 
 interface SalesStats {
   today: { count: number; total: number; profit: number; products: number };
