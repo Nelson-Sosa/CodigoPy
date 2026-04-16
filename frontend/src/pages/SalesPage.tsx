@@ -314,9 +314,9 @@ const SalesPage = () => {
     let periodLabel = "Este Mes";
     
     if (filterStartDate && filterEndDate) {
-      startOfPeriod = new Date(filterStartDate);
-      endOfPeriod = new Date(filterEndDate);
-      periodLabel = `${format(new Date(filterStartDate), 'dd/MM')} - ${format(new Date(filterEndDate), 'dd/MM')}`;
+      startOfPeriod = new Date(filterStartDate + 'T00:00:00');
+      endOfPeriod = new Date(filterEndDate + 'T23:59:59');
+      periodLabel = `${format(new Date(filterStartDate + 'T00:00:00'), 'dd/MM')} - ${format(new Date(filterEndDate + 'T00:00:00'), 'dd/MM')}`;
     } else {
       const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
       startOfPeriod = startOfMonth;
