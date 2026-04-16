@@ -117,36 +117,35 @@ const SalesPage = () => {
         params.userId = filterUserId;
       }
       
-      try {
-        const [salesRes, clientsRes, productsRes, myStatsRes] = await Promise.all([
-          saleService.getAll(params),
-          clientService.getAll(),
-          productService.getAll(),
-          saleService.getMySales(),
-        ]);
-        
-        setSales(salesRes.data.sales || []);
-        setClients(clientsRes.data || []);
-        setProducts(productsRes.data.map((p: any) => ({
-          ...p,
-          salePrice: p.salePrice || 0,
-          costPrice: p.costPrice || 0,
-          stock: p.stock || 0,
-        })));
-        setMyStats(myStatsRes.data);
-        
-        if (user?.role === "admin") {
-          const usersRes = await authService.getUsers();
-          setUsers(usersRes.data || []);
-        } else {
-          setUsers([]);
-        }
-      } catch (err) {
-        console.error("Error fetching data:", err);
-      } finally {
-        setLoading(false);
+      const [salesRes, clientsRes, productsRes, myStatsRes] = await Promise.all([
+        saleService.getAll(params),
+        clientService.getAll(),
+        productService.getAll(),
+        saleService.getMySales(),
+      ]);
+      
+      setSales(salesRes.data.sales || []);
+      setClients(clientsRes.data || []);
+      setProducts(productsRes.data.map((p: any) => ({
+        ...p,
+        salePrice: p.salePrice || 0,
+        costPrice: p.costPrice || 0,
+        stock: p.stock || 0,
+      })));
+      setMyStats(myStatsRes.data);
+      
+      if (user?.role === "admin") {
+        const usersRes = await authService.getUsers();
+        setUsers(usersRes.data || []);
+      } else {
+        setUsers([]);
       }
-    };
+    } catch (err) {
+      console.error("Error fetching data:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredProducts = products.filter(p =>
     p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
