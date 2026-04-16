@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { saleService, clientService, productService, authService } from "../services/api";
 import { ShoppingCart, Plus, Eye, X, Trash2, Search, User, Package, Edit2, Printer, Receipt, TrendingUp, DollarSign, Calendar } from "lucide-react";
 import { printInvoice } from "../components/invoice/InvoiceGenerator";
@@ -55,18 +55,12 @@ interface UserType {
   role: string;
 }
 
-interface MyStats {
-  today: { count: number; total: number; profit: number };
-  month: { count: number; total: number; profit: number };
-}
-
 const SalesPage = () => {
   const { user } = useAuth();
   const [sales, setSales] = useState<Sale[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [users, setUsers] = useState<UserType[]>([]);
-  const [myStats, setMyStats] = useState<MyStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingSale, setEditingSale] = useState<Sale | null>(null);
@@ -117,11 +111,10 @@ const SalesPage = () => {
         params.userId = filterUserId;
       }
       
-      const [salesRes, clientsRes, productsRes, myStatsRes] = await Promise.all([
+      const [salesRes, clientsRes, productsRes] = await Promise.all([
         saleService.getAll(params),
         clientService.getAll(),
         productService.getAll(),
-        saleService.getMySales(),
       ]);
       
       setSales(salesRes.data.sales || []);
@@ -132,7 +125,6 @@ const SalesPage = () => {
         costPrice: p.costPrice || 0,
         stock: p.stock || 0,
       })));
-      setMyStats(myStatsRes.data);
       
       if (user?.role === "admin") {
         const usersRes = await authService.getUsers();
@@ -312,6 +304,63 @@ const SalesPage = () => {
     return labels[method] || method;
   };
 
+  const displayStats = useMemo(() => {
+    const today = new Date();
+    const todayKey = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+    
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const monthStartKey = startOfMonth.getFullYear() * 10000 + (startOfMonth.getMonth() + 1) * 100 + startOfMonth.getDate();
+    
+    let todaySales = [];
+    let monthSales = [];
+    
+    const filteredByDate = sales.filter(sale => {
+      const saleDate = new Date(sale.createdAt);
+      const saleKey = saleDate.getFullYear() * 10000 + (saleDate.getMonth() + 1) * 100 + saleDate.getDate();
+      
+      if (filterStartDate) {
+        const startKey = new Date(filterStartDate).getFullYear() * 10000 + 
+          (new Date(filterStartDate).getMonth() + 1) * 100 + 
+          new Date(filterStartDate).getDate();
+        if (saleKey < startKey) return false;
+      }
+      
+      if (filterEndDate) {
+        const endKey = new Date(filterEndDate).getFullYear() * 10000 + 
+          (new Date(filterEndDate).getMonth() + 1) * 100 + 
+          new Date(filterEndDate).getDate();
+        if (saleKey > endKey) return false;
+      }
+      
+      return true;
+    });
+    
+    filteredByDate.forEach(sale => {
+      const saleDate = new Date(sale.createdAt);
+      const saleKey = saleDate.getFullYear() * 10000 + (saleDate.getMonth() + 1) * 100 + saleDate.getDate();
+      
+      if (saleKey === todayKey) {
+        todaySales.push(sale);
+      }
+      if (saleKey >= monthStartKey && saleKey <= todayKey) {
+        monthSales.push(sale);
+      }
+    });
+    
+    return {
+      today: {
+        count: todaySales.length,
+        total: todaySales.reduce((acc, s) => acc + s.total, 0),
+        profit: todaySales.reduce((acc, s) => acc + (s.profit || 0), 0),
+      },
+      month: {
+        count: monthSales.length,
+        total: monthSales.reduce((acc, s) => acc + s.total, 0),
+        profit: monthSales.reduce((acc, s) => acc + (s.profit || 0), 0),
+      },
+    };
+  }, [sales, filterStartDate, filterEndDate]);
+
   if (loading) {
     return (
       <div className="p-6 flex items-center justify-center min-h-screen">
@@ -339,38 +388,36 @@ const SalesPage = () => {
         </button>
       </div>
 
-      {myStats && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-lg p-5 text-white">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-green-100 font-medium text-sm flex items-center gap-1">
-                <Calendar size={14} /> Hoy
-              </span>
-              <TrendingUp size={18} className="text-green-100" />
-            </div>
-            <p className="text-2xl font-bold">${myStats.today.total.toFixed(2)}</p>
-            <p className="text-green-100 text-sm">{myStats.today.count} ventas</p>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-lg p-5 text-white">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-green-100 font-medium text-sm flex items-center gap-1">
+              <Calendar size={14} /> Hoy
+            </span>
+            <TrendingUp size={18} className="text-green-100" />
           </div>
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg p-5 text-white">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-blue-100 font-medium text-sm flex items-center gap-1">
-                <Calendar size={14} /> Este Mes
-              </span>
-              <DollarSign size={18} className="text-blue-100" />
-            </div>
-            <p className="text-2xl font-bold">${myStats.month.total.toFixed(2)}</p>
-            <p className="text-blue-100 text-sm">{myStats.month.count} ventas</p>
-          </div>
-          <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-lg p-5 text-white">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-purple-100 font-medium text-sm">Ganancia del Mes</span>
-              <DollarSign size={18} className="text-purple-100" />
-            </div>
-            <p className="text-2xl font-bold">${myStats.month.profit.toFixed(2)}</p>
-            <p className="text-purple-100 text-sm">Total ganado</p>
-          </div>
+          <p className="text-2xl font-bold">${displayStats.today.total.toFixed(2)}</p>
+          <p className="text-green-100 text-sm">{displayStats.today.count} ventas</p>
         </div>
-      )}
+        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg p-5 text-white">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-blue-100 font-medium text-sm flex items-center gap-1">
+              <Calendar size={14} /> Este Mes
+            </span>
+            <DollarSign size={18} className="text-blue-100" />
+          </div>
+          <p className="text-2xl font-bold">${displayStats.month.total.toFixed(2)}</p>
+          <p className="text-blue-100 text-sm">{displayStats.month.count} ventas</p>
+        </div>
+        <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-lg p-5 text-white">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-purple-100 font-medium text-sm">Ganancia del Mes</span>
+            <DollarSign size={18} className="text-purple-100" />
+          </div>
+          <p className="text-2xl font-bold">${displayStats.month.profit.toFixed(2)}</p>
+          <p className="text-purple-100 text-sm">Total ganado</p>
+        </div>
+      </div>
 
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
         <div className="p-4 border-b flex flex-wrap gap-4 items-center">
