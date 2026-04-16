@@ -4,6 +4,7 @@ import { ShoppingCart, Plus, Eye, X, Trash2, Search, User, Package, Edit2, Print
 import { printInvoice } from "../components/invoice/InvoiceGenerator";
 import { printTicket } from "../utils/ticketPrinter";
 import { useAuth } from "../context/AuthContext";
+import { format } from "date-fns";
 
 interface SaleItem {
   product: string;
@@ -308,42 +309,35 @@ const SalesPage = () => {
     const today = new Date();
     const todayKey = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
     
-    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    const monthStartKey = startOfMonth.getFullYear() * 10000 + (startOfMonth.getMonth() + 1) * 100 + startOfMonth.getDate();
+    let startOfPeriod: Date;
+    let endOfPeriod: Date;
+    let periodLabel = "Este Mes";
+    
+    if (filterStartDate && filterEndDate) {
+      startOfPeriod = new Date(filterStartDate);
+      endOfPeriod = new Date(filterEndDate);
+      periodLabel = `${format(new Date(filterStartDate), 'dd/MM')} - ${format(new Date(filterEndDate), 'dd/MM')}`;
+    } else {
+      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      startOfPeriod = startOfMonth;
+      endOfPeriod = today;
+    }
+    
+    const startKey = startOfPeriod.getFullYear() * 10000 + (startOfPeriod.getMonth() + 1) * 100 + startOfPeriod.getDate();
+    const endKey = endOfPeriod.getFullYear() * 10000 + (endOfPeriod.getMonth() + 1) * 100 + endOfPeriod.getDate();
     
     let todaySales = [];
-    let monthSales = [];
+    let periodSales = [];
     
-    const filteredByDate = sales.filter(sale => {
-      const saleDate = new Date(sale.createdAt);
-      const saleKey = saleDate.getFullYear() * 10000 + (saleDate.getMonth() + 1) * 100 + saleDate.getDate();
-      
-      if (filterStartDate) {
-        const startKey = new Date(filterStartDate).getFullYear() * 10000 + 
-          (new Date(filterStartDate).getMonth() + 1) * 100 + 
-          new Date(filterStartDate).getDate();
-        if (saleKey < startKey) return false;
-      }
-      
-      if (filterEndDate) {
-        const endKey = new Date(filterEndDate).getFullYear() * 10000 + 
-          (new Date(filterEndDate).getMonth() + 1) * 100 + 
-          new Date(filterEndDate).getDate();
-        if (saleKey > endKey) return false;
-      }
-      
-      return true;
-    });
-    
-    filteredByDate.forEach(sale => {
+    sales.forEach(sale => {
       const saleDate = new Date(sale.createdAt);
       const saleKey = saleDate.getFullYear() * 10000 + (saleDate.getMonth() + 1) * 100 + saleDate.getDate();
       
       if (saleKey === todayKey) {
         todaySales.push(sale);
       }
-      if (saleKey >= monthStartKey && saleKey <= todayKey) {
-        monthSales.push(sale);
+      if (saleKey >= startKey && saleKey <= endKey) {
+        periodSales.push(sale);
       }
     });
     
@@ -353,11 +347,12 @@ const SalesPage = () => {
         total: todaySales.reduce((acc, s) => acc + s.total, 0),
         profit: todaySales.reduce((acc, s) => acc + (s.profit || 0), 0),
       },
-      month: {
-        count: monthSales.length,
-        total: monthSales.reduce((acc, s) => acc + s.total, 0),
-        profit: monthSales.reduce((acc, s) => acc + (s.profit || 0), 0),
+      period: {
+        count: periodSales.length,
+        total: periodSales.reduce((acc, s) => acc + s.total, 0),
+        profit: periodSales.reduce((acc, s) => acc + (s.profit || 0), 0),
       },
+      periodLabel,
     };
   }, [sales, filterStartDate, filterEndDate]);
 
@@ -402,19 +397,19 @@ const SalesPage = () => {
         <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg p-5 text-white">
           <div className="flex items-center justify-between mb-2">
             <span className="text-blue-100 font-medium text-sm flex items-center gap-1">
-              <Calendar size={14} /> Este Mes
+              <Calendar size={14} /> {displayStats.periodLabel}
             </span>
             <DollarSign size={18} className="text-blue-100" />
           </div>
-          <p className="text-2xl font-bold">${displayStats.month.total.toFixed(2)}</p>
-          <p className="text-blue-100 text-sm">{displayStats.month.count} ventas</p>
+          <p className="text-2xl font-bold">${displayStats.period.total.toFixed(2)}</p>
+          <p className="text-blue-100 text-sm">{displayStats.period.count} ventas</p>
         </div>
         <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-lg p-5 text-white">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-purple-100 font-medium text-sm">Ganancia del Mes</span>
+            <span className="text-purple-100 font-medium text-sm">Ganancia {displayStats.periodLabel}</span>
             <DollarSign size={18} className="text-purple-100" />
           </div>
-          <p className="text-2xl font-bold">${displayStats.month.profit.toFixed(2)}</p>
+          <p className="text-2xl font-bold">${displayStats.period.profit.toFixed(2)}</p>
           <p className="text-purple-100 text-sm">Total ganado</p>
         </div>
       </div>
