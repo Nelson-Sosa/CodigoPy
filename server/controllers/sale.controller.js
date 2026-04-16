@@ -198,7 +198,8 @@ exports.create = async (req, res) => {
       if (product.stock < item.quantity)
         return res.status(400).json({ message: `Stock insuficiente para "${product.name}". Disponible: ${product.stock}` });
 
-      const itemSubtotal = item.quantity * product.salePrice;
+      const unitPrice = item.unitPrice ?? product.salePrice;
+      const itemSubtotal = item.quantity * unitPrice;
       subtotal  += itemSubtotal;
       totalCost += item.quantity * product.costPrice;
 
@@ -206,7 +207,7 @@ exports.create = async (req, res) => {
         product:     product._id,
         productName: product.name,
         quantity:    item.quantity,
-        unitPrice:   product.salePrice,
+        unitPrice:   unitPrice,
         costPrice:   product.costPrice,
         subtotal:    itemSubtotal,
       });
