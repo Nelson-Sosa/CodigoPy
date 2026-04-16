@@ -207,10 +207,10 @@ const SalesPage = () => {
   };
 
   const updateUnitPrice = (productId: string, unitPrice: number) => {
-    if (unitPrice <= 0) return;
+    const validPrice = unitPrice || 0;
     setItems(items.map(item =>
       item.product === productId
-        ? { ...item, unitPrice, subtotal: item.quantity * unitPrice }
+        ? { ...item, unitPrice: validPrice, subtotal: item.quantity * validPrice }
         : item
     ));
   };
@@ -700,9 +700,9 @@ const SalesPage = () => {
                           <td className="p-3">
                             <input
                               type="number"
-                              min="0.01"
+                              min="0"
                               step="0.01"
-                              value={item.unitPrice}
+                              value={item.unitPrice || ''}
                               onChange={(e) => updateUnitPrice(item.product, Number(e.target.value))}
                               className="w-full border rounded px-2 py-1 text-center text-green-600 font-medium"
                             />
