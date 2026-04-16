@@ -116,10 +116,11 @@ const CurrencyCard = ({
             </span>
             <input
               type="number"
-              value={editValue}
+              value={editValue || ''}
               onChange={(e) => onEditChange(Number(e.target.value))}
               className={`w-full pl-10 pr-3 py-2 text-xl font-bold ${c.accent} bg-white border-2 ${c.border} rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-1 ${c.ring}`}
               autoFocus
+              placeholder="0"
             />
           </div>
           <div className="flex gap-2">
@@ -179,8 +180,16 @@ const ExchangeRateDisplay = ({ isAdmin = false, compact = false }: ExchangeRateD
     setEditValue(currentRate);
   };
 
+  const handleEditChange = (value: number) => {
+    setEditValue(value || 0);
+  };
+
   const handleSave = async () => {
     if (!editingCurrency) return;
+    if (editValue <= 0) {
+      alert("El valor debe ser mayor a 0");
+      return;
+    }
 
     setSaving(true);
     try {
@@ -261,7 +270,7 @@ const ExchangeRateDisplay = ({ isAdmin = false, compact = false }: ExchangeRateD
             onCancel={handleCancel}
             isEditing={editingCurrency === currency.code}
             editValue={editValue}
-            onEditChange={setEditValue}
+            onEditChange={handleEditChange}
             saving={saving}
           />
         ))}
