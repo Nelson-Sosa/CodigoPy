@@ -8,14 +8,23 @@ const generateToken = (id) =>
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log('Login attempt:', email);
+    
     if (!email || !password)
       return res.status(400).json({ message: 'Email y contraseña requeridos' });
 
     const user = await User.findOne({ email });
-    if (!user || !user.isActive)
+    console.log('User found:', user ? 'yes' : 'no');
+    
+    if (!user)
       return res.status(401).json({ message: 'Credenciales inválidas' });
+    
+    if (!user.isActive)
+      return res.status(401).json({ message: 'Usuario desactivado' });
 
     const match = await user.matchPassword(password);
+    console.log('Password match:', match);
+    
     if (!match)
       return res.status(401).json({ message: 'Credenciales inválidas' });
 
@@ -24,6 +33,7 @@ exports.login = async (req, res) => {
 
     res.json({ token: generateToken(user._id), user });
   } catch (err) {
+    console.error('Login error:', err.message);
     res.status(500).json({ message: err.message });
   }
 };
