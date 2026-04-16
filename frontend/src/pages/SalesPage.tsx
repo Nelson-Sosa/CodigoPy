@@ -383,36 +383,59 @@ const SalesPage = () => {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-lg p-5 text-white">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-green-100 font-medium text-sm flex items-center gap-1">
-              <Calendar size={14} /> Hoy
-            </span>
-            <TrendingUp size={18} className="text-green-100" />
+      {filterStartDate && filterEndDate ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg p-5 text-white">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-blue-100 font-medium text-sm flex items-center gap-1">
+                <Calendar size={14} /> Período: {displayStats.periodLabel}
+              </span>
+              <DollarSign size={18} className="text-blue-100" />
+            </div>
+            <p className="text-2xl font-bold">${displayStats.period.total.toFixed(2)}</p>
+            <p className="text-blue-100 text-sm">{displayStats.period.count} ventas</p>
           </div>
-          <p className="text-2xl font-bold">${displayStats.today.total.toFixed(2)}</p>
-          <p className="text-green-100 text-sm">{displayStats.today.count} ventas</p>
-        </div>
-        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg p-5 text-white">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-blue-100 font-medium text-sm flex items-center gap-1">
-              <Calendar size={14} /> {displayStats.periodLabel}
-            </span>
-            <DollarSign size={18} className="text-blue-100" />
+          <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-lg p-5 text-white">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-purple-100 font-medium text-sm">Ganancia del Período</span>
+              <DollarSign size={18} className="text-purple-100" />
+            </div>
+            <p className="text-2xl font-bold">${displayStats.period.profit.toFixed(2)}</p>
+            <p className="text-purple-100 text-sm">Total ganado</p>
           </div>
-          <p className="text-2xl font-bold">${displayStats.period.total.toFixed(2)}</p>
-          <p className="text-blue-100 text-sm">{displayStats.period.count} ventas</p>
         </div>
-        <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-lg p-5 text-white">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-purple-100 font-medium text-sm">Ganancia {displayStats.periodLabel}</span>
-            <DollarSign size={18} className="text-purple-100" />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-lg p-5 text-white">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-green-100 font-medium text-sm flex items-center gap-1">
+                <Calendar size={14} /> Hoy
+              </span>
+              <TrendingUp size={18} className="text-green-100" />
+            </div>
+            <p className="text-2xl font-bold">${displayStats.today.total.toFixed(2)}</p>
+            <p className="text-green-100 text-sm">{displayStats.today.count} ventas</p>
           </div>
-          <p className="text-2xl font-bold">${displayStats.period.profit.toFixed(2)}</p>
-          <p className="text-purple-100 text-sm">Total ganado</p>
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg p-5 text-white">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-blue-100 font-medium text-sm flex items-center gap-1">
+                <Calendar size={14} /> {displayStats.periodLabel}
+              </span>
+              <DollarSign size={18} className="text-blue-100" />
+            </div>
+            <p className="text-2xl font-bold">${displayStats.period.total.toFixed(2)}</p>
+            <p className="text-blue-100 text-sm">{displayStats.period.count} ventas</p>
+          </div>
+          <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-lg p-5 text-white">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-purple-100 font-medium text-sm">Ganancia del Mes</span>
+              <DollarSign size={18} className="text-purple-100" />
+            </div>
+            <p className="text-2xl font-bold">${displayStats.period.profit.toFixed(2)}</p>
+            <p className="text-purple-100 text-sm">Total ganado</p>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
         <div className="p-4 border-b flex flex-wrap gap-4 items-center">
