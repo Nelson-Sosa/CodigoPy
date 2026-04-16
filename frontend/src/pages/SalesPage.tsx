@@ -670,8 +670,9 @@ const SalesPage = () => {
                     <thead className="bg-gray-100">
                       <tr className="text-left text-sm text-gray-600">
                         <th className="p-3">Producto</th>
-                        <th className="p-3 w-28 text-center">Cantidad</th>
-                        <th className="p-3 w-32 text-center">P. Unit. ($)</th>
+                        <th className="p-3 w-24 text-center">Cantidad</th>
+                        <th className="p-3 w-24 text-center">Costo</th>
+                        <th className="p-3 w-28 text-center">P. Unit.</th>
                         <th className="p-3 w-28 text-right">Subtotal</th>
                         <th className="p-3 w-12"></th>
                       </tr>
@@ -687,7 +688,7 @@ const SalesPage = () => {
                             <div className="flex items-center justify-center gap-1">
                               <button
                                 onClick={() => updateQuantity(item.product, item.quantity - 1)}
-                                className="w-7 h-7 bg-gray-200 rounded hover:bg-gray-300 font-bold"
+                                className="w-6 h-6 bg-gray-200 rounded hover:bg-gray-300 font-bold text-sm"
                               >
                                 -
                               </button>
@@ -696,15 +697,18 @@ const SalesPage = () => {
                                 min="1"
                                 value={item.quantity}
                                 onChange={(e) => updateQuantity(item.product, Number(e.target.value))}
-                                className="w-14 border rounded px-2 py-1 text-center"
+                                className="w-12 border rounded px-1 py-0.5 text-center text-sm"
                               />
                               <button
                                 onClick={() => updateQuantity(item.product, item.quantity + 1)}
-                                className="w-7 h-7 bg-gray-200 rounded hover:bg-gray-300 font-bold"
+                                className="w-6 h-6 bg-gray-200 rounded hover:bg-gray-300 font-bold text-sm"
                               >
                                 +
                               </button>
                             </div>
+                          </td>
+                          <td className="p-3 text-center text-gray-500 text-sm">
+                            ${item.costPrice.toFixed(2)}
                           </td>
                           <td className="p-3">
                             <input
@@ -713,16 +717,16 @@ const SalesPage = () => {
                               step="0.01"
                               value={item.unitPrice || ''}
                               onChange={(e) => updateUnitPrice(item.product, Number(e.target.value))}
-                              className="w-full border rounded px-2 py-1 text-center text-green-600 font-medium"
+                              className="w-full border rounded px-2 py-1 text-center text-green-600 font-medium text-sm"
                             />
                           </td>
-                          <td className="p-3 text-right font-medium">${item.subtotal.toFixed(2)}</td>
+                          <td className="p-3 text-right font-medium text-sm">${item.subtotal.toFixed(2)}</td>
                           <td className="p-3">
                             <button 
                               onClick={() => removeItem(item.product)} 
                               className="text-red-500 hover:text-red-700 p-1"
                             >
-                              <Trash2 size={16} />
+                              <Trash2 size={14} />
                             </button>
                           </td>
                         </tr>
