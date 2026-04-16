@@ -699,12 +699,12 @@ const SalesPage = () => {
                         <tr key={item.product} className="border-t">
                           <td className="p-3">
                             <div className="font-medium text-gray-800">{item.productName}</div>
-                            <div className="text-xs text-gray-400">
-                              SKU: {item.sku}
-                              {item.description && (
-                                <span className="ml-1">• {item.description}</span>
-                              )}
-                            </div>
+                            <div className="text-xs text-slate-500">SKU: {item.sku}</div>
+                            {item.description && (
+                              <div className="text-xs text-blue-600 mt-0.5 leading-relaxed">
+                                {item.description}
+                              </div>
+                            )}
                           </td>
                           <td className="p-3">
                             <div className="flex items-center justify-center gap-1">
