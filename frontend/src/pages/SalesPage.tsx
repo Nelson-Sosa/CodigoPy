@@ -209,11 +209,19 @@ const SalesPage = () => {
   };
 
   const updateUnitPrice = (productId: string, unitPrice: number) => {
+    const item = items.find(i => i.product === productId);
+    if (!item) return;
+    
+    if (unitPrice > 0 && unitPrice < item.costPrice) {
+      alert(`El precio no puede ser menor al costo ($${item.costPrice.toFixed(2)})`);
+      return;
+    }
+    
     const validPrice = unitPrice || 0;
-    setItems(items.map(item =>
-      item.product === productId
-        ? { ...item, unitPrice: validPrice, subtotal: item.quantity * validPrice }
-        : item
+    setItems(items.map(i =>
+      i.product === productId
+        ? { ...i, unitPrice: validPrice, subtotal: i.quantity * validPrice }
+        : i
     ));
   };
 
