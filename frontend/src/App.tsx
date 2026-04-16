@@ -20,7 +20,6 @@ import ClientsPage from "./pages/ClientsPage";
 import SettingsPage from "./pages/SettingsPage";
 import CashRegisterPage from "./pages/CashRegisterPage";
 import UsersPage from "./pages/UsersPage";
-import MySalesPage from "./pages/MySalesPage";
 
 import MainLayout from "./components/layout/MainLayout";
 import ProtectedRoute from "./router/ProtectedRoute";
@@ -127,16 +126,6 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={["admin","vendedor"]}>
                   <SalesPage />
-                </ProtectedRoute>
-              }
-            />
-
-            {/* Mis Ventas - solo vendedor */}
-            <Route
-              path="/my-sales"
-              element={
-                <ProtectedRoute allowedRoles={["vendedor"]}>
-                  <MySalesPage />
                 </ProtectedRoute>
               }
             />

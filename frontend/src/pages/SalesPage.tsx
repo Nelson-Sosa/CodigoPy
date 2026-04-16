@@ -1,8 +1,9 @@
 import { useEffect, useState, useRef } from "react";
-import { saleService, clientService, productService } from "../services/api";
-import { ShoppingCart, Plus, Eye, X, Trash2, Search, User, Package, Edit2, Printer, Receipt } from "lucide-react";
+import { saleService, clientService, productService, authService } from "../services/api";
+import { ShoppingCart, Plus, Eye, X, Trash2, Search, User, Package, Edit2, Printer, Receipt, TrendingUp, DollarSign, Calendar } from "lucide-react";
 import { printInvoice } from "../components/invoice/InvoiceGenerator";
 import { printTicket } from "../utils/ticketPrinter";
+import { useAuth } from "../context/AuthContext";
 
 interface SaleItem {
   product: string;
@@ -47,15 +48,33 @@ interface Client {
   phone?: string;
 }
 
+interface UserType {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+}
+
+interface MyStats {
+  today: { count: number; total: number; profit: number };
+  month: { count: number; total: number; profit: number };
+}
+
 const SalesPage = () => {
+  const { user } = useAuth();
   const [sales, setSales] = useState<Sale[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [users, setUsers] = useState<UserType[]>([]);
+  const [myStats, setMyStats] = useState<MyStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingSale, setEditingSale] = useState<Sale | null>(null);
   const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
   const [saving, setSaving] = useState(false);
+  const [filterUserId, setFilterUserId] = useState<string>("");
+  const [filterStartDate, setFilterStartDate] = useState<string>("");
+  const [filterEndDate, setFilterEndDate] = useState<string>("");
 
   const [clientId, setClientId] = useState("");
   const [items, setItems] = useState<SaleItem[]>([]);
@@ -82,14 +101,32 @@ const SalesPage = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    fetchData();
+  }, [filterUserId, filterStartDate, filterEndDate]);
+
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [salesRes, clientsRes, productsRes] = await Promise.all([
-        saleService.getAll(),
+      const params: any = {};
+      
+      if (filterStartDate) params.startDate = filterStartDate;
+      if (filterEndDate) params.endDate = filterEndDate;
+      
+      if (user?.role === "vendedor") {
+        params.userId = user.id || user._id;
+      } else if (filterUserId) {
+        params.userId = filterUserId;
+      }
+      
+      const [salesRes, clientsRes, productsRes, myStatsRes, usersRes] = await Promise.all([
+        saleService.getAll(params),
         clientService.getAll(),
         productService.getAll(),
+        saleService.getMySales(),
+        authService.getUsers(),
       ]);
+      
       setSales(salesRes.data.sales || []);
       setClients(clientsRes.data || []);
       setProducts(productsRes.data.map((p: any) => ({
@@ -98,6 +135,8 @@ const SalesPage = () => {
         costPrice: p.costPrice || 0,
         stock: p.stock || 0,
       })));
+      setMyStats(myStatsRes.data);
+      setUsers(usersRes.data || []);
     } catch (err) {
       console.error("Error fetching data:", err);
     } finally {
@@ -286,7 +325,7 @@ const SalesPage = () => {
             <ShoppingCart className="text-blue-600" size={28} />
             Ventas
           </h1>
-          <p className="text-gray-500 text-sm">{sales.length} ventas registradas</p>
+          <p className="text-gray-500 text-sm">{sales.length} ventas</p>
         </div>
         <button
           onClick={() => { resetForm(); setShowForm(true); }}
@@ -297,7 +336,77 @@ const SalesPage = () => {
         </button>
       </div>
 
+      {myStats && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-lg p-5 text-white">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-green-100 font-medium text-sm flex items-center gap-1">
+                <Calendar size={14} /> Hoy
+              </span>
+              <TrendingUp size={18} className="text-green-100" />
+            </div>
+            <p className="text-2xl font-bold">${myStats.today.total.toFixed(2)}</p>
+            <p className="text-green-100 text-sm">{myStats.today.count} ventas</p>
+          </div>
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg p-5 text-white">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-blue-100 font-medium text-sm flex items-center gap-1">
+                <Calendar size={14} /> Este Mes
+              </span>
+              <DollarSign size={18} className="text-blue-100" />
+            </div>
+            <p className="text-2xl font-bold">${myStats.month.total.toFixed(2)}</p>
+            <p className="text-blue-100 text-sm">{myStats.month.count} ventas</p>
+          </div>
+          <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-lg p-5 text-white">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-purple-100 font-medium text-sm">Ganancia del Mes</span>
+              <DollarSign size={18} className="text-purple-100" />
+            </div>
+            <p className="text-2xl font-bold">${myStats.month.profit.toFixed(2)}</p>
+            <p className="text-purple-100 text-sm">Total ganado</p>
+          </div>
+        </div>
+      )}
+
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
+        <div className="p-4 border-b flex flex-wrap gap-4 items-center">
+          <span className="text-sm font-medium text-gray-600">Filtros:</span>
+          {user?.role === "admin" && (
+            <select
+              value={filterUserId}
+              onChange={(e) => setFilterUserId(e.target.value)}
+              className="border rounded-lg px-3 py-1.5 text-sm bg-white"
+            >
+              <option value="">Todos los vendedores</option>
+              {users.map(u => (
+                <option key={u._id} value={u._id}>{u.name}</option>
+              ))}
+            </select>
+          )}
+          <input
+            type="date"
+            value={filterStartDate}
+            onChange={(e) => setFilterStartDate(e.target.value)}
+            className="border rounded-lg px-3 py-1.5 text-sm"
+            placeholder="Desde"
+          />
+          <input
+            type="date"
+            value={filterEndDate}
+            onChange={(e) => setFilterEndDate(e.target.value)}
+            className="border rounded-lg px-3 py-1.5 text-sm"
+            placeholder="Hasta"
+          />
+          {(filterUserId || filterStartDate || filterEndDate) && (
+            <button
+              onClick={() => { setFilterUserId(""); setFilterStartDate(""); setFilterEndDate(""); }}
+              className="text-sm text-blue-600 hover:text-blue-800"
+            >
+              Limpiar filtros
+            </button>
+          )}
+        </div>
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr className="text-left text-gray-500 text-sm">

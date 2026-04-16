@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { Truck, LayoutDashboard, Package, Tag, ArrowLeftRight, BarChart3, ShoppingCart, Users, Settings, DollarSign, X, UserCog, TrendingUp } from "lucide-react";
+import { Truck, LayoutDashboard, Package, Tag, ArrowLeftRight, BarChart3, ShoppingCart, Users, Settings, DollarSign, X, UserCog } from "lucide-react";
 
 interface SidebarProps {
   onClose?: () => void;
@@ -28,7 +28,6 @@ const Sidebar = ({ onClose }: SidebarProps) => {
     { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard, roles: ["admin", "vendedor"] },
     { label: "Caja", path: "/cash-register", icon: DollarSign, roles: ["admin", "vendedor"] },
     { label: "Ventas", path: "/sales", icon: ShoppingCart, roles: ["admin", "vendedor"] },
-    { label: "Mis Ventas", path: "/my-sales", icon: TrendingUp, roles: ["vendedor"] },
     { label: "Productos", path: "/products", icon: Package, roles: ["admin", "vendedor"] },
     { label: "Categorías", path: "/categories", icon: Tag, roles: ["admin"] },
     { label: "Movimientos", path: "/movements", icon: ArrowLeftRight, roles: ["admin"] },
