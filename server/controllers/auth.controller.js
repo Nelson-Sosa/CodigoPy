@@ -70,3 +70,45 @@ exports.updateUser = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+// PUT /api/auth/users/:id/password
+exports.changePassword = async (req, res) => {
+  try {
+    const { password } = req.body;
+    if (!password || password.length < 6) {
+      return res.status(400).json({ message: 'La contraseña debe tener al menos 6 caracteres' });
+    }
+
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
+
+    user.password = password;
+    await user.save();
+
+    res.json({ message: 'Contraseña actualizada correctamente' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// DELETE /api/auth/users/:id
+exports.deleteUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
+
+    const adminCount = await User.countDocuments({ role: 'admin', isActive: true });
+    if (user.role === 'admin' && adminCount <= 1) {
+      return res.status(400).json({ message: 'No se puede eliminar el último administrador' });
+    }
+
+    if (user._id.toString() === req.user._id.toString()) {
+      return res.status(400).json({ message: 'No puedes eliminarte a ti mismo' });
+    }
+
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Usuario eliminado correctamente' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { Truck, LayoutDashboard, Package, Tag, ArrowLeftRight, BarChart3, ShoppingCart, Users, Settings, DollarSign, X } from "lucide-react";
+import { Truck, LayoutDashboard, Package, Tag, ArrowLeftRight, BarChart3, ShoppingCart, Users, Settings, DollarSign, X, UserCog } from "lucide-react";
 
 interface SidebarProps {
   onClose?: () => void;
@@ -35,6 +35,7 @@ const Sidebar = ({ onClose }: SidebarProps) => {
     { label: "Proveedores", path: "/suppliers", icon: Truck, roles: ["admin"] },
     { label: "Reportes", path: "/reports", icon: BarChart3, roles: ["admin"] },
     { label: "Configuración", path: "/settings", icon: Settings, roles: ["admin"] },
+    { label: "Usuarios", path: "/users", icon: UserCog, roles: ["admin"] },
   ].filter(item => user && item.roles.includes(user.role));
 
   return (

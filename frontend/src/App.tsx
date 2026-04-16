@@ -19,6 +19,7 @@ import SalesPage from "./pages/SalesPage";
 import ClientsPage from "./pages/ClientsPage";
 import SettingsPage from "./pages/SettingsPage";
 import CashRegisterPage from "./pages/CashRegisterPage";
+import UsersPage from "./pages/UsersPage";
 
 import MainLayout from "./components/layout/MainLayout";
 import ProtectedRoute from "./router/ProtectedRoute";
@@ -155,6 +156,16 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={["admin"]}>
                   <SettingsPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Usuarios - solo admin */}
+            <Route
+              path="/users"
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <UsersPage />
                 </ProtectedRoute>
               }
             />

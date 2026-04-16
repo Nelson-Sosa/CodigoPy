@@ -40,6 +40,9 @@ export const authService = {
   getMe: () => api.get('/auth/me'),
   getUsers: () => api.get('/auth/users'),
   updateUser: (id: string, data: object) => api.put(`/auth/users/${id}`, data),
+  changePassword: (id: string, password: string) =>
+    api.put(`/auth/users/${id}/password`, { password }),
+  deleteUser: (id: string) => api.delete(`/auth/users/${id}`),
 };
 
 export const productService = {
