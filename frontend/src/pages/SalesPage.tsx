@@ -206,6 +206,15 @@ const SalesPage = () => {
     ));
   };
 
+  const updateUnitPrice = (productId: string, unitPrice: number) => {
+    if (unitPrice <= 0) return;
+    setItems(items.map(item =>
+      item.product === productId
+        ? { ...item, unitPrice, subtotal: item.quantity * unitPrice }
+        : item
+    ));
+  };
+
   const removeItem = (productId: string) => {
     setItems(items.filter(item => item.product !== productId));
   };
@@ -229,6 +238,7 @@ const SalesPage = () => {
           productName: item.productName,
           quantity: item.quantity,
           unitPrice: item.unitPrice,
+          costPrice: item.costPrice,
           subtotal: item.subtotal,
         })),
         subtotal,
@@ -651,9 +661,9 @@ const SalesPage = () => {
                     <thead className="bg-gray-100">
                       <tr className="text-left text-sm text-gray-600">
                         <th className="p-3">Producto</th>
-                        <th className="p-3 w-24">Cantidad</th>
-                        <th className="p-3 w-28">P. Unit.</th>
-                        <th className="p-3 w-28">Subtotal</th>
+                        <th className="p-3 w-28 text-center">Cantidad</th>
+                        <th className="p-3 w-32 text-center">P. Unit. ($)</th>
+                        <th className="p-3 w-28 text-right">Subtotal</th>
                         <th className="p-3 w-12"></th>
                       </tr>
                     </thead>
@@ -662,10 +672,10 @@ const SalesPage = () => {
                         <tr key={item.product} className="border-t">
                           <td className="p-3">
                             <span className="font-medium">{item.productName}</span>
-                            <span className="text-gray-400 text-xs block">{item.sku}</span>
+                            <span className="text-gray-400 text-xs block">SKU: {item.sku}</span>
                           </td>
                           <td className="p-3">
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center justify-center gap-1">
                               <button
                                 onClick={() => updateQuantity(item.product, item.quantity - 1)}
                                 className="w-7 h-7 bg-gray-200 rounded hover:bg-gray-300 font-bold"
@@ -687,8 +697,17 @@ const SalesPage = () => {
                               </button>
                             </div>
                           </td>
-                          <td className="p-3">${item.unitPrice.toFixed(2)}</td>
-                          <td className="p-3 font-medium">${item.subtotal.toFixed(2)}</td>
+                          <td className="p-3">
+                            <input
+                              type="number"
+                              min="0.01"
+                              step="0.01"
+                              value={item.unitPrice}
+                              onChange={(e) => updateUnitPrice(item.product, Number(e.target.value))}
+                              className="w-full border rounded px-2 py-1 text-center text-green-600 font-medium"
+                            />
+                          </td>
+                          <td className="p-3 text-right font-medium">${item.subtotal.toFixed(2)}</td>
                           <td className="p-3">
                             <button 
                               onClick={() => removeItem(item.product)} 
