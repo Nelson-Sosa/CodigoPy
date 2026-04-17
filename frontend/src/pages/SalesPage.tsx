@@ -705,8 +705,8 @@ const SalesPage = () => {
                               SKU: {item.sku}
                             </div>
                             {item.description && (
-                              <div className="text-xs text-blue-600 mt-1 leading-snug">
-                                {item.description.length > 50 ? item.description.substring(0, 50) + '...' : item.description}
+                              <div className="text-xs text-blue-600 mt-1">
+                                {item.description}
                               </div>
                             )}
                           </td>
