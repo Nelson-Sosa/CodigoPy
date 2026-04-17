@@ -572,17 +572,17 @@ const SalesPage = () => {
       {showForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-            <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center z-10">
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                <ShoppingCart size={24} className="text-blue-600" />
+            <div className="sticky top-0 bg-white border-b px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center z-10">
+              <h2 className="text-lg sm:text-xl font-bold flex items-center gap-2">
+                <ShoppingCart size={20} className="text-blue-600 sm:size-24" />
                 {editingSale ? "Editar Venta" : "Nueva Venta"}
               </h2>
-              <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600">
-                <X size={24} />
+              <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600 p-1">
+                <X size={20} sm:size={24} />
               </button>
             </div>
 
-            <div className="p-6 space-y-6 overflow-y-auto flex-1">
+            <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto flex-1">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
@@ -595,7 +595,7 @@ const SalesPage = () => {
                       onChange={(e) => {
                         setClientId(e.target.value);
                       }}
-                      className="w-full border rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 appearance-none bg-white"
+                      className="w-full border rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 focus:ring-2 focus:ring-blue-500 appearance-none bg-white text-sm"
                     >
                       <option value="">Consumidor Final (sin registro)</option>
                       {clients.map(c => (
@@ -610,7 +610,7 @@ const SalesPage = () => {
                   <select
                     value={paymentMethod}
                     onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="w-full border rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 bg-white"
+                    className="w-full border rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 focus:ring-2 focus:ring-blue-500 bg-white text-sm"
                   >
                     <option value="cash">💵 Efectivo</option>
                     <option value="card">💳 Tarjeta</option>
@@ -638,12 +638,12 @@ const SalesPage = () => {
                     onFocus={() => setShowProductDropdown(true)}
                     onKeyDown={handleSkuSearch}
                     placeholder="Buscar por nombre, SKU o presionar Enter para buscar por código..."
-                    className="w-full border rounded-lg pl-10 pr-4 py-2.5 focus:ring-2 focus:ring-blue-500"
+                    className="w-full border rounded-lg pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 focus:ring-2 focus:ring-blue-500 text-sm"
                   />
                 </div>
                 
                 {showProductDropdown && productSearch && (
-                  <div className="absolute z-20 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-72 overflow-y-auto">
+                  <div className="absolute z-20 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-60 sm:max-h-72 overflow-y-auto">
                     {filteredProducts.length > 0 ? (
                       filteredProducts.map(p => (
                         <button
@@ -762,12 +762,12 @@ const SalesPage = () => {
                 </div>
               )}
 
-              <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-                <div className="flex justify-between text-gray-600">
+              <div className="bg-gray-50 rounded-lg p-3 sm:p-4 space-y-2 sm:space-y-3">
+                <div className="flex justify-between text-gray-600 text-sm sm:text-base">
                   <span>Subtotal:</span>
                   <span className="font-medium">${subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between items-center text-gray-600">
+                <div className="flex justify-between items-center text-gray-600 text-sm sm:text-base">
                   <span>Descuento:</span>
                   <div className="flex items-center gap-1">
                     <span className="text-gray-500">$</span>
@@ -777,17 +777,17 @@ const SalesPage = () => {
                       step="1"
                       value={discount}
                       onChange={(e) => setDiscount(Number(e.target.value))}
-                      className="w-24 border rounded px-2 py-1 text-right"
+                      className="w-16 sm:w-24 border rounded px-1 sm:px-2 py-1 text-right text-sm"
                       placeholder="0"
                     />
                   </div>
                 </div>
-                <div className="flex justify-between text-lg font-bold border-t pt-3">
+                <div className="flex justify-between text-base sm:text-lg font-bold border-t pt-2 sm:pt-3">
                   <span>Total:</span>
                   <span className="text-green-600">${total.toFixed(2)}</span>
                 </div>
                 {items.length > 0 && (
-                  <div className="flex justify-between text-sm text-blue-600 border-t pt-2">
+                  <div className="flex justify-between text-xs sm:text-sm text-blue-600 border-t pt-1 sm:pt-2">
                     <span>Ganancia estimada:</span>
                     <span className="font-medium">${profit.toFixed(2)}</span>
                   </div>
@@ -806,17 +806,17 @@ const SalesPage = () => {
               </div>
             </div>
 
-            <div className="flex justify-end gap-3 p-6 border-t bg-gray-50">
+            <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 p-4 sm:p-6 border-t bg-gray-50">
               <button
                 onClick={() => setShowForm(false)}
-                className="px-6 py-2.5 border rounded-lg hover:bg-gray-100 transition"
+                className="px-4 sm:px-6 py-2 sm:py-2.5 border rounded-lg hover:bg-gray-100 transition text-sm sm:text-base"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleSubmit}
                 disabled={saving || items.length === 0}
-                className="px-8 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center gap-2"
+                className="px-6 sm:px-8 py-2 sm:py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2 text-sm sm:text-base"
               >
                 {saving ? (
                   <>
