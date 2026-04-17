@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from "react";
+﻿import { useEffect, useState, useRef, useMemo } from "react";
 import { saleService, clientService, productService, authService } from "../services/api";
 import { ShoppingCart, Plus, Eye, X, Trash2, Search, User, Package, Edit2, Printer, Receipt, TrendingUp, DollarSign, Calendar, Check, FileText, Ticket } from "lucide-react";
 import { printInvoice } from "../components/invoice/InvoiceGenerator";
@@ -281,7 +281,7 @@ const SalesPage = () => {
         setCompletedSale(newSale);
         setShowPrintModal(true);
       } else {
-        alert("¡Venta actualizada exitosamente!");
+        alert("┬íVenta actualizada exitosamente!");
       }
     } catch (err: any) {
       alert(err.response?.data?.message || "Error al guardar venta");
@@ -329,7 +329,7 @@ const SalesPage = () => {
       cash: "Efectivo",
       card: "Tarjeta",
       transfer: "Transferencia",
-      credit: "Crédito",
+      credit: "Cr├®dito",
     };
     return labels[method] || method;
   };
@@ -417,7 +417,7 @@ const SalesPage = () => {
           <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg p-5 text-white">
             <div className="flex items-center justify-between mb-2">
               <span className="text-blue-100 font-medium text-sm flex items-center gap-1">
-                <Calendar size={14} /> Período: {displayStats.periodLabel}
+                <Calendar size={14} /> Per├¡odo: {displayStats.periodLabel}
               </span>
               <DollarSign size={18} className="text-blue-100" />
             </div>
@@ -426,7 +426,7 @@ const SalesPage = () => {
           </div>
           <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-lg p-5 text-white">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-purple-100 font-medium text-sm">Ganancia del Período</span>
+              <span className="text-purple-100 font-medium text-sm">Ganancia del Per├¡odo</span>
               <DollarSign size={18} className="text-purple-100" />
             </div>
             <p className="text-2xl font-bold">${displayStats.period.profit.toFixed(2)}</p>
@@ -504,6 +504,7 @@ const SalesPage = () => {
             </button>
           )}
         </div>
+        <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr className="text-left text-gray-500 text-sm">
@@ -511,7 +512,7 @@ const SalesPage = () => {
               <th className="p-4">Cliente</th>
               <th className="p-4">Total</th>
               <th className="p-4">Ganancia</th>
-              <th className="p-4">Método</th>
+              <th className="p-4">M├®todo</th>
               <th className="p-4">Fecha</th>
               <th className="p-4">Vendedor</th>
               <th className="p-4">Estado</th>
@@ -565,6 +566,7 @@ const SalesPage = () => {
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {showForm && (
@@ -601,19 +603,19 @@ const SalesPage = () => {
                       ))}
                     </select>
                   </div>
-                  <p className="text-xs text-gray-400 mt-1">Dejar vacío para venta a consumidor final</p>
+                  <p className="text-xs text-gray-400 mt-1">Dejar vac├¡o para venta a consumidor final</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Método de Pago</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">M├®todo de Pago</label>
                   <select
                     value={paymentMethod}
                     onChange={(e) => setPaymentMethod(e.target.value)}
                     className="w-full border rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 bg-white"
                   >
-                    <option value="cash">💵 Efectivo</option>
-                    <option value="card">💳 Tarjeta</option>
-                    <option value="transfer">🏦 Transferencia</option>
-                    <option value="credit">📋 Crédito/Fiado</option>
+                    <option value="cash">­ƒÆÁ Efectivo</option>
+                    <option value="card">­ƒÆ│ Tarjeta</option>
+                    <option value="transfer">­ƒÅª Transferencia</option>
+                    <option value="credit">­ƒôï Cr├®dito/Fiado</option>
                   </select>
                 </div>
               </div>
@@ -635,7 +637,7 @@ const SalesPage = () => {
                     }}
                     onFocus={() => setShowProductDropdown(true)}
                     onKeyDown={handleSkuSearch}
-                    placeholder="Buscar por nombre, SKU o presionar Enter para buscar por código..."
+                    placeholder="Buscar por nombre, SKU o presionar Enter para buscar por c├│digo..."
                     className="w-full border rounded-lg pl-10 pr-4 py-2.5 focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -702,7 +704,7 @@ const SalesPage = () => {
                             <div className="text-xs text-gray-400">
                               SKU: {item.sku}
                               {item.description && (
-                                <span className="ml-1">• {item.description}</span>
+                                <span className="ml-1">ÔÇó {item.description}</span>
                               )}
                             </div>
                           </td>
@@ -853,7 +855,7 @@ const SalesPage = () => {
                   <p className="font-semibold">{selectedSale.client?.name || selectedSale.clientName}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs text-gray-500">Método</p>
+                  <p className="text-xs text-gray-500">M├®todo</p>
                   <p className="font-medium">{getPaymentLabel(selectedSale.paymentMethod)}</p>
                 </div>
               </div>
@@ -907,7 +909,7 @@ const SalesPage = () => {
 
               {selectedSale.status === "cancelled" && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-center text-red-600 font-medium">
-                  Esta venta está cancelada
+                  Esta venta est├í cancelada
                 </div>
               )}
             </div>
@@ -938,7 +940,7 @@ const SalesPage = () => {
                   </button>
                   <button
                     onClick={async () => {
-                      if (!confirm(`¿Cancelar venta ${selectedSale.invoiceNumber}?`)) return;
+                      if (!confirm(`┬┐Cancelar venta ${selectedSale.invoiceNumber}?`)) return;
                       try {
                         await saleService.cancel(selectedSale._id);
                         setSelectedSale(null);
@@ -967,12 +969,12 @@ const SalesPage = () => {
               <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
                 <Check size={32} className="text-white" />
               </div>
-              <h3 className="text-xl font-bold">¡Venta Completada!</h3>
+              <h3 className="text-xl font-bold">┬íVenta Completada!</h3>
               <p className="text-green-100 text-sm mt-1">{completedSale.invoiceNumber}</p>
             </div>
             
             <div className="p-6">
-              <p className="text-gray-600 text-center mb-6">¿Desea imprimir un comprobante?</p>
+              <p className="text-gray-600 text-center mb-6">┬┐Desea imprimir un comprobante?</p>
               
               <div className="space-y-3">
                 <button
@@ -1025,3 +1027,4 @@ const SalesPage = () => {
 };
 
 export default SalesPage;
+
