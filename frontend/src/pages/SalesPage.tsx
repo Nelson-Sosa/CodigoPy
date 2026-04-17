@@ -643,28 +643,28 @@ const SalesPage = () => {
                 </div>
                 
                 {showProductDropdown && productSearch && (
-                  <div className="absolute z-20 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-60 sm:max-h-72 overflow-y-auto">
+                  <div className="absolute z-20 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-56 sm:max-h-72 overflow-y-auto">
                     {filteredProducts.length > 0 ? (
                       filteredProducts.map(p => (
                         <button
                           key={p._id}
                           onClick={() => addProduct(p)}
-                          className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b last:border-b-0 transition"
+                          className="w-full text-left px-3 sm:px-4 py-2 sm:py-3 hover:bg-blue-50 border-b last:border-b-0 transition"
                         >
-                          <div className="flex justify-between items-start">
+                          <div className="flex justify-between items-start gap-2">
                             <div className="flex-1 min-w-0">
-                              <div className="font-semibold text-gray-900 text-sm">{p.name}</div>
-                              <div className="text-xs font-mono bg-gray-100 text-gray-600 mt-1 inline-block px-1.5 py-0.5 rounded">
+                              <div className="font-semibold text-gray-900 text-xs sm:text-sm">{p.name}</div>
+                              <div className="text-xs font-mono bg-gray-100 text-gray-600 mt-0.5 sm:mt-1 inline-block px-1 sm:px-1.5 py-0.5 rounded">
                                 SKU: {p.sku}
                               </div>
                               {p.description && (
-                                <div className="text-xs text-blue-600 mt-1 leading-snug">
-                                  {p.description.length > 60 ? p.description.substring(0, 60) + '...' : p.description}
+                                <div className="text-xs text-blue-600 mt-0.5 leading-snug hidden sm:block">
+                                  {p.description.length > 50 ? p.description.substring(0, 50) + '...' : p.description}
                                 </div>
                               )}
                             </div>
-                            <div className="text-right ml-3 flex-shrink-0">
-                              <span className="text-green-600 font-bold">${p.salePrice.toFixed(2)}</span>
+                            <div className="text-right flex-shrink-0">
+                              <span className="text-green-600 font-bold text-xs sm:text-sm">${p.salePrice.toFixed(2)}</span>
                               <span className={`block text-xs ${p.stock <= 5 ? 'text-red-500 font-semibold' : 'text-gray-400'}`}>
                                 Stock: {p.stock}
                               </span>
@@ -673,7 +673,7 @@ const SalesPage = () => {
                         </button>
                       ))
                     ) : (
-                      <p className="p-4 text-gray-400 text-center">
+                      <p className="p-3 sm:p-4 text-gray-400 text-center text-xs sm:text-sm">
                         {products.some(p => p.sku.toLowerCase() === productSearch.toLowerCase()) 
                           ? "Producto sin stock" 
                           : "No se encontraron productos"}
