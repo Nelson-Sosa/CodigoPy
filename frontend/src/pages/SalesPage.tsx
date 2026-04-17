@@ -401,7 +401,7 @@ const SalesPage = () => {
             <ShoppingCart className="text-blue-600" size={24} />
             Ventas
           </h1>
-          <p className="text-gray-500 text-sm">{sales.length} ventas</p>
+          <p className="text-gray-500 text-sm">{sales.length} ventas totales</p>
         </div>
         <button
           onClick={() => { resetForm(); setShowForm(true); }}
