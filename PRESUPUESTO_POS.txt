@@ -1,0 +1,203 @@
+╔════════════════════════════════════════════════════════════════════╗
+║                                                                    ║
+║                         SISTEMA POS                                ║
+║                        CodigoPy                                    ║
+║                   Presupuesto Profesional                           ║
+║                                                                    ║
+╚════════════════════════════════════════════════════════════════════╝
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PRESENTACIÓN
+
+Somos Nelson Sosa y Ariel Roman, desarrolladores de sistemas
+especializados en soluciones para negocios en Paraguay.
+
+Ofrecemos sistemas POS (Punto de Venta) diseñados para
+gestionar de manera eficiente la operación de su negocio,
+desde ventas hasta reportes financieros.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+DESCRIPCIÓN DEL SISTEMA
+
+CodigoPy es un sistema integral de gestión empresarial que incluye:
+
+  • Punto de Venta (POS)
+  • Control de Inventario
+  • Caja Registradora
+  • Gestión de Clientes
+  • Gestión de Proveedores
+  • Reportes y Estadísticas
+  • Facturación según normativa SET Paraguay
+  • Tipos de Cambio (USD / PYG / ARS)
+  • Ventas por Vendedor
+  • Multi-usuarios (Administrador + Vendedores)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PLANES Y PRECIOS
+
+┌──────────────────────────────────────────────────────────────────┐
+│                                                                  │
+│  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓  │
+│  ┃                                                           ┃  │
+│  ┃              ★ PLAN BÁSICO ★                              ┃  │
+│  ┃                                                           ┃  │
+│  ┃   Sistema POS completo:                         $300.00    ┃  │
+│  ┃                                                           ┃  │
+│  ┃   ─────────────────────────────────────────────────────   ┃  │
+│  ┃                                                           ┃  │
+│  ┃   TOTAL:                                     $300.00     ┃  │
+│  ┃                                                           ┃  │
+│  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛  │
+│                                                                  │
+│  INCLUYE:                                                      │
+│  ✓ Ventas, inventario, caja registradora                       │
+│  ✓ Reportes y estadísticas                                      │
+│  ✓ Facturación Paraguay (SET)                                  │
+│  ✓ Múltiples usuarios (Admin + Vendedores)                     │
+│  ✓ Tipos de cambio (USD / PYG / ARS)                          │
+│  ✓ Deploy en servidor                                         │
+│  ✓ 1 hora de capacitación online                              │
+│  ✓ 3 meses de soporte técnico GRATIS                          │
+│                                                                  │
+└──────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────┐
+│                                                                  │
+│  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓  │
+│  ┃                                                           ┃  │
+│  ┃              ★ PLAN MENSUAL ★                             ┃  │
+│  ┃                                                           ┃  │
+│  ┃   Sistema POS completo:                         $300.00    ┃  │
+│  ┃   Hosting mensual:                            $12.00/mes  ┃  │
+│  ┃                                                           ┃  │
+│  ┃   ─────────────────────────────────────────────────────   ┃  │
+│  ┃                                                           ┃  │
+│  ┃   TOTAL:                                     $300.00     ┃  │
+│  ┃   + $12.00/mes por hosting                               ┃  │
+│  ┃                                                           ┃  │
+│  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛  │
+│                                                                  │
+│  INCLUYE:                                                      │
+│  ✓ Todo lo del Plan Básico                                    │
+│  ✓ Hosting gestionado por nosotros                             │
+│  ✓ 3 meses de soporte técnico GRATIS                          │
+│  ✓ Sin compromiso anual                                       │
+│  ✓ Puede cancelar cuando quiera                               │
+│                                                                  │
+└──────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────┐
+│                                                                  │
+│  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓  │
+│  ┃                                                           ┃  │
+│  ┃     ★ PLAN ANUAL ★ (RECOMENDADO) - Ahorra $24          ┃  │
+│  ┃                                                           ┃  │
+│  ┃   Sistema POS completo:                         $300.00    ┃  │
+│  ┃   Hosting anual:                               $120.00     ┃  │
+│  ┃                                                           ┃  │
+│  ┃   ─────────────────────────────────────────────────────   ┃  │
+│  ┃                                                           ┃  │
+│  ┃   TOTAL:                                     $420.00     ┃  │
+│  ┃   (Ahorra $24 vs 12 meses de plan mensual)              ┃  │
+│  ┃                                                           ┃  │
+│  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛  │
+│                                                                  │
+│  INCLUYE:                                                      │
+│  ✓ Todo lo del Plan Básico                                    │
+│  ✓ Hosting gestionado por 1 año                               │
+│  ✓ 3 meses de soporte técnico GRATIS                          │
+│  ✓ Backups automáticos                                        │
+│  ✓ Sin preocupaciones mensuales                               │
+│                                                                  │
+└──────────────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+SERVICIOS EXTRAS OPCIONALES
+
+┌─────────────────────┬────────────────┬───────────────────────────┐
+│ Servicio            │   Precio       │   Descripción             │
+├─────────────────────┼────────────────┼───────────────────────────┤
+│ Soporte técnico     │  $15.00/mes   │ Después de los 3 meses │
+│ (post-gratis)      │                │ de soporte incluido       │
+├─────────────────────┼────────────────┼───────────────────────────┤
+│ Capacitación        │  $20.00/hora  │ Sesión adicional         │
+│ adicional           │                │ de capacitación           │
+├─────────────────────┼────────────────┼───────────────────────────┤
+│ Personalizaciones   │  $30-80       │ Por cada personalización  │
+│                     │  /cada        │ (campos, reportes, etc.)  │
+├─────────────────────┼────────────────┼───────────────────────────┤
+│ Reporte             │  $50-80       │ Reporte a medida         │
+│ personalizado       │               │ del cliente               │
+└─────────────────────┴────────────────┴───────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CONDICIONES DE PAGO
+
+  ┌──────────────────────────────────────────────────────┐
+  │                                                      │
+  │   50%  →  Anticipo al contratar                     │
+  │   50%  →  Saldo a la entrega del sistema           │
+  │                                                      │
+  └──────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TIEMPO DE ENTREGA
+
+  • Sistema básico:      3-5 días hábiles
+  • Capacitación:         1 hora (online)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+INTEGRANTES DEL EQUIPO
+
+  ┌──────────────────────────────────────────────────────┐
+  │                                                      │
+  │   Nelson Sosa                                        │
+  │   Desarrollador - Fundador                           │
+  │   Email: nelsonsosa.py@gmail.com                    │
+  │                                                      │
+  ├──────────────────────────────────────────────────────┤
+  │                                                      │
+  │   Ariel Roman                                       │
+  │   Desarrollador - Co-fundador                       │
+  │   Email: arielroman.py@gmail.com                    │
+  │                                                      │
+  └──────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CONTACTO
+
+  📧  Email:     ns5389188.py@gmail.com
+  📱  WhatsApp: +595 983 986 775
+  🌐  Web:      https://codigo-py-frontend.onrender.com
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+NOTAS IMPORTANTES
+
+  ✓ Este presupuesto tiene validez de 15 días
+  ✓ Moneda: Dólares americanos (USD)
+  ✓ El precio incluye impuestos del vendedor
+  ✓ El cliente debe proporcionar: RUC, logo e
+    información de empresa para facturación
+  ✓ El soporte técnico no incluye cambios en el
+    código fuente ni integraciones externas
+  ✓ El sistema queda instalado en la URL
+    proporcionada
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+                        ¡Gracias por su confianza!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Emitido por: Nelson Sosa
+Fecha: 16 de Abril, 2026
+Versión: 1.0
