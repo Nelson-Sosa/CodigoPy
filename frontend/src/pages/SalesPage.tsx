@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { saleService, clientService, productService, authService } from "../services/api";
 import { ShoppingCart, Plus, Eye, X, Trash2, Search, User, Package, Edit2, Printer, Receipt, TrendingUp, DollarSign, Calendar, Check, FileText, Ticket } from "lucide-react";
 import { printInvoice } from "../components/invoice/InvoiceGenerator";
@@ -512,7 +512,7 @@ const SalesPage = () => {
               <th className="p-4">Cliente</th>
               <th className="p-4">Total</th>
               <th className="p-4">Ganancia</th>
-              <th className="p-4">M├®todo</th>
+              <th className="p-4">Método</th>
               <th className="p-4">Fecha</th>
               <th className="p-4">Vendedor</th>
               <th className="p-4">Estado</th>
@@ -606,7 +606,7 @@ const SalesPage = () => {
                   <p className="text-xs text-gray-400 mt-1">Dejar vac├¡o para venta a consumidor final</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">M├®todo de Pago</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Método de Pago</label>
                   <select
                     value={paymentMethod}
                     onChange={(e) => setPaymentMethod(e.target.value)}
@@ -855,7 +855,7 @@ const SalesPage = () => {
                   <p className="font-semibold">{selectedSale.client?.name || selectedSale.clientName}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs text-gray-500">M├®todo</p>
+                  <p className="text-xs text-gray-500">Método</p>
                   <p className="font-medium">{getPaymentLabel(selectedSale.paymentMethod)}</p>
                 </div>
               </div>
