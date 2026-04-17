@@ -683,8 +683,7 @@ const SalesPage = () => {
 
               {items.length > 0 && (
                 <div className="border rounded-lg overflow-hidden">
-<div className="overflow-x-auto">
-        <table className="w-full">
+                  <table className="w-full">
                     <thead className="bg-gray-100">
                       <tr className="text-left text-sm text-gray-600">
                         <th className="p-3">Producto</th>
