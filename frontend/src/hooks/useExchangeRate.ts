@@ -53,12 +53,18 @@ export const useExchangeRate = () => {
   const convertToArs = (usd: number) => Math.round(usd * getRate('ARS'));
   
   const updateRate = async (currency: string, rate: number): Promise<void> => {
+    setRates(prev => ({
+      ...prev,
+      [currency]: { rate, updatedAt: new Date().toISOString() }
+    }));
+    
     setLoading(true);
     try {
       await exchangeRateService.update({ targetCurrency: currency, rate });
       await fetchRates();
     } catch (err) {
       console.error('Error updating exchange rate:', err);
+      fetchRates();
       throw err;
     } finally {
       setLoading(false);
