@@ -685,36 +685,37 @@ const SalesPage = () => {
 
               {items.length > 0 && (
                 <div className="border rounded-lg overflow-hidden">
-                  <table className="w-full">
+                  <div className="overflow-x-auto">
+                  <table className="w-full min-w-[600px]">
                     <thead className="bg-gray-100">
-                      <tr className="text-left text-sm text-gray-600">
-                        <th className="p-3">Producto</th>
-                        <th className="p-3 w-24 text-center">Cantidad</th>
-                        <th className="p-3 w-24 text-center">Costo</th>
-                        <th className="p-3 w-28 text-center">P. Unit.</th>
-                        <th className="p-3 w-28 text-right">Subtotal</th>
-                        <th className="p-3 w-12"></th>
+                      <tr className="text-left text-xs sm:text-sm text-gray-600">
+                        <th className="p-2 sm:p-3">Producto</th>
+                        <th className="p-2 sm:p-3 w-20 sm:w-24 text-center">Cantidad</th>
+                        <th className="p-2 sm:p-3 w-20 sm:w-24 text-center">Costo</th>
+                        <th className="p-2 sm:p-3 w-24 sm:w-28 text-center">P. Unit.</th>
+                        <th className="p-2 sm:p-3 w-24 sm:w-28 text-right">Subtotal</th>
+                        <th className="p-2 sm:p-3 w-10"></th>
                       </tr>
                     </thead>
                     <tbody>
                       {items.map(item => (
                         <tr key={item.product} className="border-t">
-                          <td className="p-3">
-                            <div className="font-medium text-gray-900 text-sm">{item.productName}</div>
+                          <td className="p-2 sm:p-3 align-top">
+                            <div className="font-medium text-gray-900 text-xs sm:text-sm">{item.productName}</div>
                             <div className="text-xs font-mono bg-gray-100 text-gray-600 mt-1 inline-block px-1.5 py-0.5 rounded">
                               SKU: {item.sku}
                             </div>
                             {item.description && (
-                              <div className="text-xs text-blue-600 mt-1">
+                              <div className="text-xs text-blue-600 mt-1 leading-tight">
                                 {item.description}
                               </div>
                             )}
                           </td>
-                          <td className="p-3">
-                            <div className="flex items-center justify-center gap-1">
+                          <td className="p-2 sm:p-3 align-middle">
+                            <div className="flex items-center justify-center gap-0.5 sm:gap-1">
                               <button
                                 onClick={() => updateQuantity(item.product, item.quantity - 1)}
-                                className="w-6 h-6 bg-gray-200 rounded hover:bg-gray-300 font-bold text-sm"
+                                className="w-5 sm:w-6 h-5 sm:h-6 bg-gray-200 rounded hover:bg-gray-300 font-bold text-xs sm:text-sm"
                               >
                                 -
                               </button>
@@ -723,31 +724,31 @@ const SalesPage = () => {
                                 min="1"
                                 value={item.quantity}
                                 onChange={(e) => updateQuantity(item.product, Number(e.target.value))}
-                                className="w-12 border rounded px-1 py-0.5 text-center text-sm"
+                                className="w-8 sm:w-12 border rounded px-0.5 sm:px-1 py-0.5 text-center text-xs sm:text-sm"
                               />
                               <button
                                 onClick={() => updateQuantity(item.product, item.quantity + 1)}
-                                className="w-6 h-6 bg-gray-200 rounded hover:bg-gray-300 font-bold text-sm"
+                                className="w-5 sm:w-6 h-5 sm:h-6 bg-gray-200 rounded hover:bg-gray-300 font-bold text-xs sm:text-sm"
                               >
                                 +
                               </button>
                             </div>
                           </td>
-                          <td className="p-3 text-center text-gray-500 text-sm">
+                          <td className="p-2 sm:p-3 text-center text-gray-500 text-xs sm:text-sm">
                             ${item.costPrice.toFixed(2)}
                           </td>
-                          <td className="p-3">
+                          <td className="p-2 sm:p-3 align-middle">
                             <input
                               type="number"
                               min="0"
                               step="0.01"
                               value={item.unitPrice || ''}
                               onChange={(e) => updateUnitPrice(item.product, Number(e.target.value))}
-                              className="w-full border rounded px-2 py-1 text-center text-green-600 font-medium text-sm"
+                              className="w-full border rounded px-1 sm:px-2 py-0.5 sm:py-1 text-center text-green-600 font-medium text-xs sm:text-sm"
                             />
                           </td>
-                          <td className="p-3 text-right font-medium text-sm">${item.subtotal.toFixed(2)}</td>
-                          <td className="p-3">
+                          <td className="p-2 sm:p-3 text-right font-medium text-xs sm:text-sm">${item.subtotal.toFixed(2)}</td>
+                          <td className="p-2 sm:p-3 align-middle">
                             <button 
                               onClick={() => removeItem(item.product)} 
                               className="text-red-500 hover:text-red-700 p-1"
@@ -759,6 +760,7 @@ const SalesPage = () => {
                       ))}
                     </tbody>
                   </table>
+                  </div>
                 </div>
               )}
 
