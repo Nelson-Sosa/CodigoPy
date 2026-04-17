@@ -743,13 +743,13 @@ const SalesPage = () => {
                             </td>
                             <td className="p-2 sm:p-3 text-right font-medium text-xs sm:text-sm">${item.subtotal.toFixed(2)}</td>
                             <td className="p-2 sm:p-3">
-                            <button 
-                              onClick={() => removeItem(item.product)} 
-                              className="text-red-500 hover:text-red-700 p-1"
-                            >
-                              <Trash2 size={14} />
-                            </button>
-                          </td>
+                              <button 
+                                onClick={() => removeItem(item.product)} 
+                                className="text-red-500 hover:text-red-700 p-1"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </td>
                         </tr>
                       ))}
                     </tbody>
