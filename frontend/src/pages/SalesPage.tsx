@@ -417,7 +417,7 @@ const SalesPage = () => {
           <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg p-5 text-white">
             <div className="flex items-center justify-between mb-2">
               <span className="text-blue-100 font-medium text-sm flex items-center gap-1">
-                <Calendar size={14} /> Per├¡odo: {displayStats.periodLabel}
+                <Calendar size={14} /> Período: {displayStats.periodLabel}
               </span>
               <DollarSign size={18} className="text-blue-100" />
             </div>
@@ -426,7 +426,7 @@ const SalesPage = () => {
           </div>
           <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-lg p-5 text-white">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-purple-100 font-medium text-sm">Ganancia del Per├¡odo</span>
+              <span className="text-purple-100 font-medium text-sm">Ganancia del Período</span>
               <DollarSign size={18} className="text-purple-100" />
             </div>
             <p className="text-2xl font-bold">${displayStats.period.profit.toFixed(2)}</p>
