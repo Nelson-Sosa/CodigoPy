@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { exchangeRateService } from '../services/api';
 
 const DEFAULT_RATES = {
-  'PYG': 6600,
-  'ARS': 850
+  'PYG': 8000,
+  'ARS': 1000
 };
 
 interface ExchangeRateData {
@@ -12,8 +12,11 @@ interface ExchangeRateData {
 }
 
 export const useExchangeRate = () => {
-  const [rates, setRates] = useState<Record<string, ExchangeRateData>>({});
-  const [loading, setLoading] = useState(true);
+  const [rates, setRates] = useState<Record<string, ExchangeRateData>>({
+    'PYG': { rate: DEFAULT_RATES.PYG, updatedAt: new Date().toISOString() },
+    'ARS': { rate: DEFAULT_RATES.ARS, updatedAt: new Date().toISOString() }
+  });
+  const [loading, setLoading] = useState(false);
 
   const fetchRates = useCallback(async () => {
     try {
@@ -33,10 +36,6 @@ export const useExchangeRate = () => {
       });
     } catch (err) {
       console.error('Error fetching exchange rates:', err);
-      setRates({
-        'PYG': { rate: DEFAULT_RATES.PYG, updatedAt: new Date().toISOString() },
-        'ARS': { rate: DEFAULT_RATES.ARS, updatedAt: new Date().toISOString() }
-      });
     } finally {
       setLoading(false);
     }
