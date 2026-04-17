@@ -658,7 +658,7 @@ const SalesPage = () => {
                                 SKU: {p.sku}
                               </div>
                               {p.description && (
-                                <div className="text-xs text-gray-500 mt-1 leading-snug">
+                                <div className="text-xs text-blue-600 mt-1 leading-snug">
                                   {p.description.length > 60 ? p.description.substring(0, 60) + '...' : p.description}
                                 </div>
                               )}
@@ -705,7 +705,7 @@ const SalesPage = () => {
                               SKU: {item.sku}
                             </div>
                             {item.description && (
-                              <div className="text-xs text-gray-500 mt-1 leading-snug">
+                              <div className="text-xs text-blue-600 mt-1 leading-snug">
                                 {item.description.length > 50 ? item.description.substring(0, 50) + '...' : item.description}
                               </div>
                             )}
