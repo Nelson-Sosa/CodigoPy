@@ -504,6 +504,7 @@ const SalesPage = () => {
             </button>
           )}
         </div>
+        <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr className="text-left text-gray-500 text-sm">
