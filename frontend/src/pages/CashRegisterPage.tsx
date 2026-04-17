@@ -214,6 +214,10 @@ const CashRegisterPage = () => {
 
   const handlePreCloseSubmit = async () => {
     if (!summary?.todayRegister) return;
+    
+    const confirmMsg = `¿Confirmar cierre de caja?\n\nMonto de cierre: $${preCloseClosingAmount.toFixed(2)}\n\n${preCloseNotes ? `Notas: ${preCloseNotes}` : ''}`;
+    if (!confirm(confirmMsg)) return;
+    
     setActionLoading(true);
     try {
       await cashRegisterService.close({
