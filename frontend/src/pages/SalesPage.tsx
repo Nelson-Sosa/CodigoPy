@@ -574,11 +574,11 @@ const SalesPage = () => {
           <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
             <div className="sticky top-0 bg-white border-b px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center z-10">
               <h2 className="text-lg sm:text-xl font-bold flex items-center gap-2">
-                <ShoppingCart size={20} className="text-blue-600 sm:size-24" />
+                <ShoppingCart size={20} className="text-blue-600" />
                 {editingSale ? "Editar Venta" : "Nueva Venta"}
               </h2>
               <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600 p-1">
-                <X size={20} sm:size={24} />
+                <X size={20} />
               </button>
             </div>
 
