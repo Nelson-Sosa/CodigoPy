@@ -578,7 +578,7 @@ const CashRegisterPage = () => {
                       </div>
                     )}
                     <button
-                      onClick={handlePreClose}
+onClick={handlePreCloseSubmit}
                       className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white py-4 rounded-xl font-bold hover:from-red-600 hover:to-red-700 transition-all duration-200 hover:scale-[1.02] shadow-lg shadow-red-500/30"
                     >
                       Cerrar Caja
