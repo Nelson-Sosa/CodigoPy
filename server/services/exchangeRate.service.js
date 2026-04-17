@@ -2,7 +2,7 @@ const ExchangeRate = require('../models/ExchangeRate');
 
 const DEFAULT_RATES = {
   'PYG': 6600,
-  'ARS': 850
+  'ARS': 1500
 };
 
 class ExchangeRateService {

@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { exchangeRateService } from '../services/api';
 
 const DEFAULT_RATES = {
-  'PYG': 8000,
-  'ARS': 1000
+  'PYG': 6600,
+  'ARS': 1500
 };
 
 interface ExchangeRateData {
