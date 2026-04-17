@@ -653,19 +653,19 @@ const SalesPage = () => {
                         >
                           <div className="flex justify-between items-start">
                             <div className="flex-1 min-w-0">
-                              <div className="font-semibold text-gray-800">{p.name}</div>
-                              <div className="text-xs text-slate-500 mt-0.5">
+                              <div className="font-semibold text-gray-900 text-sm">{p.name}</div>
+                              <div className="text-xs font-mono bg-gray-100 text-gray-600 mt-1 inline-block px-1.5 py-0.5 rounded">
                                 SKU: {p.sku}
                               </div>
                               {p.description && (
-                                <div className="text-xs text-blue-600 mt-0.5 leading-relaxed">
-                                  {p.description.length > 80 ? p.description.substring(0, 80) + '...' : p.description}
+                                <div className="text-xs text-gray-500 mt-1 leading-snug">
+                                  {p.description.length > 60 ? p.description.substring(0, 60) + '...' : p.description}
                                 </div>
                               )}
                             </div>
-                            <div className="text-right ml-4 flex-shrink-0">
+                            <div className="text-right ml-3 flex-shrink-0">
                               <span className="text-green-600 font-bold">${p.salePrice.toFixed(2)}</span>
-                              <span className={`block text-xs ${p.stock <= 5 ? 'text-red-500' : 'text-gray-400'}`}>
+                              <span className={`block text-xs ${p.stock <= 5 ? 'text-red-500 font-semibold' : 'text-gray-400'}`}>
                                 Stock: {p.stock}
                               </span>
                             </div>
@@ -700,13 +700,15 @@ const SalesPage = () => {
                       {items.map(item => (
                         <tr key={item.product} className="border-t">
                           <td className="p-3">
-                            <div className="font-medium text-gray-800">{item.productName}</div>
-                            <div className="text-xs text-gray-400">
+                            <div className="font-medium text-gray-900 text-sm">{item.productName}</div>
+                            <div className="text-xs font-mono bg-gray-100 text-gray-600 mt-1 inline-block px-1.5 py-0.5 rounded">
                               SKU: {item.sku}
-                              {item.description && (
-                                <span className="ml-1"> - {item.description}</span>
-                              )}
                             </div>
+                            {item.description && (
+                              <div className="text-xs text-gray-500 mt-1 leading-snug">
+                                {item.description.length > 50 ? item.description.substring(0, 50) + '...' : item.description}
+                              </div>
+                            )}
                           </td>
                           <td className="p-3">
                             <div className="flex items-center justify-center gap-1">
