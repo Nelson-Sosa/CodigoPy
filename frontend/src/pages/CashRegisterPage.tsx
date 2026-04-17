@@ -742,72 +742,77 @@ const CashRegisterPage = () => {
         </div>
       )}
 
-      {showPreCloseModal && register && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full">
-            <div className="px-6 py-4 border-b bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-2xl">
-              <h3 className="font-bold text-lg flex items-center gap-2">
-                <Eye size={22} />
+{showPreCloseModal && register && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg sm:max-w-2xl max-h-[95vh] overflow-hidden flex flex-col">
+            <div className="px-4 sm:px-6 py-3 sm:py-4 border-b bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-2xl">
+              <h3 className="font-bold text-base sm:text-lg flex items-center gap-2">
+                <Eye size={20} className="sm:w-6 sm:h-6" />
                 Confirmar Cierre de Caja
               </h3>
             </div>
             
-            <div className="p-6 space-y-6">
-              <div className="grid grid-cols-5 gap-3">
-                <div className="text-center p-3 bg-green-50 rounded-xl border border-green-100">
-                  <p className="text-xs text-gray-500 mb-1">Efectivo</p>
-                  <p className="font-bold text-green-600">${register.cashSales.toFixed(2)}</p>
+            <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto">
+              {/* Métodos de pago - Grid responsive */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3">
+                <div className="text-center p-2 sm:p-3 bg-green-50 rounded-xl border border-green-100">
+                  <p className="text-[10px] sm:text-xs text-gray-500 mb-1">Efectivo</p>
+                  <p className="font-bold text-green-600 text-sm sm:text-base">${register.cashSales.toFixed(2)}</p>
                 </div>
-                <div className="text-center p-3 bg-blue-50 rounded-xl border border-blue-100">
-                  <p className="text-xs text-gray-500 mb-1">Tarjeta</p>
-                  <p className="font-bold text-blue-600">${register.cardSales.toFixed(2)}</p>
+                <div className="text-center p-2 sm:p-3 bg-blue-50 rounded-xl border border-blue-100">
+                  <p className="text-[10px] sm:text-xs text-gray-500 mb-1">Tarjeta</p>
+                  <p className="font-bold text-blue-600 text-sm sm:text-base">${register.cardSales.toFixed(2)}</p>
                 </div>
-                <div className="text-center p-3 bg-purple-50 rounded-xl border border-purple-100">
-                  <p className="text-xs text-gray-500 mb-1">Transfer</p>
-                  <p className="font-bold text-purple-600">${register.transferSales.toFixed(2)}</p>
+                <div className="text-center p-2 sm:p-3 bg-purple-50 rounded-xl border border-purple-100">
+                  <p className="text-[10px] sm:text-xs text-gray-500 mb-1">Transfer</p>
+                  <p className="font-bold text-purple-600 text-sm sm:text-base">${register.transferSales.toFixed(2)}</p>
                 </div>
-                <div className="text-center p-3 bg-orange-50 rounded-xl border border-orange-100">
-                  <p className="text-xs text-gray-500 mb-1">Credito</p>
-                  <p className="font-bold text-orange-600">${register.creditSales.toFixed(2)}</p>
+                <div className="text-center p-2 sm:p-3 bg-orange-50 rounded-xl border border-orange-100">
+                  <p className="text-[10px] sm:text-xs text-gray-500 mb-1">Crédito</p>
+                  <p className="font-bold text-orange-600 text-sm sm:text-base">${register.creditSales.toFixed(2)}</p>
                 </div>
-                <div className="text-center p-3 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl">
-                  <p className="text-xs text-green-100 mb-1">Total</p>
-                  <p className="font-bold">${register.totalSales.toFixed(2)}</p>
+                <div className="text-center p-2 sm:p-3 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl col-span-2 sm:col-span-1">
+                  <p className="text-[10px] sm:text-xs text-green-100 mb-1">Total</p>
+                  <p className="font-bold text-sm sm:text-base">${register.totalSales.toFixed(2)}</p>
                 </div>
               </div>
 
-              <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
-                <div className="flex justify-between items-center mb-2">
+              {/* Resumen de efectivo */}
+              <div className="bg-blue-50 rounded-xl p-3 sm:p-4 border border-blue-100 space-y-2">
+                <div className="flex justify-between items-center text-sm">
                   <span className="text-blue-700">Inicial:</span>
                   <span className="font-bold">${register.openingAmount.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between items-center mb-2">
+                <div className="flex justify-between items-center text-sm">
                   <span className="text-blue-700">+ Ventas Efectivo:</span>
                   <span className="font-bold">${register.cashSales.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between items-center pt-2 border-t border-blue-200">
-                  <span className="text-blue-800 font-bold">Esperado:</span>
+                  <span className="text-blue-800 font-bold text-sm">Esperado:</span>
                   <span className="font-bold text-green-600 text-lg">${register.totalCash.toFixed(2)}</span>
                 </div>
               </div>
 
+              {/* Input dinero real */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Dinero REAL en caja
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-2xl">$</span>
+                  <span className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg sm:text-2xl">$</span>
                   <input
                     type="number"
                     min="0"
+                    step="0.01"
                     value={preCloseClosingAmount || ''}
                     onChange={(e) => setPreCloseClosingAmount(Number(e.target.value))}
-                    className="w-full border-2 border-gray-200 rounded-xl pl-12 pr-4 py-4 text-2xl text-center font-bold focus:border-blue-500 transition-all duration-200"
+                    className="w-full border-2 border-gray-200 rounded-xl pl-10 sm:pl-12 pr-4 py-3 sm:py-4 text-xl sm:text-2xl text-center font-bold focus:border-blue-500 transition-all duration-200"
                     placeholder="0.00"
                   />
                 </div>
               </div>
 
+              {/* Notas */}
               <textarea
                 value={preCloseNotes}
                 onChange={(e) => setPreCloseNotes(e.target.value)}
@@ -817,18 +822,19 @@ const CashRegisterPage = () => {
               />
             </div>
 
-            <div className="px-6 py-4 border-t bg-gray-50 rounded-b-2xl flex gap-3">
+            <div className="px-4 sm:px-6 py-3 sm:py-4 border-t bg-gray-50 rounded-b-2xl flex gap-2 sm:gap-3">
               <button
                 onClick={() => setShowPreCloseModal(false)}
-                className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-200 transition-all duration-200"
+                className="flex-1 bg-gray-100 text-gray-700 py-2.5 sm:py-3 rounded-xl font-medium hover:bg-gray-200 transition-all duration-200 text-sm sm:text-base"
               >
-                Volver
+                Cancelar
               </button>
               <button
-                onClick={handlePreCloseSubmit}
-                className="flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white py-3 rounded-xl font-bold hover:from-red-600 hover:to-red-700 transition-all duration-200"
+                onClick={handlePreClose}
+                disabled={actionLoading || preCloseClosingAmount <= 0}
+                className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white py-2.5 sm:py-3 rounded-xl font-medium hover:from-blue-700 hover:to-blue-800 transition-all duration-200 disabled:opacity-50 text-sm sm:text-base"
               >
-                Confirmar Cierre
+                {actionLoading ? 'Cerrando...' : 'Confirmar Cierre'}
               </button>
             </div>
           </div>
