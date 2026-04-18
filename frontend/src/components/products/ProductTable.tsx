@@ -37,88 +37,102 @@ const ProductTable = ({ products, onDelete, onView, onEdit, onAdjustStock, canEd
     }
   };
 
-  return (
-  <div className="w-full overflow-x-auto rounded-lg border bg-white shadow-sm">
+return (
+  <div className="w-full overflow-x-auto rounded-xl border bg-white shadow-sm">
     <table className="w-full border-collapse text-sm">
-      <thead className="bg-gray-100 text-gray-700">
+      <thead className="bg-gradient-to-r from-slate-100 to-slate-50 text-slate-700">
         <tr>
-          <th onClick={() => handleSort("sku")} className="cursor-pointer px-3 py-2 text-left hover:text-blue-600">
+          <th onClick={() => handleSort("sku")} className="cursor-pointer px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider hover:text-blue-600 transition-colors">
             SKU
           </th>
-          <th onClick={() => handleSort("name")} className="cursor-pointer px-3 py-2 text-left hover:text-blue-600">
+          <th onClick={() => handleSort("name")} className="cursor-pointer px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider hover:text-blue-600 transition-colors">
             Nombre
           </th>
-          <th onClick={() => handleSort("stock")} className="cursor-pointer px-3 py-2 text-left hover:text-blue-600">
+          <th onClick={() => handleSort("stock")} className="cursor-pointer px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider hover:text-blue-600 transition-colors">
             Stock
           </th>
-          <th onClick={() => handleSort("price")} className="cursor-pointer px-3 py-2 text-left hover:text-blue-600">
+          <th onClick={() => handleSort("price")} className="cursor-pointer px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider hover:text-blue-600 transition-colors">
             Precio
           </th>
-          <th onClick={() => handleSort("createdAt")} className="cursor-pointer px-3 py-2 text-left hover:text-blue-600">
+          <th onClick={() => handleSort("createdAt")} className="cursor-pointer px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider hover:text-blue-600 transition-colors">
             Creado
           </th>
-          <th className="px-3 py-2 text-left">Estado</th>
-          <th className="px-3 py-2 text-left">Acciones</th>
+          <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Estado</th>
+          <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Acciones</th>
         </tr>
       </thead>
 
-      <tbody className="divide-y">
+      <tbody className="divide-y divide-slate-100">
         {sortedProducts.map((p) => {
           const stock = p.stock || 0;
           const minStock = p.minStock || 0;
-          let stockColor = "text-green-600 font-medium";
-          if (stock === 0) stockColor = "text-red-600 font-medium";
-          else if (stock < minStock) stockColor = "text-yellow-600 font-medium";
+          let stockBadge = "bg-emerald-100 text-emerald-700";
+          if (stock === 0) stockBadge = "bg-red-100 text-red-700";
+          else if (stock < minStock) stockBadge = "bg-yellow-100 text-yellow-700";
 
           return (
-            <tr key={p.id} className="hover:bg-gray-50 transition-colors">
-              <td className="px-3 py-2">{p.sku || "N/A"}</td>
-              <td className="px-3 py-2 font-medium text-gray-900">{p.name}</td>
-              <td className={`px-3 py-2 ${stockColor}`}>{stock}</td>
-              <td className="px-3 py-2">${p.price || p.salePrice || 0}</td>
-              <td className="px-3 py-2">
+            <tr key={p.id} className="hover:bg-slate-50 transition-all duration-150">
+              <td className="px-4 py-3">
+                <span className="font-mono text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded">
+                  {p.sku || "N/A"}
+                </span>
+              </td>
+              <td className="px-4 py-3 font-medium text-gray-900">{p.name}</td>
+              <td className="px-4 py-3">
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${stockBadge}`}>
+                  {stock}
+                </span>
+              </td>
+              <td className="px-4 py-3 font-semibold text-green-600">${(p.price || p.salePrice || 0).toFixed(2)}</td>
+              <td className="px-4 py-3 text-gray-500 text-xs">
                 {p.createdAt ? new Date(p.createdAt).toLocaleDateString() : "N/A"}
               </td>
-              <td className="px-3 py-2 capitalize">{p.status}</td>
-              <td className="px-3 py-2">
-  <div className="flex items-center gap-3">
-    <button
-      onClick={() => onView(p.id)}
-      className="text-blue-600 hover:text-blue-800"
-      title="Ver"
-    >
-      <Eye size={18} />
-    </button>
+              <td className="px-4 py-3">
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
+                  p.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
+                }`}>
+                  {p.status === 'active' ? 'Activo' : p.status || 'N/A'}
+                </span>
+              </td>
+              <td className="px-4 py-3">
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => onView(p.id)}
+                    className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                    title="Ver"
+                  >
+                    <Eye size={16} />
+                  </button>
 
-    {canEdit && (
-      <>
-        <button
-          onClick={() => onEdit(p.id)}
-          className="text-yellow-600 hover:text-yellow-800"
-          title="Editar"
-        >
-          <Pencil size={18} />
-        </button>
+                  {canEdit && (
+                    <>
+                      <button
+                        onClick={() => onEdit(p.id)}
+                        className="p-1.5 text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors"
+                        title="Editar"
+                      >
+                        <Pencil size={16} />
+                      </button>
 
-        <button
-          onClick={() => onAdjustStock(p)}
-          className="text-purple-600 hover:text-purple-800"
-          title="Ajustar stock"
-        >
-          <PackagePlus size={18} />
-        </button>
+                      <button
+                        onClick={() => onAdjustStock(p)}
+                        className="p-1.5 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                        title="Ajustar stock"
+                      >
+                        <PackagePlus size={16} />
+                      </button>
 
-        <button
-          onClick={() => onDelete(p.id)}
-          className="text-red-600 hover:text-red-800"
-          title="Eliminar"
-        >
-          <Trash2 size={18} />
-        </button>
-      </>
-    )}
-  </div>
-</td>
+                      <button
+                        onClick={() => onDelete(p.id)}
+                        className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Eliminar"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </>
+                  )}
+                </div>
+              </td>
             </tr>
           );
         })}
