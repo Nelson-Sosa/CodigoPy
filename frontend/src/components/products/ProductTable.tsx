@@ -39,26 +39,26 @@ const ProductTable = ({ products, onDelete, onView, onEdit, onAdjustStock, canEd
 
 return (
   <div className="w-full overflow-x-auto rounded-xl border bg-white shadow-sm">
-    <table className="w-full border-collapse text-sm">
+    <table className="w-full min-w-[700px] border-collapse text-sm">
       <thead className="bg-gradient-to-r from-slate-100 to-slate-50 text-slate-700">
         <tr>
-          <th onClick={() => handleSort("sku")} className="cursor-pointer px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider hover:text-blue-600 transition-colors">
+          <th onClick={() => handleSort("sku")} className="cursor-pointer px-3 sm:px-4 py-2.5 sm:py-3 text-left text-xs font-semibold uppercase tracking-wider hover:text-blue-600 transition-colors">
             SKU
           </th>
-          <th onClick={() => handleSort("name")} className="cursor-pointer px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider hover:text-blue-600 transition-colors">
+          <th onClick={() => handleSort("name")} className="cursor-pointer px-3 sm:px-4 py-2.5 sm:py-3 text-left text-xs font-semibold uppercase tracking-wider hover:text-blue-600 transition-colors">
             Nombre
           </th>
-          <th onClick={() => handleSort("stock")} className="cursor-pointer px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider hover:text-blue-600 transition-colors">
+          <th onClick={() => handleSort("stock")} className="cursor-pointer px-2 sm:px-4 py-2.5 sm:py-3 text-left text-xs font-semibold uppercase tracking-wider hover:text-blue-600 transition-colors">
             Stock
           </th>
-          <th onClick={() => handleSort("price")} className="cursor-pointer px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider hover:text-blue-600 transition-colors">
+          <th onClick={() => handleSort("price")} className="cursor-pointer px-2 sm:px-4 py-2.5 sm:py-3 text-left text-xs font-semibold uppercase tracking-wider hover:text-blue-600 transition-colors">
             Precio
           </th>
-          <th onClick={() => handleSort("createdAt")} className="cursor-pointer px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider hover:text-blue-600 transition-colors">
+          <th onClick={() => handleSort("createdAt")} className="cursor-pointer px-2 sm:px-4 py-2.5 sm:py-3 text-left text-xs font-semibold uppercase tracking-wider hover:text-blue-600 transition-colors hidden sm:table-cell">
             Creado
           </th>
-          <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Estado</th>
-          <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Acciones</th>
+          <th className="px-2 sm:px-4 py-2.5 sm:py-3 text-left text-xs font-semibold uppercase tracking-wider hidden md:table-cell">Estado</th>
+          <th className="px-2 sm:px-4 py-2.5 sm:py-3 text-left text-xs font-semibold uppercase tracking-wider">Acciones</th>
         </tr>
       </thead>
 
@@ -72,29 +72,29 @@ return (
 
           return (
             <tr key={p.id} className="hover:bg-slate-50 transition-all duration-150">
-              <td className="px-4 py-3">
-                <span className="font-mono text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded">
+              <td className="px-3 sm:px-4 py-2.5 sm:py-3">
+                <span className="font-mono text-xs bg-slate-100 text-slate-600 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded">
                   {p.sku || "N/A"}
                 </span>
               </td>
-              <td className="px-4 py-3 font-medium text-gray-900">{p.name}</td>
-              <td className="px-4 py-3">
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${stockBadge}`}>
+              <td className="px-3 sm:px-4 py-2.5 sm:py-3 font-medium text-gray-900 text-xs sm:text-sm">{p.name}</td>
+              <td className="px-2 sm:px-4 py-2.5 sm:py-3">
+                <span className={`inline-flex items-center px-1.5 sm:px-2.5 py-0.5 rounded-full text-xs font-medium ${stockBadge}`}>
                   {stock}
                 </span>
               </td>
-              <td className="px-4 py-3 font-semibold text-green-600">${(p.price || p.salePrice || 0).toFixed(2)}</td>
-              <td className="px-4 py-3 text-gray-500 text-xs">
+              <td className="px-2 sm:px-4 py-2.5 sm:py-3 font-semibold text-green-600 text-xs sm:text-sm">${(p.price || p.salePrice || 0).toFixed(2)}</td>
+              <td className="px-2 sm:px-4 py-2.5 sm:py-3 text-gray-500 text-xs hidden sm:table-cell">
                 {p.createdAt ? new Date(p.createdAt).toLocaleDateString() : "N/A"}
               </td>
-              <td className="px-4 py-3">
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
+              <td className="px-2 sm:px-4 py-2.5 sm:py-3 hidden md:table-cell">
+                <span className={`inline-flex items-center px-1.5 sm:px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
                   p.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
                 }`}>
                   {p.status === 'active' ? 'Activo' : p.status || 'N/A'}
                 </span>
               </td>
-              <td className="px-4 py-3">
+              <td className="px-2 sm:px-4 py-2.5 sm:py-3">
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => onView(p.id)}
