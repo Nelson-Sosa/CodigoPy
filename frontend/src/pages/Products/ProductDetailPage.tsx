@@ -165,86 +165,86 @@ const ProductDetailPage = () => {
       </button>
 
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
-          <div className="flex justify-between items-center">
+        <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-4 sm:px-6 py-3 sm:py-4">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
             <div>
-              <h1 className="text-2xl font-bold text-white">{product.name}</h1>
-              <p className="text-blue-100 flex items-center gap-2 mt-1">
-                <Tag size={16} />
+              <h1 className="text-xl sm:text-2xl font-bold text-white">{product.name}</h1>
+              <p className="text-blue-100 flex items-center gap-2 mt-1 text-sm">
+                <Tag size={14} />
                 {product.brand || "Sin marca"}
               </p>
             </div>
             {isAdmin && (
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <button
                   onClick={() => navigate(`/products/edit/${product.id}`)}
-                  className="px-4 py-2 bg-white text-blue-600 rounded-lg flex items-center gap-2 hover:bg-blue-50 transition-colors"
+                  className="px-3 sm:px-4 py-2 bg-white text-blue-600 rounded-lg flex items-center justify-center gap-1 sm:gap-2 hover:bg-blue-50 transition-colors text-sm"
                 >
-                  <Pencil size={18} />
-                  Editar
+                  <Pencil size={16} />
+                  <span className="hidden xs:inline">Editar</span>
                 </button>
                 <button
                   onClick={() => setShowAdjustModal(true)}
-                  className="px-4 py-2 bg-yellow-500 text-white rounded-lg flex items-center gap-2 hover:bg-yellow-600 transition-colors"
+                  className="px-3 sm:px-4 py-2 bg-yellow-500 text-white rounded-lg flex items-center justify-center gap-1 sm:gap-2 hover:bg-yellow-600 transition-colors text-sm"
                 >
-                  <PackagePlus size={18} />
-                  Ajustar Stock
+                  <PackagePlus size={16} />
+                  <span className="hidden xs:inline">Ajustar Stock</span>
                 </button>
               </div>
             )}
           </div>
         </div>
 
-        <div className="p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="p-4 sm:p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
             <div className="lg:col-span-1">
               {product.imageUrl && (
-                <div className="border rounded-xl p-4">
+                <div className="border rounded-xl p-2 sm:p-4">
                   <img
                     src={product.imageUrl}
                     alt={product.name}
-                    className="w-full h-64 object-contain rounded-lg"
+                    className="w-full h-40 sm:h-64 object-contain rounded-lg"
                   />
                 </div>
               )}
 
               {product.description && (
-                <div className="mt-4 p-4 bg-gray-50 rounded-xl">
-                  <h3 className="font-semibold text-gray-700 flex items-center gap-2 mb-2">
-                    <Info size={18} />
+                <div className="mt-4 p-3 sm:p-4 bg-gray-50 rounded-xl">
+                  <h3 className="font-semibold text-gray-700 flex items-center gap-2 mb-2 text-sm sm:text-base">
+                    <Info size={16} sm:size={18} />
                     Descripción
                   </h3>
-                  <p className="text-gray-600 text-sm">{product.description}</p>
+                  <p className="text-gray-600 text-xs sm:text-sm">{product.description}</p>
                 </div>
               )}
             </div>
 
-            <div className="lg:col-span-2 space-y-4">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <div className="bg-blue-50 rounded-xl p-4">
-                  <p className="text-blue-600 text-sm font-medium">SKU</p>
-                  <p className="text-xl font-bold text-gray-800">{product.sku}</p>
+            <div className="lg:col-span-2 space-y-3 sm:space-y-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
+                <div className="bg-blue-50 rounded-xl p-2 sm:p-4">
+                  <p className="text-blue-600 text-xs sm:text-sm font-medium">SKU</p>
+                  <p className="text-lg sm:text-xl font-bold text-gray-800">{product.sku}</p>
                 </div>
-                <div className="bg-purple-50 rounded-xl p-4">
-                  <p className="text-purple-600 text-sm font-medium">Marca</p>
-                  <p className="text-xl font-bold text-gray-800">{product.brand || "N/A"}</p>
+                <div className="bg-purple-50 rounded-xl p-2 sm:p-4">
+                  <p className="text-purple-600 text-xs sm:text-sm font-medium">Marca</p>
+                  <p className="text-lg sm:text-xl font-bold text-gray-800">{product.brand || "N/A"}</p>
                 </div>
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <p className="text-gray-500 text-sm font-medium">Estado</p>
-                  <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(product.status)}`}>
+                <div className="bg-gray-50 rounded-xl p-2 sm:p-4 col-span-2 sm:col-span-1">
+                  <p className="text-gray-500 text-xs sm:text-sm font-medium">Estado</p>
+                  <span className={`inline-block px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${getStatusColor(product.status)}`}>
                     {getStatusLabel(product.status)}
                   </span>
                 </div>
               </div>
 
-              <div className="border rounded-xl p-4">
+              <div className="border rounded-xl p-3 sm:p-4">
                 <div className="flex justify-between items-center mb-2">
                   <p className="text-gray-500 text-sm font-medium">Stock Actual</p>
-                  <p className="text-2xl font-bold text-gray-800">{product.stock} {product.unit || "unidades"}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-800">{product.stock} {product.unit || "unidades"}</p>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-3">
+                <div className="w-full bg-gray-200 rounded-full h-2 sm:h-3">
                   <div 
-                    className={`h-3 rounded-full transition-all ${
+                    className={`h-2 sm:h-3 rounded-full transition-all ${
                       product.stock === 0 ? "bg-red-500" :
                       product.stock < product.minStock ? "bg-yellow-500" : "bg-green-500"
                     }`}
@@ -258,24 +258,24 @@ const ProductDetailPage = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-green-50 rounded-xl p-4">
-                  <p className="text-green-600 text-sm font-medium flex items-center gap-1">
-                    <TrendingUp size={16} />
+              <div className="grid grid-cols-2 gap-2 sm:gap-4">
+                <div className="bg-green-50 rounded-xl p-2 sm:p-4">
+                  <p className="text-green-600 text-xs sm:text-sm font-medium flex items-center gap-1">
+                    <TrendingUp size={14} sm:size={16} />
                     Precio de Venta
                   </p>
-                  <p className="text-2xl font-bold text-gray-800">${product.price.toFixed(2)}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-800">${product.price.toFixed(2)}</p>
                 </div>
-                <div className="bg-orange-50 rounded-xl p-4">
-                  <p className="text-orange-600 text-sm font-medium flex items-center gap-1">
-                    <TrendingDown size={16} />
+                <div className="bg-orange-50 rounded-xl p-2 sm:p-4">
+                  <p className="text-orange-600 text-xs sm:text-sm font-medium flex items-center gap-1">
+                    <TrendingDown size={14} sm:size={16} />
                     Costo
                   </p>
-                  <p className="text-2xl font-bold text-gray-800">${product.cost.toFixed(2)}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-800">${product.cost.toFixed(2)}</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-2 gap-2 sm:gap-4 text-xs sm:text-sm">
                 <div className="flex justify-between py-2 border-b">
                   <span className="text-gray-500">Categoría</span>
                   <span className="font-medium">{product.category?.name || "N/A"}</span>
