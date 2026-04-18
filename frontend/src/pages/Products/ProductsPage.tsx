@@ -4,6 +4,7 @@ import { productService, categoryService } from "../../services/api";
 import ProductTable from "../../components/products/ProductTable";
 import type { Product } from "../../types/Product";
 import { useAuth } from "../../context/AuthContext";
+import { Package, Plus } from "lucide-react";
 
 const ProductsPage = () => {
   const navigate = useNavigate();
@@ -106,18 +107,28 @@ const ProductsPage = () => {
   };
 
   return (
-    <div className="p-6 space-y-4">
-      <h1 className="text-2xl font-bold mb-4">Gestión de Productos</h1>
-      {isAdmin && (
-        <div className="flex justify-between items-center mb-4">
+    <div className="p-4 sm:p-6 space-y-4">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+            <Package className="text-blue-600" size={24} />
+          </div>
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Gestión de Productos</h1>
+            <p className="text-gray-500 text-sm">{products.length} productos en inventario</p>
+          </div>
+        </div>
+        {isAdmin && (
           <button
             onClick={() => navigate("/products/new")}
-            className="bg-green-600 text-white px-4 py-2 rounded"
+            className="bg-green-600 text-white px-3 sm:px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-green-700 transition text-sm sm:text-base"
           >
-            + Agregar producto
+            <Plus size={18} />
+            <span className="hidden sm:inline">Agregar producto</span>
+            <span className="sm:hidden">Agregar</span>
           </button>
-        </div>
-      )}
+        )}
+      </div>
 
       <div className="flex flex-wrap gap-2 items-center mb-4">
         <input
