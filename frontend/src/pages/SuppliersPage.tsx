@@ -190,10 +190,11 @@ const SuppliersPage = () => {
         </div>
         <button
           onClick={() => { resetForm(); setShowForm(true); }}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700 transition"
+          className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700 transition text-sm sm:text-base"
         >
-          <Plus size={20} />
-          Nuevo Proveedor
+          <Plus size={18} sm:size={20} />
+          <span className="hidden sm:inline">Nuevo Proveedor</span>
+          <span className="sm:hidden">Agregar</span>
         </button>
       </div>
 
