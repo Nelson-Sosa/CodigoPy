@@ -121,10 +121,10 @@ const ProductsPage = () => {
         {isAdmin && (
           <button
             onClick={() => navigate("/products/new")}
-            className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 py-2 sm:px-5 sm:py-2.5 rounded-xl flex items-center justify-center gap-1.5 sm:gap-2 hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-lg shadow-green-500/30 font-medium text-xs sm:text-sm"
+            className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-2.5 py-1.5 sm:px-5 sm:py-2.5 rounded-lg sm:rounded-xl flex items-center justify-center gap-1 sm:gap-2 hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-lg shadow-green-500/30 font-medium text-xs sm:text-sm"
           >
-            <Plus size={16} sm:size={18} />
-            <span>Agregar Producto</span>
+            <Plus size={14} sm:size={18} />
+            <span>Agregar</span>
           </button>
         )}
       </div>
