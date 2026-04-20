@@ -214,13 +214,12 @@ const SalesPage = () => {
     const item = items.find(i => i.product === productId);
     if (!item) return;
     
-    const validPrice = unitPrice || 0;
-    
-    if (validPrice > 0 && validPrice < item.costPrice) {
+    if (unitPrice && unitPrice < item.costPrice) {
       alert(`El precio no puede ser menor al costo ($${item.costPrice.toFixed(2)})`);
       return;
     }
     
+    const validPrice = unitPrice || item.unitPrice;
     setItems(items.map(i =>
       i.product === productId
         ? { ...i, unitPrice: validPrice, subtotal: i.quantity * validPrice }
@@ -741,7 +740,6 @@ const SalesPage = () => {
                           <td className="p-2 sm:p-3 align-middle">
                             <input
                               type="number"
-                              min="0"
                               step="0.01"
                               value={item.unitPrice || ''}
                               onChange={(e) => updateUnitPrice(item.product, Number(e.target.value))}
