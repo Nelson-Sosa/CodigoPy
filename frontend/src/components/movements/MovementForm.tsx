@@ -31,7 +31,6 @@ const MOTIVOS_ENTRADA = [
   "Compra a proveedor",
   "Devolución de cliente",
   "Ajuste positivo",
-  "Transferencia entrante",
   "Producción propia",
   "Otro"
 ];
