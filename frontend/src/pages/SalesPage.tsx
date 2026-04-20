@@ -70,6 +70,8 @@ const SalesPage = () => {
   const [saving, setSaving] = useState(false);
   const [completedSale, setCompletedSale] = useState<any>(null);
   const [showPrintModal, setShowPrintModal] = useState(false);
+  const [showPriceAlert, setShowPriceAlert] = useState(false);
+  const [priceAlertData, setPriceAlertData] = useState<{product: string; margin: number; cost: number; price: number} | null>(null);
   const [filterUserId, setFilterUserId] = useState<string>("");
   const [filterStartDate, setFilterStartDate] = useState<string>("");
   const [filterEndDate, setFilterEndDate] = useState<string>("");
@@ -259,7 +261,13 @@ const SalesPage = () => {
 
     const priceValidation = validatePricesBeforeSubmit();
     if (!priceValidation.valid) {
-      alert(`El margen de "${priceValidation.product}" es ${priceValidation.margin}% (mínimo 15%)\nCosto: $${priceValidation.cost.toFixed(2)}\nPrecio: $${priceValidation.price?.toFixed(2)}`);
+      setPriceAlertData({
+        product: priceValidation.product,
+        margin: priceValidation.margin,
+        cost: priceValidation.cost,
+        price: priceValidation.price || 0
+      });
+      setShowPriceAlert(true);
       return;
     }
 
@@ -1070,6 +1078,60 @@ const SalesPage = () => {
                   <span className="font-medium">No imprimir</span>
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPriceAlert && priceAlertData && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden animate-scale-in">
+            <div className="bg-gradient-to-r from-red-500 to-orange-500 p-6 text-center text-white">
+              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                <TrendingUp size={32} className="text-white rotate-180" />
+              </div>
+              <h3 className="text-xl font-bold">Margen muy bajo</h3>
+            </div>
+            
+            <div className="p-6">
+              <div className="bg-red-50 rounded-xl p-4 mb-4">
+                <p className="text-gray-600 text-sm mb-2">Producto:</p>
+                <p className="text-gray-900 font-semibold">{priceAlertData.product}</p>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <p className="text-gray-500 text-xs">Margen actual</p>
+                  <p className="text-red-600 font-bold text-lg">{priceAlertData.margin.toFixed(0)}%</p>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <p className="text-gray-500 text-xs">Margen mínimo</p>
+                  <p className="text-green-600 font-bold text-lg">15%</p>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <p className="text-gray-500 text-xs">Costo</p>
+                  <p className="text-gray-900 font-semibold">${priceAlertData.cost.toFixed(2)}</p>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <p className="text-gray-500 text-xs">Precio actual</p>
+                  <p className="text-red-600 font-semibold">${priceAlertData.price.toFixed(2)}</p>
+                </div>
+              </div>
+              
+              <p className="text-gray-500 text-sm text-center mb-4">
+                El precio mínimo debe ser: <span className="text-green-600 font-bold">${(priceAlertData.cost * 1.15).toFixed(2)}</span>
+              </p>
+              
+              <button
+                onClick={() => {
+                  setShowPriceAlert(false);
+                  setPriceAlertData(null);
+                }}
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-xl transition-all font-medium"
+              >
+                <X size={20} />
+                Entendido
+              </button>
             </div>
           </div>
         </div>
