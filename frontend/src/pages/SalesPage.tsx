@@ -758,7 +758,7 @@ const SalesPage = () => {
                           <td className="p-2 sm:p-3 text-center text-gray-500 text-xs sm:text-sm">
                             ${item.costPrice.toFixed(2)}
                           </td>
-                          <td className="p-2 sm:p-3 align-middle">
+                          <td className="p-2 sm:p-3 align-middle relative">
                             <input
                               type="number"
                               step="0.01"
@@ -773,9 +773,11 @@ const SalesPage = () => {
                               }`}
                             />
                             {item.unitPrice && item.costPrice && (((item.unitPrice - item.costPrice) / item.costPrice) * 100 < 15) && (
-                              <div className="text-xs leading-tight">
-                                <span className="text-red-500 font-medium">Min: ${(item.costPrice * 1.15).toFixed(2)}</span>
-                                <span className="text-red-400 ml-1">(15%)</span>
+                              <div className="absolute -top-1 -right-1 group">
+                                <span className="w-3 h-3 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] font-bold cursor-help">!</span>
+                                <div className="absolute bottom-full right-0 mb-1 hidden group-hover:block bg-gray-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+                                  Min: ${(item.costPrice * 1.15).toFixed(2)} (15%)
+                                </div>
                               </div>
                             )}
                           </td>
