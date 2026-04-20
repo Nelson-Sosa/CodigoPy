@@ -215,11 +215,34 @@ const SalesPage = () => {
     if (!item) return;
     
     if (unitPrice && unitPrice < item.costPrice) {
-      alert(`El precio no puede ser menor al costo ($${item.costPrice.toFixed(2)})`);
       return;
     }
     
     const validPrice = unitPrice || item.unitPrice;
+    setItems(items.map(i =>
+      i.product === productId
+        ? { ...i, unitPrice: validPrice, subtotal: i.quantity * validPrice }
+        : i
+    ));
+  };
+
+  const validateAndSavePrice = (productId: string, unitPrice: number | string) => {
+    const item = items.find(i => i.product === productId);
+    if (!item) return;
+    
+    const numPrice = Number(unitPrice);
+    
+    if (numPrice && numPrice < item.costPrice) {
+      alert(`El precio no puede ser menor al costo ($${item.costPrice.toFixed(2)})`);
+      setItems(items.map(i =>
+        i.product === productId
+          ? { ...i, unitPrice: i.unitPrice, subtotal: i.quantity * i.unitPrice }
+          : i
+      ));
+      return;
+    }
+    
+    const validPrice = numPrice || item.unitPrice;
     setItems(items.map(i =>
       i.product === productId
         ? { ...i, unitPrice: validPrice, subtotal: i.quantity * validPrice }
@@ -741,8 +764,8 @@ const SalesPage = () => {
                             <input
                               type="number"
                               step="0.01"
-                              value={item.unitPrice || ''}
-                              onChange={(e) => updateUnitPrice(item.product, Number(e.target.value))}
+                              defaultValue={item.unitPrice}
+                              onBlur={(e) => validateAndSavePrice(item.product, e.target.value)}
                               className="w-full border rounded px-1 sm:px-2 py-0.5 sm:py-1 text-center text-green-600 font-medium text-xs sm:text-sm"
                             />
                           </td>
