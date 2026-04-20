@@ -227,7 +227,9 @@ const SalesPage = () => {
     if (!item) return;
     
     if (unitPrice && unitPrice < item.costPrice) {
-      alert(`El precio no puede ser menor al costo ($${item.costPrice.toFixed(2)})`);
+      setTimeout(() => {
+        alert(`El precio no puede ser menor al costo ($${item.costPrice.toFixed(2)})`);
+      }, 10);
       setItems(items.map(i =>
         i.product === productId
           ? { ...i, unitPrice: i.unitPrice, subtotal: i.quantity * i.unitPrice }
