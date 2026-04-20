@@ -226,28 +226,32 @@ const SalesPage = () => {
     ));
   };
 
-  const validateAndSavePrice = (productId: string, unitPrice: number | string, fromBlur = true) => {
+const validateAndSavePrice = (productId: string, unitPrice: number | string) => {
     const item = items.find(i => i.product === productId);
     if (!item) return;
     
     const numPrice = Number(unitPrice);
-    
-    if (numPrice && numPrice < item.costPrice) {
-      alert(`El precio no puede ser menor al costo ($${item.costPrice.toFixed(2)})`);
-      setItems(items.map(i =>
-        i.product === productId
-          ? { ...i, unitPrice: i.unitPrice, subtotal: i.quantity * i.unitPrice }
-          : i
-      ));
-      return;
-    }
-    
     const validPrice = numPrice || item.unitPrice;
+    
     setItems(items.map(i =>
       i.product === productId
         ? { ...i, unitPrice: validPrice, subtotal: i.quantity * validPrice }
         : i
     ));
+  };
+
+  const validatePricesBeforeSubmit = () => {
+    for (const item of items) {
+      if (item.unitPrice && item.unitPrice < item.costPrice) {
+        return {
+          valid: false,
+          product: item.productName,
+          cost: item.costPrice,
+          price: item.unitPrice
+        };
+      }
+    }
+    return { valid: true };
   };
 
   const handlePriceKeyDown = (e: React.KeyboardEvent, productId: string, value: string) => {
@@ -269,6 +273,12 @@ const SalesPage = () => {
   const handleSubmit = async () => {
     if (items.length === 0) {
       alert("Agregue al menos un producto");
+      return;
+    }
+
+    const priceValidation = validatePricesBeforeSubmit();
+    if (!priceValidation.valid) {
+      alert(`El precio de "${priceValidation.product}" no puede ser menor al costo ($${priceValidation.cost.toFixed(2)})`);
       return;
     }
 
@@ -771,12 +781,13 @@ const SalesPage = () => {
                             <input
                               type="number"
                               step="0.01"
-                              defaultValue={item.unitPrice}
+                              value={item.unitPrice || ''}
+                              onChange={(e) => updateUnitPrice(item.product, Number(e.target.value))}
                               onBlur={(e) => validateAndSavePrice(item.product, e.target.value)}
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                   e.preventDefault();
-                                  validateAndSavePrice(item.product, (e.target as HTMLInputElement).value);
+                                  validateAndSavePrice(item.product, item.unitPrice);
                                 }
                               }}
                               className="w-full border rounded px-1 sm:px-2 py-0.5 sm:py-1 text-center text-green-600 font-medium text-xs sm:text-sm"
