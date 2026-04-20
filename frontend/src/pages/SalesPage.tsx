@@ -214,16 +214,27 @@ const SalesPage = () => {
     const item = items.find(i => i.product === productId);
     if (!item) return;
     
-    if (unitPrice && unitPrice < item.costPrice) {
-      return;
-    }
-    
-    const validPrice = unitPrice || item.unitPrice;
+    const validPrice = unitPrice || 0;
     setItems(items.map(i =>
       i.product === productId
         ? { ...i, unitPrice: validPrice, subtotal: i.quantity * validPrice }
         : i
     ));
+  };
+
+  const validatePriceOnBlur = (productId: string, unitPrice: number) => {
+    const item = items.find(i => i.product === productId);
+    if (!item) return;
+    
+    if (unitPrice && unitPrice < item.costPrice) {
+      alert(`El precio no puede ser menor al costo ($${item.costPrice.toFixed(2)})`);
+      setItems(items.map(i =>
+        i.product === productId
+          ? { ...i, unitPrice: i.unitPrice, subtotal: i.quantity * i.unitPrice }
+          : i
+      ));
+      return;
+    }
   };
 
   const removeItem = (productId: string) => {
@@ -742,6 +753,13 @@ const SalesPage = () => {
                               step="0.01"
                               value={item.unitPrice || ''}
                               onChange={(e) => updateUnitPrice(item.product, Number(e.target.value))}
+                              onBlur={() => validatePriceOnBlur(item.product, item.unitPrice)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  validatePriceOnBlur(item.product, item.unitPrice);
+                                }
+                              }}
                               className="w-full border rounded px-1 sm:px-2 py-0.5 sm:py-1 text-center text-green-600 font-medium text-xs sm:text-sm"
                             />
                           </td>
