@@ -773,7 +773,7 @@ const SalesPage = () => {
                               }`}
                             />
                             {item.unitPrice && item.costPrice && (((item.unitPrice - item.costPrice) / item.costPrice) * 100 < 15) && (
-                              <p className="text-xs text-red-500 mt-0.5">Min: ${(item.costPrice * 1.15).toFixed(2)} (15%)</p>
+                              <p className="text-xs text-red-500 mt-0.5 font-medium">Min: ${(item.costPrice * 1.15).toFixed(2)}</p>
                             )}
                           </td>
                           <td className="p-2 sm:p-3 text-right font-medium text-xs sm:text-sm">${item.subtotal.toFixed(2)}</td>
