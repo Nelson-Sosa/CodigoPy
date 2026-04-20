@@ -759,27 +759,41 @@ const SalesPage = () => {
                             ${item.costPrice.toFixed(2)}
                           </td>
                           <td className="p-2 sm:p-3 align-middle relative">
-                            <input
-                              type="number"
-                              step="0.01"
-                              value={item.unitPrice || ''}
-                              onChange={(e) => updateUnitPrice(item.product, Number(e.target.value))}
-                              className={`w-full border rounded px-1 sm:px-2 py-0.5 sm:py-1 text-center text-xs sm:text-sm font-medium ${
-                                item.unitPrice && item.costPrice 
-                                  ? (((item.unitPrice - item.costPrice) / item.costPrice) * 100 < 15 
-                                    ? 'border-red-500 bg-red-50 text-red-600' 
-                                    : 'text-green-600')
-                                  : 'text-gray-400'
-                              }`}
-                            />
-                            {item.unitPrice && item.costPrice && (((item.unitPrice - item.costPrice) / item.costPrice) * 100 < 15) && (
-                              <div className="absolute -top-1 -right-1 group">
-                                <span className="w-3 h-3 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] font-bold cursor-help">!</span>
-                                <div className="absolute bottom-full right-0 mb-1 hidden group-hover:block bg-gray-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
-                                  Min: ${(item.costPrice * 1.15).toFixed(2)} (15%)
-                                </div>
-                              </div>
-                            )}
+                            {(() => {
+                              const margin = item.unitPrice && item.costPrice 
+                                ? ((item.unitPrice - item.costPrice) / item.costPrice) * 100 
+                                : null;
+                              const isLow = margin !== null && margin < 15;
+                              
+                              return (
+                                <>
+                                  <input
+                                    type="number"
+                                    step="0.01"
+                                    value={item.unitPrice || ''}
+                                    onChange={(e) => updateUnitPrice(item.product, Number(e.target.value))}
+                                    className={`w-full border rounded px-1 sm:px-2 py-0.5 sm:py-1 text-center text-xs sm:text-sm font-medium ${
+                                      margin !== null 
+                                        ? (isLow ? 'border-red-500 bg-red-50 text-red-600' : 'text-green-600')
+                                        : 'text-gray-400'
+                                    }`}
+                                  />
+                                  {margin !== null && (
+                                    <div className={`text-[10px] mt-0.5 ${isLow ? 'text-red-500' : 'text-green-600'}`}>
+                                      {isLow ? '↓' : '↑'}{Math.abs(margin).toFixed(0)}%
+                                    </div>
+                                  )}
+                                  {isLow && (
+                                    <div className="absolute -top-1 -right-1 group">
+                                      <span className="w-3 h-3 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] font-bold cursor-help">!</span>
+                                      <div className="absolute bottom-full right-0 mb-1 hidden group-hover:block bg-gray-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+                                        Min: ${(item.costPrice * 1.15).toFixed(2)} (15%)
+                                      </div>
+                                    </div>
+                                  )}
+                                </>
+                              );
+                            })()}
                           </td>
                           <td className="p-2 sm:p-3 text-right font-medium text-xs sm:text-sm">${item.subtotal.toFixed(2)}</td>
                           <td className="p-2 sm:p-3 align-middle">
