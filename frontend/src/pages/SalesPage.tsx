@@ -767,7 +767,14 @@ const SalesPage = () => {
                               
                               return (
                                 <div className="flex items-center gap-1">
-                                  <div className="relative flex-1">
+                                  {margin !== null && (
+                                    <div className="w-8 text-right text-xs font-bold shrink-0 leading-none">
+                                      <span className={isLow ? 'text-red-500' : 'text-green-600'}>
+                                        {isLow ? '↓' : '↑'}{Math.abs(margin).toFixed(0)}%
+                                      </span>
+                                    </div>
+                                  )}
+                                  <div className="flex-1">
                                     <input
                                       type="number"
                                       step="0.01"
@@ -780,13 +787,8 @@ const SalesPage = () => {
                                       }`}
                                     />
                                   </div>
-                                  {margin !== null && (
-                                    <div className={`text-xs font-bold ${isLow ? 'text-red-500' : 'text-green-600'}`}>
-                                      {isLow ? '↓' : '↑'}{Math.abs(margin).toFixed(0)}%
-                                    </div>
-                                  )}
                                   {isLow && (
-                                    <div className="relative group">
+                                    <div className="relative group shrink-0">
                                       <span className="w-3 h-3 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] font-bold cursor-help">!</span>
                                       <div className="absolute bottom-full left-0 mb-1 hidden group-hover:block bg-gray-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
                                         Min: ${(item.costPrice * 1.15).toFixed(2)} (15%)
