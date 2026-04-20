@@ -766,8 +766,7 @@ const SalesPage = () => {
                               const isLow = margin !== null && margin < 15;
                               
                               return (
-                                <div className="flex items-center gap-1">
-                                  <div className="flex flex-col items-center">
+                                <div className="flex flex-col items-center">
                                   {margin !== null && (
                                     <div className={`text-[10px] font-bold ${isLow ? 'text-red-500' : 'text-green-600'}`}>
                                       {isLow ? '↓' : '↑'}{Math.abs(margin).toFixed(0)}%
