@@ -222,14 +222,13 @@ const SalesPage = () => {
     ));
   };
 
-  const validatePriceOnBlur = async (productId: string) => {
-    const item = items.find(i => i.product === productId);
-    if (!item || !item.unitPrice) return;
-    
-    if (item.unitPrice < item.costPrice) {
-      window.alert(`El precio no puede ser menor al costo ($${item.costPrice.toFixed(2)})`);
-      return;
+const validatePricesBeforeSubmit = () => {
+    for (const item of items) {
+      if (item.unitPrice && item.unitPrice < item.costPrice) {
+        return { valid: false, product: item.productName, cost: item.costPrice };
+      }
     }
+    return { valid: true };
   };
 
   const removeItem = (productId: string) => {
@@ -244,6 +243,12 @@ const SalesPage = () => {
   const handleSubmit = async () => {
     if (items.length === 0) {
       alert("Agregue al menos un producto");
+      return;
+    }
+
+    const priceValidation = validatePricesBeforeSubmit();
+    if (!priceValidation.valid) {
+      alert(`El precio de "${priceValidation.product}" no puede ser menor al costo ($${priceValidation.cost.toFixed(2)})`);
       return;
     }
 
@@ -748,15 +753,15 @@ const SalesPage = () => {
                               step="0.01"
                               value={item.unitPrice || ''}
                               onChange={(e) => updateUnitPrice(item.product, Number(e.target.value))}
-                              onBlur={() => validatePriceOnBlur(item.product)}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  e.preventDefault();
-                                  validatePriceOnBlur(item.product);
-                                }
-                              }}
-                              className="w-full border rounded px-1 sm:px-2 py-0.5 sm:py-1 text-center text-green-600 font-medium text-xs sm:text-sm"
+                              className={`w-full border rounded px-1 sm:px-2 py-0.5 sm:py-1 text-center text-xs sm:text-sm font-medium ${
+                                item.unitPrice && item.unitPrice < item.costPrice 
+                                  ? 'border-red-500 bg-red-50 text-red-600' 
+                                  : 'text-green-600'
+                              }`}
                             />
+                            {item.unitPrice && item.unitPrice < item.costPrice && (
+                              <p className="text-xs text-red-500 mt-0.5">Min: ${item.costPrice.toFixed(2)}</p>
+                            )}
                           </td>
                           <td className="p-2 sm:p-3 text-right font-medium text-xs sm:text-sm">${item.subtotal.toFixed(2)}</td>
                           <td className="p-2 sm:p-3 align-middle">
