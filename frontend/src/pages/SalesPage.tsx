@@ -228,16 +228,16 @@ const SalesPage = () => {
 
   const validatePricesBeforeSubmit = () => {
     for (const item of items) {
-      if (!item.unitPrice) continue;
+      if (!item.unitPrice || !item.costPrice) continue;
       
       const margin = ((item.unitPrice - item.costPrice) / item.costPrice) * 100;
       if (margin < MIN_PROFIT_MARGIN) {
         return { 
           valid: false, 
-          product: item.productName, 
+          product: item.productName || 'Producto', 
           cost: item.costPrice,
           price: item.unitPrice,
-          margin: margin.toFixed(1)
+          margin: Number(margin.toFixed(1))
         };
       }
     }
@@ -261,13 +261,18 @@ const SalesPage = () => {
 
     const priceValidation = validatePricesBeforeSubmit();
     if (!priceValidation.valid) {
-      setPriceAlertData({
-        product: priceValidation.product,
-        margin: priceValidation.margin,
-        cost: priceValidation.cost,
-        price: priceValidation.price || 0
-      });
-      setShowPriceAlert(true);
+      try {
+        setPriceAlertData({
+          product: priceValidation.product,
+          margin: priceValidation.margin,
+          cost: priceValidation.cost,
+          price: priceValidation.price || 0
+        });
+        setShowPriceAlert(true);
+      } catch (err) {
+        console.error("Error showing alert:", err);
+        alert(`El margen de "${priceValidation.product}" es ${priceValidation.margin}% (mínimo 15%)`);
+      }
       return;
     }
 
