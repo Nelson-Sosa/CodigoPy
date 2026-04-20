@@ -16,7 +16,7 @@ const Header = () => {
           onClick={logout}
           className="bg-red-500 hover:bg-red-600 px-3 py-1 rounded"
         >
-          Logout
+          Cerrar sesión
         </button>
       </div>
     </header>

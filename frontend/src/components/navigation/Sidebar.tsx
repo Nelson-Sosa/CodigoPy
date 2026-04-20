@@ -11,7 +11,7 @@ const Sidebar = ({ onClose }: SidebarProps) => {
   const location = useLocation();
   const { user, logout } = useAuth();
 
-  const handleLogout = () => {
+  const handleCerrar sesión = () => {
     logout();
     navigate("/login");
     onClose?.();
@@ -79,13 +79,13 @@ const Sidebar = ({ onClose }: SidebarProps) => {
         })}
       </nav>
 
-      {/* Logout siempre al fondo */}
+      {/* Cerrar sesión siempre al fondo */}
       <div className="p-4 border-t border-gray-700">
         <button
-          onClick={handleLogout}
+          onClick={handleCerrar sesión}
           className="bg-red-600 text-white px-4 py-2 rounded w-full hover:bg-red-700 transition-colors duration-200"
         >
-          Logout
+          Cerrar sesión
         </button>
       </div>
     </div>
