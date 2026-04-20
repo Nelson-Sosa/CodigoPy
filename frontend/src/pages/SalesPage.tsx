@@ -212,7 +212,7 @@ const SalesPage = () => {
 
   const updateUnitPrice = (productId: string, unitPrice: number) => {
     const item = items.find(i => i.product === productId);
-if (!item) return;
+    if (!item) return;
     
     if (unitPrice && unitPrice < item.costPrice) {
       return;
