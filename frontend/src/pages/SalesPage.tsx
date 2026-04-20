@@ -758,7 +758,7 @@ const SalesPage = () => {
                           <td className="p-2 sm:p-3 text-center text-gray-500 text-xs sm:text-sm">
                             ${item.costPrice.toFixed(2)}
                           </td>
-                          <td className="p-2 sm:p-3 align-middle relative">
+                          <td className="p-2 sm:p-3 align-middle">
                             {(() => {
                               const margin = item.unitPrice && item.costPrice 
                                 ? ((item.unitPrice - item.costPrice) / item.costPrice) * 100 
@@ -766,7 +766,7 @@ const SalesPage = () => {
                               const isLow = margin !== null && margin < 15;
                               
                               return (
-                                <>
+                                <div className="relative h-7">
                                   <input
                                     type="number"
                                     step="0.01"
@@ -779,19 +779,19 @@ const SalesPage = () => {
                                     }`}
                                   />
                                   {margin !== null && (
-                                    <div className={`text-[10px] mt-0.5 ${isLow ? 'text-red-500' : 'text-green-600'}`}>
+                                    <div className={`absolute right-1 top-1/2 -translate-y-1/2 text-[10px] pointer-events-none ${isLow ? 'text-red-500' : 'text-green-600'}`}>
                                       {isLow ? '↓' : '↑'}{Math.abs(margin).toFixed(0)}%
                                     </div>
                                   )}
                                   {isLow && (
-                                    <div className="absolute -top-1 -right-1 group">
+                                    <div className="absolute -top-1 -right-1 group z-10">
                                       <span className="w-3 h-3 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] font-bold cursor-help">!</span>
                                       <div className="absolute bottom-full right-0 mb-1 hidden group-hover:block bg-gray-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
                                         Min: ${(item.costPrice * 1.15).toFixed(2)} (15%)
                                       </div>
                                     </div>
                                   )}
-                                </>
+                                </div>
                               );
                             })()}
                           </td>
