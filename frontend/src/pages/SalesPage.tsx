@@ -212,7 +212,7 @@ const SalesPage = () => {
 
   const updateUnitPrice = (productId: string, unitPrice: number) => {
     const item = items.find(i => i.product === productId);
-    if (!item) return;
+if (!item) return;
     
     if (unitPrice && unitPrice < item.costPrice) {
       return;
@@ -224,41 +224,6 @@ const SalesPage = () => {
         ? { ...i, unitPrice: validPrice, subtotal: i.quantity * validPrice }
         : i
     ));
-  };
-
-const validateAndSavePrice = (productId: string, unitPrice: number | string) => {
-    const item = items.find(i => i.product === productId);
-    if (!item) return;
-    
-    const numPrice = Number(unitPrice);
-    const validPrice = numPrice || item.unitPrice;
-    
-    setItems(items.map(i =>
-      i.product === productId
-        ? { ...i, unitPrice: validPrice, subtotal: i.quantity * validPrice }
-        : i
-    ));
-  };
-
-  const validatePricesBeforeSubmit = () => {
-    for (const item of items) {
-      if (item.unitPrice && item.unitPrice < item.costPrice) {
-        return {
-          valid: false,
-          product: item.productName,
-          cost: item.costPrice,
-          price: item.unitPrice
-        };
-      }
-    }
-    return { valid: true };
-  };
-
-  const handlePriceKeyDown = (e: React.KeyboardEvent, productId: string, value: string) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      validateAndSavePrice(productId, Number(value), false);
-    }
   };
 
   const removeItem = (productId: string) => {
@@ -273,12 +238,6 @@ const validateAndSavePrice = (productId: string, unitPrice: number | string) => 
   const handleSubmit = async () => {
     if (items.length === 0) {
       alert("Agregue al menos un producto");
-      return;
-    }
-
-    const priceValidation = validatePricesBeforeSubmit();
-    if (!priceValidation.valid) {
-      alert(`El precio de "${priceValidation.product}" no puede ser menor al costo ($${priceValidation.cost.toFixed(2)})`);
       return;
     }
 
@@ -783,13 +742,6 @@ const validateAndSavePrice = (productId: string, unitPrice: number | string) => 
                               step="0.01"
                               value={item.unitPrice || ''}
                               onChange={(e) => updateUnitPrice(item.product, Number(e.target.value))}
-                              onBlur={(e) => validateAndSavePrice(item.product, e.target.value)}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  e.preventDefault();
-                                  validateAndSavePrice(item.product, item.unitPrice);
-                                }
-                              }}
                               className="w-full border rounded px-1 sm:px-2 py-0.5 sm:py-1 text-center text-green-600 font-medium text-xs sm:text-sm"
                             />
                           </td>
