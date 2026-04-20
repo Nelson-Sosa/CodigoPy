@@ -214,12 +214,13 @@ const SalesPage = () => {
     const item = items.find(i => i.product === productId);
     if (!item) return;
     
-    if (unitPrice > 0 && unitPrice < item.costPrice) {
+    const validPrice = unitPrice || 0;
+    
+    if (validPrice > 0 && validPrice < item.costPrice) {
       alert(`El precio no puede ser menor al costo ($${item.costPrice.toFixed(2)})`);
       return;
     }
     
-    const validPrice = unitPrice || 0;
     setItems(items.map(i =>
       i.product === productId
         ? { ...i, unitPrice: validPrice, subtotal: i.quantity * validPrice }
