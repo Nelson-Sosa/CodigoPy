@@ -258,6 +258,10 @@ const MovementForm = ({ onMovementSaved }: Props) => {
               <div className="bg-gray-50 rounded-lg p-4 border">
                 <h3 className="font-semibold text-gray-800 mb-3">Información del Producto</h3>
                 <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div className="col-span-2">
+                    <span className="text-gray-500">Descripción:</span>
+                    <p className="font-medium">{selectedProduct.description || "N/A"}</p>
+                  </div>
                   <div>
                     <span className="text-gray-500">SKU:</span>
                     <p className="font-medium">{selectedProduct.sku}</p>
