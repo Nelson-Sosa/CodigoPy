@@ -13,7 +13,7 @@ import {
   LineChart,
   Line,
 } from "recharts";
-import { Package, TrendingUp, AlertTriangle, DollarSign, ShoppingCart } from "lucide-react";
+import { Package, TrendingUp, AlertTriangle, DollarSign, ShoppingCart, User } from "lucide-react";
 
 const getPyDateKey = (): number => {
   const now = new Date();
@@ -173,14 +173,18 @@ const DashboardPage = () => {
   const recentSales = sales.filter(s => s.status !== "cancelled").slice(0, 10);
 
   return (
-    <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
+    <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-gray-50 min-h-screen">
       {user && (
-        <div className="bg-white rounded-lg shadow p-4">
-          <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
-          <p className="text-gray-600">
-            Bienvenido, <strong>{user.name || user.email}</strong> (
-            <span className="capitalize">{user.role}</span>)
-          </p>
+        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+              <User size={20} className="text-blue-600" />
+            </div>
+            <div>
+              <p className="text-lg font-bold text-gray-800">Bienvenido, {user.name || user.email}</p>
+              <p className="text-gray-500 text-sm capitalize">({user.role})</p>
+            </div>
+          </div>
         </div>
       )}
 
