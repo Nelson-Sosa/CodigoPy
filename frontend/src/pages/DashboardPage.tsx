@@ -303,31 +303,37 @@ const DashboardPage = () => {
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-xl shadow">
+      <div className="bg-white p-4 sm:p-6 rounded-xl shadow">
         <h2 className="text-lg font-bold text-gray-800 mb-4">Últimas Ventas</h2>
         {recentSales.length > 0 ? (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[600px]">
               <thead>
-                <tr className="text-left text-gray-500 text-sm border-b">
+                <tr className="text-left text-gray-500 text-xs sm:text-sm border-b">
                   <th className="pb-3">Folio</th>
                   <th className="pb-3">Cliente</th>
-                  <th className="pb-3">Productos</th>
+                  <th className="pb-3">Vendedor</th>
+                  <th className="pb-3 hidden sm:table-cell">Productos</th>
                   <th className="pb-3">Total</th>
-                  <th className="pb-3">Ganancia</th>
+                  <th className="pb-3 hidden md:table-cell">Ganancia</th>
                   <th className="pb-3">Fecha</th>
                 </tr>
               </thead>
               <tbody>
                 {recentSales.map((sale) => (
-                  <tr key={sale._id} className="border-b hover:bg-gray-50">
+                  <tr key={sale._id} className="border-b hover:bg-gray-50 text-xs sm:text-sm">
                     <td className="py-3 font-medium">{sale.invoiceNumber}</td>
                     <td className="py-3">{sale.clientName}</td>
-                    <td className="py-3 text-gray-600">
+                    <td className="py-3">
+                      <span className="inline-block px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs">
+                        {sale.createdBy?.name || '-'}
+                      </span>
+                    </td>
+                    <td className="py-3 text-gray-600 hidden sm:table-cell">
                       {sale.items.length} prod.
                     </td>
                     <td className="py-3 font-bold text-green-600">${sale.total.toFixed(2)}</td>
-                    <td className="py-3 text-blue-600">${(sale.profit || 0).toFixed(2)}</td>
+                    <td className="py-3 text-blue-600 hidden md:table-cell">${(sale.profit || 0).toFixed(2)}</td>
                     <td className="py-3 text-gray-500">{new Date(sale.createdAt).toLocaleDateString()}</td>
                   </tr>
                 ))}
