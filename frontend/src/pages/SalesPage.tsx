@@ -222,20 +222,15 @@ const SalesPage = () => {
     ));
   };
 
-  const validatePriceOnBlur = (productId: string, originalPrice: number, currentValue: number) => {
+  const validatePriceOnBlur = (productId: string) => {
     const item = items.find(i => i.product === productId);
-    if (!item) return;
+    if (!item || !item.unitPrice) return;
     
-    if (currentValue && currentValue < item.costPrice) {
+    if (item.unitPrice < item.costPrice) {
       const cost = item.costPrice;
       setTimeout(() => {
         alert(`El precio no puede ser menor al costo ($${cost.toFixed(2)})`);
-        setItems(prevItems => prevItems.map(i =>
-          i.product === productId
-            ? { ...i, unitPrice: originalPrice, subtotal: i.quantity * originalPrice }
-            : i
-        ));
-      }, 50);
+      }, 10);
       return;
     }
   };
@@ -756,11 +751,11 @@ const SalesPage = () => {
                               step="0.01"
                               value={item.unitPrice || ''}
                               onChange={(e) => updateUnitPrice(item.product, Number(e.target.value))}
-                              onBlur={() => validatePriceOnBlur(item.product, item.unitPrice, Number(e.target.value))}
+                              onBlur={() => validatePriceOnBlur(item.product, item.unitPrice)}
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                   e.preventDefault();
-                                  validatePriceOnBlur(item.product, item.unitPrice, Number(e.target.value));
+                                  validatePriceOnBlur(item.product, item.unitPrice);
                                 }
                               }}
                               className="w-full border rounded px-1 sm:px-2 py-0.5 sm:py-1 text-center text-green-600 font-medium text-xs sm:text-sm"
