@@ -226,7 +226,7 @@ const SalesPage = () => {
     ));
   };
 
-  const validateAndSavePrice = (productId: string, unitPrice: number | string) => {
+  const validateAndSavePrice = (productId: string, unitPrice: number | string, fromBlur = true) => {
     const item = items.find(i => i.product === productId);
     if (!item) return;
     
@@ -248,6 +248,13 @@ const SalesPage = () => {
         ? { ...i, unitPrice: validPrice, subtotal: i.quantity * validPrice }
         : i
     ));
+  };
+
+  const handlePriceKeyDown = (e: React.KeyboardEvent, productId: string, value: string) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      validateAndSavePrice(productId, Number(value), false);
+    }
   };
 
   const removeItem = (productId: string) => {
@@ -766,6 +773,12 @@ const SalesPage = () => {
                               step="0.01"
                               defaultValue={item.unitPrice}
                               onBlur={(e) => validateAndSavePrice(item.product, e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  validateAndSavePrice(item.product, (e.target as HTMLInputElement).value);
+                                }
+                              }}
                               className="w-full border rounded px-1 sm:px-2 py-0.5 sm:py-1 text-center text-green-600 font-medium text-xs sm:text-sm"
                             />
                           </td>
