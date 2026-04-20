@@ -219,13 +219,24 @@ const SalesPage = () => {
       i.product === productId
         ? { ...i, unitPrice: validPrice, subtotal: i.quantity * validPrice }
         : i
-    ));
+));
   };
 
-const validatePricesBeforeSubmit = () => {
+  const MIN_PROFIT_MARGIN = 15;
+
+  const validatePricesBeforeSubmit = () => {
     for (const item of items) {
-      if (item.unitPrice && item.unitPrice < item.costPrice) {
-        return { valid: false, product: item.productName, cost: item.costPrice };
+      if (!item.unitPrice) continue;
+      
+      const margin = ((item.unitPrice - item.costPrice) / item.costPrice) * 100;
+      if (margin < MIN_PROFIT_MARGIN) {
+        return { 
+          valid: false, 
+          product: item.productName, 
+          cost: item.costPrice,
+          price: item.unitPrice,
+          margin: margin.toFixed(1)
+        };
       }
     }
     return { valid: true };
@@ -248,7 +259,7 @@ const validatePricesBeforeSubmit = () => {
 
     const priceValidation = validatePricesBeforeSubmit();
     if (!priceValidation.valid) {
-      alert(`El precio de "${priceValidation.product}" no puede ser menor al costo ($${priceValidation.cost.toFixed(2)})`);
+      alert(`El margen de "${priceValidation.product}" es ${priceValidation.margin}% (mínimo 15%)\nCosto: $${priceValidation.cost.toFixed(2)}\nPrecio: $${priceValidation.price?.toFixed(2)}`);
       return;
     }
 
@@ -754,13 +765,15 @@ const validatePricesBeforeSubmit = () => {
                               value={item.unitPrice || ''}
                               onChange={(e) => updateUnitPrice(item.product, Number(e.target.value))}
                               className={`w-full border rounded px-1 sm:px-2 py-0.5 sm:py-1 text-center text-xs sm:text-sm font-medium ${
-                                item.unitPrice && item.unitPrice < item.costPrice 
-                                  ? 'border-red-500 bg-red-50 text-red-600' 
-                                  : 'text-green-600'
+                                item.unitPrice && item.costPrice 
+                                  ? (((item.unitPrice - item.costPrice) / item.costPrice) * 100 < 15 
+                                    ? 'border-red-500 bg-red-50 text-red-600' 
+                                    : 'text-green-600')
+                                  : 'text-gray-400'
                               }`}
                             />
-                            {item.unitPrice && item.unitPrice < item.costPrice && (
-                              <p className="text-xs text-red-500 mt-0.5">Min: ${item.costPrice.toFixed(2)}</p>
+                            {item.unitPrice && item.costPrice && (((item.unitPrice - item.costPrice) / item.costPrice) * 100 < 15) && (
+                              <p className="text-xs text-red-500 mt-0.5">Min: ${(item.costPrice * 1.15).toFixed(2)} (15%)</p>
                             )}
                           </td>
                           <td className="p-2 sm:p-3 text-right font-medium text-xs sm:text-sm">${item.subtotal.toFixed(2)}</td>
