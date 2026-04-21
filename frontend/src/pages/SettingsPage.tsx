@@ -410,6 +410,35 @@ const SettingsPage = () => {
                 {cleaning ? "Limpiando..." : "Limpiar Duplicados"}
               </button>
             </div>
+            
+            <div className="flex items-center justify-between pt-4 border-t">
+              <div>
+                <p className="text-sm text-gray-600">Corregir cierre automático de caja</p>
+                <p className="text-xs text-gray-400">Corrige cierres con closingAmount=0 (ayer)</p>
+              </div>
+              <button
+                type="button"
+                onClick={async () => {
+                  if (!window.confirm("¿Corregir cierre de caja de ayer?")) return;
+                  setCleaning(true);
+                  try {
+                    const yesterday = new Date();
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    const dateKey = yesterday.getFullYear() * 10000 + (yesterday.getMonth() + 1) * 100 + yesterday.getDate();
+                    const res = await cashRegisterService.fixClosing(dateKey);
+                    alert(res.data.message || "Cierre corregido");
+                  } catch (err) {
+                    alert(err.response?.data?.message || "Error al corregir cierre");
+                  } finally {
+                    setCleaning(false);
+                  }
+                }}
+                disabled={cleaning}
+                className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 disabled:opacity-50"
+              >
+                Corregir Cierre Ayer
+              </button>
+            </div>
           </div>
         )}
 
