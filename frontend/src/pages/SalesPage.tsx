@@ -393,6 +393,8 @@ const SalesPage = () => {
     let periodSales = [];
     
     sales.forEach(sale => {
+      if (sale.status === "cancelled") return;
+      
       const saleDate = new Date(sale.createdAt);
       const saleKey = saleDate.getFullYear() * 10000 + (saleDate.getMonth() + 1) * 100 + saleDate.getDate();
       
