@@ -185,7 +185,6 @@ El sistema incluye datos de prueba precargados:
 ## 🔮 Próximas Funcionalidades
 
 - [ ] Integración con facturación electrónica SET Paraguay (e-Kuatia)
-- [ ] App móvil nativa (React Native)
 - [ ] Notificaciones push
 - [ ] Multi-sucursal
 - [ ] Reportes avanzados con gráficos interactivos
