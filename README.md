@@ -142,44 +142,13 @@ CodigoPy/
 
 ## 🚀 Despliegue en Producción
 
-### Frontend (Vercel)
-- **URL**: https://codigo-py-flax.vercel.app
+### Frontend
+- **URL**: https://codigo-py-frontend.onrender.com
 - Despliegue automático desde GitHub
 
-### Backend (Render)
-- **URL**: https://codigopy-api.onrender.com
+### Backend
+- **URL**: https://codigo-py.onrender.com
 - Base de datos: MongoDB Atlas
-
----
-
-## 💻 Instalación Local
-
-```bash
-# Clonar el repositorio
-git clone https://github.com/Nelson-Sosa/CodigoPy.git
-cd CodigoPy
-
-# Instalar todas las dependencias
-npm run install:all
-
-# Ejecutar en desarrollo (frontend + backend)
-npm run dev
-
-# O ejecutar por separado:
-npm run dev:frontend    # Frontend en http://localhost:5173
-npm run dev:backend     # Backend en http://localhost:5000
-```
-
-### Variables de Entorno (Backend)
-
-Crea un archivo `.env` en la carpeta `server/`:
-
-```env
-PORT=5000
-MONGO_URI=mongodb+srv://tu_usuario:tu_password@cluster.mongodb.net/tu_db
-JWT_SECRET=tu_secreto_jwt
-JWT_EXPIRES_IN=7d
-```
 
 ---
 
@@ -215,7 +184,6 @@ El sistema incluye datos de prueba precargados:
 
 ## 🔮 Próximas Funcionalidades
 
-- [ ] Módulo de Compras/Órdenes de Compra
 - [ ] Integración con facturación electrónica SET Paraguay (e-Kuatia)
 - [ ] App móvil nativa (React Native)
 - [ ] Notificaciones push
