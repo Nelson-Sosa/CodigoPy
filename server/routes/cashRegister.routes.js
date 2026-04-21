@@ -14,5 +14,6 @@ r.get('/force-close-all', c.forceCloseAllAny);
 r.delete('/delete-register', protect, admin, c.deleteRegister);
 r.post('/delete-by-user', protect, admin, c.deleteByUserName);
 r.post('/clean-duplicates', protect, admin, c.cleanDuplicates);
+r.post('/fix-closing', protect, admin, c.fixClosingAmount);
 
 module.exports = r;

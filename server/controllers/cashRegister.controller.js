@@ -444,3 +444,26 @@ exports.deleteByUserName = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+exports.fixClosingAmount = async (req, res) => {
+  try {
+    const { dateKey } = req.body;
+    
+    if (!dateKey) {
+      return res.status(400).json({ message: 'Falta dateKey' });
+    }
+    
+    const register = await CashRegister.findOne({ dateKey: Number(dateKey) });
+    
+    if (!register) {
+      return res.status(404).json({ message: 'Registro no encontrado' });
+    }
+    
+    register.closingAmount = register.expectedAmount;
+    await register.save();
+    
+    res.json({ message: 'Cierre corregido', register });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
