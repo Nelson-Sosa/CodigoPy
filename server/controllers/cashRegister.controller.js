@@ -25,7 +25,7 @@ async function autoCloseOldRegisters(dateKey) {
 
     reg.status = 'closed';
     reg.closedAt = new Date();
-    reg.closingAmount = 0;
+    reg.closingAmount = expectedCash;
     reg.expectedAmount = expectedCash;
     reg.cashSales = cashSales;
     reg.totalSales = sales.reduce((acc, s) => acc + s.total, 0);
