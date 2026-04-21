@@ -57,7 +57,7 @@
 
 ### 🔐 Seguridad
 - Autenticación con JWT
-- Roles: Administrador, Supervisor, Operador
+- Roles: Administrador, Vendedor
 - Rutas protegidas según rol
 - Tokens con expiración automática
 
