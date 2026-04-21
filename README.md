@@ -21,13 +21,19 @@
 - Reapertura de caja (mismo día)
 - Resumen mensual con ventas reales
 - Conversión automática USD → Guaraníes (Gs. 6.600)
+- **Cierre automático de caja** (cuando se abre una nueva)
+- **Corrección de cierres automáticos** en mantenimiento
 
-### 🛒 Punto de Venta
+### 🛒 Punto de Ventas
 - Ventas rápidas con búsqueda de productos
 - Múltiples métodos de pago: Efectivo, Tarjeta, Transferencia, Crédito
 - Descuentos por porcentaje
 - Generación de tickets para impresoras térmicas (80mm)
 - Cancelación de ventas con reversión de stock
+- **Validación automática de margen** (15% mínimo)
+- **Indicador visual de margen (%)** en tiempo real
+- **Modal profesional** cuando el precio está bajo el margen
+- **Exclusión de ventas canceladas** en estadísticas
 
 ### 📦 Inventario
 - CRUD completo de productos
