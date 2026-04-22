@@ -14,6 +14,7 @@ const ProductForm = () => {
 
   const [form, setForm] = useState({
     sku: "",
+    barcode: "",
     name: "",
     brand: "",
     description: "",
@@ -75,6 +76,7 @@ const ProductForm = () => {
     try {
       await productService.create({
         sku: form.sku.toUpperCase(),
+        barcode: form.barcode.toUpperCase(),
         name: form.name,
         brand: form.brand,
         description: form.description,
@@ -125,6 +127,20 @@ const ProductForm = () => {
             className="border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase"
           />
           {errors.sku && <span className="text-red-500 text-sm mt-1">{errors.sku}</span>}
+        </div>
+
+        <div className="flex flex-col">
+          <label className="font-medium mb-1 text-gray-700 flex items-center gap-1">
+            Código de Barras
+          </label>
+          <input
+            name="barcode"
+            placeholder="Ej: 123456789012"
+            value={form.barcode}
+            onChange={handleChange}
+            className="border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase"
+          />
+          <span className="text-gray-400 text-xs mt-1">Opcional: código del fabricante</span>
         </div>
 
         <div className="flex flex-col lg:col-span-2">

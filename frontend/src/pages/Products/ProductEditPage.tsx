@@ -88,6 +88,7 @@ const ProductEditPage = () => {
     try {
       await productService.update(id, {
         sku: form.sku,
+        barcode: form.barcode,
         name: form.name,
         brand: form.brand,
         description: form.description,
@@ -151,6 +152,20 @@ const ProductEditPage = () => {
               className="border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase"
             />
             {errors.sku && <span className="text-red-500 text-sm mt-1">{errors.sku}</span>}
+          </div>
+
+          <div className="flex flex-col">
+            <label className="font-medium mb-1 text-gray-700 flex items-center gap-1">
+              Código de Barras
+            </label>
+            <input
+              name="barcode"
+              value={form.barcode || ""}
+              onChange={handleChange}
+              placeholder="Código del fabricante"
+              className="border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase"
+            />
+            <span className="text-gray-400 text-xs">Opcional</span>
           </div>
 
           <div className="flex flex-col lg:col-span-2">

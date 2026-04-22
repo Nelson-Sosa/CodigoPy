@@ -147,7 +147,8 @@ const SalesPage = () => {
 
   const filteredProducts = products.filter(p =>
     p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
-    p.sku.toLowerCase().includes(productSearch.toLowerCase())
+    p.sku.toLowerCase().includes(productSearch.toLowerCase()) ||
+    (p.barcode && p.barcode.toLowerCase().includes(productSearch.toLowerCase()))
   ).filter(p => p.stock > 0).slice(0, 8);
 
   const addProduct = (product: Product) => {
@@ -186,8 +187,10 @@ const SalesPage = () => {
 
   const handleSkuSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && productSearch) {
+      const search = productSearch.toLowerCase();
       const exactMatch = products.find(p => 
-        p.sku.toLowerCase() === productSearch.toLowerCase() && p.stock > 0
+        (p.sku.toLowerCase() === search || 
+         (p.barcode && p.barcode.toLowerCase() === search)) && p.stock > 0
       );
       if (exactMatch) {
         addProduct(exactMatch);
@@ -710,7 +713,7 @@ const SalesPage = () => {
                       ))
                     ) : (
                       <p className="p-3 sm:p-4 text-gray-400 text-center text-xs sm:text-sm">
-                        {products.some(p => p.sku.toLowerCase() === productSearch.toLowerCase()) 
+                        {products.some(p => (p.sku.toLowerCase() === productSearch.toLowerCase() || (p.barcode && p.barcode.toLowerCase() === productSearch.toLowerCase()))) 
                           ? "Producto sin stock" 
                           : "No se encontraron productos"}
                       </p>
