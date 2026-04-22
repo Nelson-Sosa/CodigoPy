@@ -51,6 +51,7 @@ exports.create = async (req, res) => {
   try {
     const {
       sku,
+      barcode,
       name,
       brand,
       description,
@@ -66,6 +67,7 @@ exports.create = async (req, res) => {
 
     const product = await Product.create({
       sku,
+      barcode: barcode || '',
       name,
       brand,
       description,
@@ -97,6 +99,7 @@ exports.update = async (req, res) => {
   try {
     const {
       sku,
+      barcode,
       name,
       brand,
       description,
@@ -115,6 +118,7 @@ exports.update = async (req, res) => {
       req.params.id,
       {
         sku,
+        barcode: barcode || '',
         name,
         brand,
         description,

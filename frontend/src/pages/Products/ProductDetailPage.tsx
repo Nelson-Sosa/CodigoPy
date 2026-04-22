@@ -56,6 +56,7 @@ const ProductDetailPage = () => {
         const prod = res.data.product;
         setProduct({
           ...prod,
+          barcode: prod.barcode || '',
           id: prod._id,
           price: prod.salePrice,
           cost: prod.costPrice,
