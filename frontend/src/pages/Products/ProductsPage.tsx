@@ -56,7 +56,8 @@ const ProductsPage = () => {
       .filter(p =>
         (p.name?.toLowerCase().includes(term) ?? false) ||
         (p.sku?.toLowerCase().includes(term) ?? false) ||
-        (p.description?.toLowerCase().includes(term) ?? false)
+        (p.description?.toLowerCase().includes(term) ?? false) ||
+        (p.barcode?.toLowerCase().includes(term) ?? false)
       )
       .filter(p => !categoryFilter || p.categoryId === categoryFilter)
       .filter(p => !statusFilter || p.status === statusFilter)
