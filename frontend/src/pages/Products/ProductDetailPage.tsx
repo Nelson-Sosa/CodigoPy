@@ -8,6 +8,7 @@ interface Product {
   _id: string;
   id: string;
   sku: string;
+  barcode?: string;
   name: string;
   brand?: string;
   description?: string;
@@ -226,6 +227,12 @@ const ProductDetailPage = () => {
                   <p className="text-blue-600 text-xs sm:text-sm font-medium">SKU</p>
                   <p className="text-lg sm:text-xl font-bold text-gray-800">{product.sku}</p>
                 </div>
+                {product.barcode && (
+                  <div className="bg-orange-50 rounded-xl p-2 sm:p-4">
+                    <p className="text-orange-600 text-xs sm:text-sm font-medium">Código de Barras</p>
+                    <p className="text-lg sm:text-xl font-bold text-gray-800">{product.barcode}</p>
+                  </div>
+                )}
                 <div className="bg-purple-50 rounded-xl p-2 sm:p-4">
                   <p className="text-purple-600 text-xs sm:text-sm font-medium">Marca</p>
                   <p className="text-lg sm:text-xl font-bold text-gray-800">{product.brand || "N/A"}</p>
