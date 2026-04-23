@@ -1,6 +1,7 @@
 const Sale     = require('../models/Sale');
 const Product  = require('../models/Product');
 const Client   = require('../models/Client');
+const mongoose = require('mongoose');
 const { getPyDateKey } = require('../utils/date');
 
 const getPyDate = () => {
@@ -121,11 +122,12 @@ exports.salesSummary = async (req, res) => {
   try {
     const { startDate, endDate, userId } = req.query;
     let filter = { status: 'completed' };
+    const mongoose = require('mongoose');
     
     if (req.user.role !== 'admin' && req.user.role !== 'supervisor') {
       filter.createdBy = req.user._id;
     } else if (userId) {
-      filter.createdBy = userId;
+      filter.createdBy = new mongoose.Types.ObjectId(userId);
     }
     
     if (startDate || endDate) {
