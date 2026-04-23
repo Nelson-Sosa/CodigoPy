@@ -457,10 +457,6 @@ const SalesPage = () => {
 
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
-      <div className="bg-blue-50 border border-blue-100 rounded-lg px-4 py-2 text-xs text-blue-600 flex items-center gap-4">
-        <span><kbd className="bg-blue-100 px-1.5 py-0.5 rounded font-semibold">Ctrl+Shift+N</kbd> Nueva venta</span>
-        <span><kbd className="bg-blue-100 px-1.5 py-0.5 rounded font-semibold">Ctrl+F</kbd> Buscar producto</span>
-      </div>
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
@@ -475,7 +471,6 @@ const SalesPage = () => {
         >
           <Plus size={20} />
           Nueva Venta
-          <span className="text-xs opacity-75 hidden sm:inline ml-1">(Ctrl+Shift+N)</span>
         </button>
       </div>
 
@@ -693,7 +688,7 @@ const SalesPage = () => {
                   Buscar Producto
                 </label>
                 <div className="relative">
-                  <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+<Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input
                     ref={productInputRef}
                     type="text"
@@ -704,10 +699,9 @@ const SalesPage = () => {
                     }}
                     onFocus={() => setShowProductDropdown(true)}
                     onKeyDown={handleSkuSearch}
-                    placeholder="Buscar por nombre, SKU, código de barras o Ctrl+F..."
+                    placeholder="Buscar por nombre, SKU o código de barras..."
                     className="w-full border rounded-lg pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 focus:ring-2 focus:ring-blue-500 text-sm"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 hidden sm:inline">Ctrl+F</span>
                 </div>
                 
                 {showProductDropdown && productSearch && (
