@@ -13,9 +13,11 @@ exports.getAll = async (req, res) => {
     if (client) filter.client = client;
     if (userId) filter.createdBy = userId;
     if (startDate || endDate) {
-      filter.createdAt = {};
-      if (startDate) filter.createdAt.$gte = new Date(startDate);
-      if (endDate)   filter.createdAt.$lte = new Date(endDate + 'T23:59:59');
+      const start = Number(startDate.replace(/-/g, ''));
+      const end = Number(endDate.replace(/-/g, ''));
+      filter.dateKey = {};
+      if (start) filter.dateKey.$gte = start;
+      if (end) filter.dateKey.$lte = end;
     }
 
     const total = await Sale.countDocuments(filter);
@@ -44,9 +46,11 @@ exports.getMySales = async (req, res) => {
     const dateFilter = { ...baseFilter };
     
     if (startDate || endDate) {
-      dateFilter.createdAt = {};
-      if (startDate) dateFilter.createdAt.$gte = new Date(startDate);
-      if (endDate) dateFilter.createdAt.$lte = new Date(endDate + 'T23:59:59');
+      const start = Number(startDate.replace(/-/g, ''));
+      const end = Number(endDate.replace(/-/g, ''));
+      dateFilter.dateKey = {};
+      if (start) dateFilter.dateKey.$gte = start;
+      if (end) dateFilter.dateKey.$lte = end;
     }
 
     const todaySales = await Sale.find({ ...baseFilter, dateKey: todayKey }).lean();
@@ -251,6 +255,7 @@ exports.create = async (req, res) => {
       await product.save();
 
       await Movement.create({
+        dateKey: getPyDateKey(),
         product:       product._id,
         productName:   product.name,
         type:          'out',
@@ -296,6 +301,7 @@ exports.cancel = async (req, res) => {
         await product.save();
 
         await Movement.create({
+          dateKey: getPyDateKey(),
           product:       product._id,
           productName:   product.name,
           type:          'in',
@@ -333,6 +339,7 @@ exports.update = async (req, res) => {
         await product.save();
 
         await Movement.create({
+          dateKey: getPyDateKey(),
           product:       product._id,
           productName:   product.name,
           type:          'in',
@@ -378,6 +385,7 @@ exports.update = async (req, res) => {
       await product.save();
 
       await Movement.create({
+        dateKey: getPyDateKey(),
         product:       product._id,
         productName:   product.name,
         type:          'out',

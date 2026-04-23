@@ -1,5 +1,6 @@
 const Product = require('../models/Product');
 const Movement = require('../models/Movement');
+const { getPyDateKey } = require('../utils/date');
 
 // GET /api/products
 exports.getAll = async (req, res) => {
@@ -176,6 +177,7 @@ exports.adjustStock = async (req, res) => {
     await product.save();
 
     await Movement.create({
+      dateKey: getPyDateKey(),
       product: product._id,
       productName: product.name,
       type,

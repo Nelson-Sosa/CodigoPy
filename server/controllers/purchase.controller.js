@@ -2,6 +2,7 @@ const Purchase  = require('../models/Purchase');
 const Product   = require('../models/Product');
 const Movement  = require('../models/Movement');
 const Supplier = require('../models/Supplier');
+const { getPyDateKey } = require('../utils/date');
 
 exports.getAll = async (req, res) => {
   try {
@@ -11,9 +12,11 @@ exports.getAll = async (req, res) => {
     if (status) filter.status = status;
     if (supplier) filter.supplier = supplier;
     if (startDate || endDate) {
-      filter.createdAt = {};
-      if (startDate) filter.createdAt.$gte = new Date(startDate);
-      if (endDate) filter.createdAt.$lte = new Date(endDate + 'T23:59:59');
+      const start = Number(startDate.replace(/-/g, ''));
+      const end = Number(endDate.replace(/-/g, ''));
+      filter.dateKey = {};
+      if (start) filter.dateKey.$gte = start;
+      if (end) filter.dateKey.$lte = end;
     }
 
     const total = await Purchase.countDocuments(filter);
@@ -92,6 +95,7 @@ exports.create = async (req, res) => {
     }
 
     const purchase = await Purchase.create({
+      dateKey: getPyDateKey(),
       supplier: supplierId || null,
       supplierName,
       items: purchaseItems,
@@ -156,6 +160,7 @@ exports.receive = async (req, res) => {
 
       if (product) {
         await Movement.create({
+          dateKey: getPyDateKey(),
           product: product._id,
           productName: product.name,
           type: 'in',

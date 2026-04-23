@@ -90,20 +90,24 @@ exports.dashboard = async (req, res) => {
 exports.salesSummary = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
-    const match = { status: 'completed' };
+    const filter = { status: 'completed' };
     if (startDate || endDate) {
-      match.createdAt = {};
-      if (startDate) match.createdAt.$gte = new Date(startDate);
+      const start = Number(startDate.replace(/-/g, ''));
+      const end = Number(endDate.replace(/-/g, ''));
+      filter.dateKey = {};
+      if (start) filter.dateKey.$gte = start;
+      if (end) filter.dateKey.$lte = end;
+    }
       if (endDate)   match.createdAt.$lte = new Date(endDate + 'T23:59:59');
     }
 
     const [summary, byPayment, lowStockProducts] = await Promise.all([
       Sale.aggregate([
-        { $match: match },
+        { $match: filter },
         { $group: { _id: null, totalSales: { $sum: 1 }, totalRevenue: { $sum: '$total' }, totalProfit: { $sum: '$profit' }, avgTicket: { $avg: '$total' } } },
       ]),
       Sale.aggregate([
-        { $match: match },
+        { $match: filter },
         { $group: { _id: '$paymentMethod', count: { $sum: 1 }, total: { $sum: '$total' } } },
       ]),
       Product.find({ $expr: { $lte: ['$stock', '$minStock'] }, status: 'active' })

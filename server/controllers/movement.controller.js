@@ -8,15 +8,17 @@ exports.getAll = async (req, res) => {
     if (type)    filter.type = type;
     if (product) filter.product = product;
     if (startDate || endDate) {
-      filter.createdAt = {};
-      if (startDate) filter.createdAt.$gte = new Date(startDate);
-      if (endDate)   filter.createdAt.$lte = new Date(endDate + 'T23:59:59');
+      const start = Number(startDate.replace(/-/g, ''));
+      const end = Number(endDate.replace(/-/g, ''));
+      filter.dateKey = {};
+      if (start) filter.dateKey.$gte = start;
+      if (end) filter.dateKey.$lte = end;
     }
 
     const movements = await Movement.find(filter)
       .populate('product',   'name sku')
       .populate('createdBy', 'name')
-      .sort({ createdAt: -1 })
+      .sort({ dateKey: -1, createdAt: -1 })
       .limit(Number(limit));
 
     res.json(movements);

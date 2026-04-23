@@ -14,6 +14,7 @@ const purchaseItemSchema = new mongoose.Schema({
 });
 
 const purchaseSchema = new mongoose.Schema({
+  dateKey:         { type: Number, required: true, index: true },
   purchaseNumber:  { type: String, unique: true },
   supplier:       { type: mongoose.Schema.Types.ObjectId, ref: 'Supplier' },
   supplierName:   { type: String, default: 'Proveedor General' },
