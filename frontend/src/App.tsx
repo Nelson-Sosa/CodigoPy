@@ -20,6 +20,7 @@ import ClientsPage from "./pages/ClientsPage";
 import SettingsPage from "./pages/SettingsPage";
 import CashRegisterPage from "./pages/CashRegisterPage";
 import UsersPage from "./pages/UsersPage";
+import CommissionsPage from "./pages/Commissions/CommissionsPage";
 
 import MainLayout from "./components/layout/MainLayout";
 import ProtectedRoute from "./router/ProtectedRoute";
@@ -166,6 +167,16 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={["admin"]}>
                   <UsersPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Comisiones - admin y vendedor */}
+            <Route
+              path="/commissions"
+              element={
+                <ProtectedRoute allowedRoles={["admin","supervisor","vendedor"]}>
+                  <CommissionsPage />
                 </ProtectedRoute>
               }
             />

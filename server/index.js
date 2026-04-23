@@ -43,6 +43,7 @@ app.use('/api/purchases', require('./routes/purchase.routes'));
 app.use('/api/settings', require('./routes/settings.routes'));
 app.use('/api/cash-register', require('./routes/cashRegister.routes'));
 app.use('/api/exchange-rate', require('./routes/exchangeRate.routes'));
+app.use('/api/commissions', require('./routes/commission.routes'));
 
 // Manejo de rutas no encontradas - al final
 app.use((req, res) => {

@@ -7,6 +7,7 @@ const cliCtrl  = require('../controllers/client.controller');
 const saleCtrl = require('../controllers/sale.controller');
 const movCtrl  = require('../controllers/movement.controller');
 const repCtrl  = require('../controllers/report.controller');
+const comCtrl  = require('../controllers/commission.controller');
 
 // Categories
 const categoryRouter = express.Router();
@@ -39,4 +40,11 @@ const reportRouter = express.Router();
 reportRouter.get('/dashboard',     protect, repCtrl.dashboard);
 reportRouter.get('/sales-summary', protect, repCtrl.salesSummary);
 
-module.exports = { categoryRouter, clientRouter, saleRouter, movementRouter, reportRouter };
+// Commissions
+const commissionRouter = express.Router();
+commissionRouter.get('/stats', protect, comCtrl.getMyStats);
+commissionRouter.get('/all', protect, adminOrSupervisor, comCtrl.getAll);
+commissionRouter.get('/user/:userId', protect, adminOrSupervisor, comCtrl.getByUser);
+commissionRouter.post('/upsert', protect, adminOrSupervisor, comCtrl.upsert);
+
+module.exports = { categoryRouter, clientRouter, saleRouter, movementRouter, reportRouter, commissionRouter };

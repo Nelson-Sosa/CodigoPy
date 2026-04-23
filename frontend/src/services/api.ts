@@ -138,4 +138,10 @@ export const exchangeRateService = {
   update: (data: { targetCurrency: string; rate: number }) => api.post('/exchange-rate/manual', data),
 };
 
+export const commissionService = {
+  getMyStats: () => api.get('/commissions/stats'),
+  getAll: () => api.get('/commissions/all'),
+  upsert: (data: { userId: string; monthlyTarget: number; commissionPercent: number }) => api.post('/commissions/upsert', data),
+};
+
 export default api;
