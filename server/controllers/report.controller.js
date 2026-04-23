@@ -27,7 +27,6 @@ exports.dashboard = async (req, res) => {
     const lastMonthYear = pyDate.month === 1 ? pyDate.year - 1 : pyDate.year;
     const lastMonthEnd = new Date(lastMonthYear, lastMonth, 0).getDate();
     const lastMonthEndKey = lastMonthYear * 10000 + lastMonth * 100 + lastMonthEnd;
-    const pyDate = getPyDate();
     const startOfMonth = new Date(pyDate.year, pyDate.month - 1, 1);
     const endOfMonth = new Date(pyDate.year, pyDate.month, 0, 23, 59, 59);
 
