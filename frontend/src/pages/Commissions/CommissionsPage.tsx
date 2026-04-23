@@ -23,6 +23,7 @@ const CommissionsPage = () => {
   const isAdmin = user?.role === "admin" || user?.role === "supervisor";
   const [commissions, setCommissions] = useState<CommissionData[]>([]);
   const [myStats, setMyStats] = useState<any>(null);
+  const [myCommission, setMyCommission] = useState<any>(null);
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -42,6 +43,7 @@ const CommissionsPage = () => {
     try {
       const res = await commissionService.getMyStats();
       setMyStats(res.data.stats);
+      setMyCommission(res.data.commission);
     } catch (err) {
       console.error("Error fetching stats:", err);
     } finally {
@@ -156,7 +158,7 @@ const CommissionsPage = () => {
               <Target size={20} className="text-purple-500" />
             </div>
             <p className="text-2xl font-bold text-gray-800">
-              ${myStats.commission?.monthlyTarget || 0}
+              ${myCommission?.monthlyTarget || 0}
             </p>
             <div className="mt-2">
               <div className="w-full bg-gray-200 rounded-full h-2">
@@ -175,10 +177,10 @@ const CommissionsPage = () => {
               <Award size={20} className="text-yellow-500" />
             </div>
             <p className="text-2xl font-bold text-yellow-600">
-              ${(myStats.commission?.commission || 0).toFixed(2)}
+              ${(myCommission?.commission || 0).toFixed(2)}
             </p>
             <p className="text-xs text-gray-400">
-              ({myStats.commission?.commissionPercent || 0}% de ganancia)
+              ({myCommission?.commissionPercent || 0}% de ganancia)
             </p>
           </div>
         </div>
