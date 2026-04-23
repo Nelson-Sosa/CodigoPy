@@ -120,7 +120,7 @@ exports.dashboard = async (req, res) => {
 exports.salesSummary = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
-    const filter: any = { status: 'completed' };
+    const filter = { status: 'completed' };
     if (startDate || endDate) {
       filter.$or = [
         { dateKey: { $gte: Number(startDate.replace(/-/g, '')), $lte: Number(endDate.replace(/-/g, '')) } },
