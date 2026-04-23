@@ -133,8 +133,29 @@ const CommissionsPage = () => {
         </h1>
       </div>
 
-      {/* Mi Dashboard - visible para todos */}
-      {myStats && (
+      {/* Dashboard Admin: Stats Globales */}
+      {isAdmin && myStats && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-white rounded-xl shadow-lg p-5 border-l-4 border-blue-500">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-gray-500 text-sm">Ventas del Mes (Global)</span>
+              <TrendingUp size={20} className="text-blue-500" />
+            </div>
+            <p className="text-2xl font-bold text-gray-800">${myStats.totalSales.toFixed(2)}</p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-lg p-5 border-l-4 border-green-500">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-gray-500 text-sm">Ganancia del Mes (Global)</span>
+              <DollarSign size={20} className="text-green-500" />
+            </div>
+            <p className="text-2xl font-bold text-green-600">${myStats.profit.toFixed(2)}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Dashboard Vendedor: Stats Personales */}
+      {!isAdmin && myStats && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white rounded-xl shadow-lg p-5 border-l-4 border-blue-500">
             <div className="flex items-center justify-between mb-2">
