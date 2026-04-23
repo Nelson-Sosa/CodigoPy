@@ -700,8 +700,9 @@ const SalesPage = () => {
                     onFocus={() => setShowProductDropdown(true)}
                     onKeyDown={handleSkuSearch}
                     placeholder="Buscar por nombre, SKU o código de barras..."
-                    className="w-full border rounded-lg pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 focus:ring-2 focus:ring-blue-500 text-sm"
+                    className="w-full border rounded-lg pl-9 sm:pl-10 pr-10 sm:pr-12 py-2 sm:py-2.5 focus:ring-2 focus:ring-blue-500 text-sm"
                   />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 hidden sm:inline">Ctrl+F</span>
                 </div>
                 
                 {showProductDropdown && productSearch && (
