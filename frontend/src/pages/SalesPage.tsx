@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useMemo } from "react";
-import { saleService, clientService, productService, authService } from "../services/api";
+import { saleService, clientService, productService, authService, reportService } from "../services/api";
 import { ShoppingCart, Plus, Eye, X, Trash2, Search, User, Package, Edit2, Printer, Receipt, TrendingUp, DollarSign, Calendar, Check, FileText, Ticket } from "lucide-react";
 import { printInvoice } from "../components/invoice/InvoiceGenerator";
 import { printTicket } from "../utils/ticketPrinter";
@@ -77,6 +77,7 @@ const SalesPage = () => {
   const [filterEndDate, setFilterEndDate] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
+  const [dashboardStats, setDashboardStats] = useState<{ total: number; count: number; profit: number }>({ total: 0, count: 0, profit: 0 });
 
   const [clientId, setClientId] = useState("");
   const [items, setItems] = useState<SaleItem[]>([]);
@@ -146,10 +147,11 @@ const SalesPage = () => {
         params.userId = filterUserId;
       }
       
-      const [salesRes, clientsRes, productsRes] = await Promise.all([
+      const [salesRes, clientsRes, productsRes, dashboardRes] = await Promise.all([
         saleService.getAll(params),
         clientService.getAll(),
         productService.getAll(),
+        reportService.getDashboard().catch(() => ({ data: null })),
       ]);
       
       setSales(salesRes.data.sales || []);
@@ -162,6 +164,10 @@ const SalesPage = () => {
         costPrice: p.costPrice || 0,
         stock: p.stock || 0,
       })));
+      
+      if (dashboardRes.data) {
+        setDashboardStats(dashboardRes.data.sales.month);
+      }
       
       if (user?.role === "admin") {
         const usersRes = await authService.getUsers();
@@ -415,46 +421,34 @@ const SalesPage = () => {
       startOfPeriod = new Date(filterStartDate + 'T00:00:00');
       endOfPeriod = new Date(filterEndDate + 'T23:59:59');
       periodLabel = `${format(new Date(filterStartDate + 'T00:00:00'), 'dd/MM')} - ${format(new Date(filterEndDate + 'T00:00:00'), 'dd/MM')}`;
-    } else {
-      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-      startOfPeriod = startOfMonth;
-      endOfPeriod = today;
+      
+      const startKey = startOfPeriod.getFullYear() * 10000 + (startOfPeriod.getMonth() + 1) * 100 + startOfPeriod.getDate();
+      const endKey = endOfPeriod.getFullYear() * 10000 + (endOfPeriod.getMonth() + 1) * 100 + endOfPeriod.getDate();
+      
+      const periodSales = sales.filter(s => {
+        if (s.status === "cancelled") return false;
+        const saleDate = new Date(s.createdAt);
+        const saleKey = saleDate.getFullYear() * 10000 + (saleDate.getMonth() + 1) * 100 + saleDate.getDate();
+        return saleKey >= startKey && saleKey <= endKey;
+      });
+      
+      return {
+        today: { count: 0, total: 0, profit: 0 },
+        period: {
+          count: periodSales.length,
+          total: periodSales.reduce((acc, s) => acc + s.total, 0),
+          profit: periodSales.reduce((acc, s) => acc + (s.profit || 0), 0),
+        },
+        periodLabel,
+      };
     }
     
-    const startKey = startOfPeriod.getFullYear() * 10000 + (startOfPeriod.getMonth() + 1) * 100 + startOfPeriod.getDate();
-    const endKey = endOfPeriod.getFullYear() * 10000 + (endOfPeriod.getMonth() + 1) * 100 + endOfPeriod.getDate();
-    
-    let todaySales = [];
-    let periodSales = [];
-    
-    sales.forEach(sale => {
-      if (sale.status === "cancelled") return;
-      
-      const saleDate = new Date(sale.createdAt);
-      const saleKey = saleDate.getFullYear() * 10000 + (saleDate.getMonth() + 1) * 100 + saleDate.getDate();
-      
-      if (saleKey === todayKey) {
-        todaySales.push(sale);
-      }
-      if (saleKey >= startKey && saleKey <= endKey) {
-        periodSales.push(sale);
-      }
-    });
-    
     return {
-      today: {
-        count: todaySales.length,
-        total: todaySales.reduce((acc, s) => acc + s.total, 0),
-        profit: todaySales.reduce((acc, s) => acc + (s.profit || 0), 0),
-      },
-      period: {
-        count: periodSales.length,
-        total: periodSales.reduce((acc, s) => acc + s.total, 0),
-        profit: periodSales.reduce((acc, s) => acc + (s.profit || 0), 0),
-      },
+      today: { count: 0, total: 0, profit: 0 },
+      period: dashboardStats,
       periodLabel,
     };
-  }, [sales, filterStartDate, filterEndDate]);
+  }, [sales, filterStartDate, filterEndDate, dashboardStats]);
 
   if (loading) {
     return (
