@@ -75,6 +75,8 @@ const SalesPage = () => {
   const [filterUserId, setFilterUserId] = useState<string>("");
   const [filterStartDate, setFilterStartDate] = useState<string>("");
   const [filterEndDate, setFilterEndDate] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
 
   const [clientId, setClientId] = useState("");
   const [items, setItems] = useState<SaleItem[]>([]);
@@ -126,10 +128,14 @@ const SalesPage = () => {
     }
   }, [filterUserId, filterStartDate, filterEndDate, user]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterUserId, filterStartDate, filterEndDate]);
+
   const fetchData = async () => {
     try {
       setLoading(true);
-      const params: any = {};
+      const params: any = { page: currentPage, limit: 20 };
       
       if (filterStartDate) params.startDate = filterStartDate;
       if (filterEndDate) params.endDate = filterEndDate;
@@ -147,6 +153,8 @@ const SalesPage = () => {
       ]);
       
       setSales(salesRes.data.sales || []);
+      setTotalPages(salesRes.data.pages || 1);
+      setCurrentPage(salesRes.data.page || 1);
       setClients(clientsRes.data || []);
       setProducts(productsRes.data.map((p: any) => ({
         ...p,
@@ -630,6 +638,47 @@ const SalesPage = () => {
           </tbody>
         </table>
         </div>
+        {totalPages > 1 && (
+          <div className="p-4 border-t flex items-center justify-between">
+            <span className="text-sm text-gray-500">
+              Página {currentPage} de {totalPages}
+            </span>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-1.5 rounded-lg border disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              >
+                Anterior
+              </button>
+              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                let page = i + 1;
+                if (totalPages > 5) {
+                  if (currentPage > 3) page = currentPage - 2 + i;
+                  if (currentPage > totalPages - 2) page = totalPages - 4 + i;
+                }
+                return (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`px-3 py-1.5 rounded-lg border ${
+                      currentPage === page ? 'bg-blue-500 text-white' : 'hover:bg-gray-50'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                );
+              })}
+              <button
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1.5 rounded-lg border disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              >
+                Siguiente
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {showForm && (
