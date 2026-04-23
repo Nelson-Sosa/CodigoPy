@@ -26,7 +26,10 @@ const getMonthStats = async (userId, year, month, isAdmin = false) => {
     : Number(`${year}${String(month + 1).padStart(2, '0')}01`) - 1;
 
   const query = {
-    dateKey: { $gte: monthStart, $lte: monthEnd },
+    $or: [
+      { dateKey: { $gte: monthStart, $lte: monthEnd } },
+      { dateKey: { $exists: false }, createdAt: { $gte: new Date(year, month - 1, 1), $lte: new Date(month === 12 ? year + 1 : year, month === 12 ? 0 : month, 0, 23, 59, 59) } }
+    ],
     status: 'completed'
   };
 

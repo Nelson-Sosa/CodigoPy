@@ -15,9 +15,16 @@ exports.getAll = async (req, res) => {
     if (startDate || endDate) {
       const start = Number(startDate.replace(/-/g, ''));
       const end = Number(endDate.replace(/-/g, ''));
-      filter.dateKey = {};
-      if (start) filter.dateKey.$gte = start;
-      if (end) filter.dateKey.$lte = end;
+      filter.$or = [
+        { dateKey: { $gte: start, $lte: end } },
+        {
+          dateKey: { $exists: false },
+          createdAt: {
+            $gte: new Date(startDate),
+            $lte: new Date(endDate + 'T23:59:59')
+          }
+        }
+      ];
     }
 
     const total = await Sale.countDocuments(filter);
@@ -48,13 +55,32 @@ exports.getMySales = async (req, res) => {
     if (startDate || endDate) {
       const start = Number(startDate.replace(/-/g, ''));
       const end = Number(endDate.replace(/-/g, ''));
-      dateFilter.dateKey = {};
-      if (start) dateFilter.dateKey.$gte = start;
-      if (end) dateFilter.dateKey.$lte = end;
+      dateFilter.$or = [
+        { dateKey: { $gte: start, $lte: end } },
+        {
+          dateKey: { $exists: false },
+          createdAt: {
+            $gte: new Date(startDate),
+            $lte: new Date(endDate + 'T23:59:59')
+          }
+        }
+      ];
     }
 
-    const todaySales = await Sale.find({ ...baseFilter, dateKey: todayKey }).lean();
-    const monthSales = await Sale.find({ ...baseFilter, dateKey: { $gte: monthStart, $lte: todayKey } }).lean();
+    const todaySales = await Sale.find({
+      ...baseFilter,
+      $or: [
+        { dateKey: todayKey },
+        { dateKey: { $exists: false }, createdAt: { $gte: new Date(new Date().setHours(0,0,0,0)), $lte: new Date(new Date().setHours(23,59,59,999)) } }
+      ]
+    }).lean();
+    const monthSales = await Sale.find({
+      ...baseFilter,
+      $or: [
+        { dateKey: { $gte: monthStart, $lte: todayKey } },
+        { dateKey: { $exists: false }, createdAt: { $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1), $lte: new Date() } }
+      ]
+    }).lean();
     const allSales = await Sale.find({ ...baseFilter }).lean();
 
     const calcStats = (sales) => ({
