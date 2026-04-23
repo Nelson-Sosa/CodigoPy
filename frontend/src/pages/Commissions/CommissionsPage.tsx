@@ -181,94 +181,108 @@ const CommissionsPage = () => {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b">
-                  <th className="text-left py-3 px-4 text-gray-600 text-sm">Vendedor</th>
-                  <th className="text-left py-3 px-4 text-gray-600 text-sm">Meta ($)</th>
-                  <th className="text-left py-3 px-4 text-gray-600 text-sm">% Comisión</th>
-                  <th className="text-left py-3 px-4 text-gray-600 text-sm">Ganancia</th>
-                  <th className="text-left py-3 px-4 text-gray-600 text-sm">% Meta</th>
-                  <th className="text-left py-3 px-4 text-gray-600 text-sm">Comisión</th>
-                  <th className="text-left py-3 px-4 text-gray-600 text-sm">Acción</th>
+                <tr className="border-b bg-gray-50">
+                  <th className="text-left py-3 px-4 text-gray-600 text-sm font-semibold">Vendedor</th>
+                  <th className="text-left py-3 px-4 text-gray-600 text-sm font-semibold">Meta ($/mes)</th>
+                  <th className="text-left py-3 px-4 text-gray-600 text-sm font-semibold">% Comisión</th>
+                  <th className="text-left py-3 px-4 text-gray-600 text-sm font-semibold">Ganancia Mes</th>
+                  <th className="text-left py-3 px-4 text-gray-600 text-sm font-semibold">% Meta</th>
+                  <th className="text-left py-3 px-4 text-gray-600 text-sm font-semibold">Comisión</th>
+                  <th className="text-left py-3 px-4 text-gray-600 text-sm font-semibold">Acción</th>
                 </tr>
               </thead>
               <tbody>
-                {commissions.map((c) => (
-                  <tr key={c._id} className="border-b hover:bg-gray-50">
-                    <td className="py-3 px-4">
-                      <span className="font-medium">{c.user?.name}</span>
-                    </td>
-                    <td className="py-3 px-4">
-                      {editingId === c.user._id ? (
-                        <input
-                          type="number"
-                          value={editForm.monthlyTarget}
-                          onChange={(e) => setEditForm(prev => ({ ...prev, monthlyTarget: Number(e.target.value) }))}
-                          className="border rounded px-2 py-1 w-24"
-                        />
-                      ) : (
-                        <span>${c.monthlyTarget}</span>
-                      )}
-                    </td>
-                    <td className="py-3 px-4">
-                      {editingId === c.user._id ? (
-                        <input
-                          type="number"
-                          value={editForm.commissionPercent}
-                          onChange={(e) => setEditForm(prev => ({ ...prev, commissionPercent: Number(e.target.value) }))}
-                          className="border rounded px-2 py-1 w-20"
-                        />
-                      ) : (
-                        <span>{c.commissionPercent}%</span>
-                      )}
-                    </td>
-                    <td className="py-3 px-4 font-semibold text-green-600">
-                      ${c.stats?.profit.toFixed(2) || "$0.00"}
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="w-24">
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div
-                            className={`h-2 rounded-full ${getProgressColor(c.stats?.percentTarget || 0)}`}
-                            style={{ width: `${Math.min(c.stats?.percentTarget || 0, 100)}%` }}
-                          ></div>
-                        </div>
-                        <span className="text-xs text-gray-500">{(c.stats?.percentTarget || 0).toFixed(0)}%</span>
-                      </div>
-                    </td>
-                    <td className="py-3 px-4 font-bold text-yellow-600">
-                      ${(c.stats?.commission || 0).toFixed(2)}
-                    </td>
-                    <td className="py-3 px-4">
-                      {editingId === c.user._id ? (
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => handleSave(c.user._id)}
-                            className="px-3 py-1 bg-green-600 text-white rounded text-sm"
-                          >
-                            Guardar
-                          </button>
-                          <button
-                            onClick={() => setEditingId(null)}
-                            className="px-3 py-1 bg-gray-300 text-gray-700 rounded text-sm"
-                          >
-                            Cancelar
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => startEdit(c)}
-                          className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
-                        >
-                          Configurar
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-                {commissions.length === 0 && (
+                {users.length > 0 ? (
+                  users.map((u) => {
+                    const existing = commissions.find(c => c.user?._id === u._id);
+                    const isEditing = editingId === u._id;
+                    
+                    return (
+                      <tr key={u._id} className="border-b hover:bg-gray-50">
+                        <td className="py-3 px-4">
+                          <span className="font-medium">{u.name}</span>
+                        </td>
+                        <td className="py-3 px-4">
+                          {isEditing ? (
+                            <input
+                              type="number"
+                              value={editForm.monthlyTarget}
+                              onChange={(e) => setEditForm(prev => ({ ...prev, monthlyTarget: Number(e.target.value) }))}
+                              className="border rounded px-2 py-1 w-24"
+                              placeholder="0"
+                            />
+                          ) : (
+                            <span>${existing?.monthlyTarget || 0}</span>
+                          )}
+                        </td>
+                        <td className="py-3 px-4">
+                          {isEditing ? (
+                            <input
+                              type="number"
+                              value={editForm.commissionPercent}
+                              onChange={(e) => setEditForm(prev => ({ ...prev, commissionPercent: Number(e.target.value) }))}
+                              className="border rounded px-2 py-1 w-20"
+                              placeholder="0"
+                            />
+                          ) : (
+                            <span>{existing?.commissionPercent || 0}%</span>
+                          )}
+                        </td>
+                        <td className="py-3 px-4 font-semibold text-green-600">
+                          ${existing?.stats?.profit.toFixed(2) || "0.00"}
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="w-24">
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div
+                                className={`h-2 rounded-full ${getProgressColor(existing?.stats?.percentTarget || 0)}`}
+                                style={{ width: `${Math.min(existing?.stats?.percentTarget || 0, 100)}%` }}
+                              ></div>
+                            </div>
+                            <span className="text-xs text-gray-500">{(existing?.stats?.percentTarget || 0).toFixed(0)}%</span>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 font-bold text-yellow-600">
+                          ${(existing?.stats?.commission || 0).toFixed(2)}
+                        </td>
+                        <td className="py-3 px-4">
+                          {isEditing ? (
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleSave(u._id)}
+                                className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700"
+                              >
+                                Guardar
+                              </button>
+                              <button
+                                onClick={() => setEditingId(null)}
+                                className="px-3 py-1 bg-gray-300 text-gray-700 rounded text-sm hover:bg-gray-400"
+                              >
+                                Cancelar
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => {
+                                setEditingId(u._id);
+                                setEditForm({
+                                  monthlyTarget: existing?.monthlyTarget || 200,
+                                  commissionPercent: existing?.commissionPercent || 10,
+                                });
+                              }}
+                              className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
+                            >
+                              Configurar
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
                   <tr>
                     <td colSpan={7} className="py-8 text-center text-gray-400">
-                      No hay vendedores configurados
+                      No hay vendedores registrados
                     </td>
                   </tr>
                 )}
