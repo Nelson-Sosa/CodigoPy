@@ -177,7 +177,7 @@ const CommissionsPage = () => {
               <Award size={20} className="text-yellow-500" />
             </div>
             <p className="text-2xl font-bold text-yellow-600">
-              ${(myCommission?.commission || 0).toFixed(2)}
+              ${(myStats?.commission || 0).toFixed(2)}
             </p>
             <p className="text-xs text-gray-400">
               ({myCommission?.commissionPercent || 0}% de ganancia)
