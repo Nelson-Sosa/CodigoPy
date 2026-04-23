@@ -3,6 +3,21 @@ const Sale = require('../models/Sale');
 const User = require('../models/User');
 const { getPyDateKey } = require('../utils/date');
 
+const getPyDate = () => {
+  const now = new Date();
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Asuncion',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).formatToParts(now);
+  return {
+    year: Number(parts.find(p => p.type === 'year').value),
+    month: Number(parts.find(p => p.type === 'month').value),
+    day: Number(parts.find(p => p.type === 'day').value),
+  };
+};
+
 const getMonthStats = async (userId, year, month) => {
   const monthStr = `${year}${String(month).padStart(2, '0')}`;
   const monthStart = Number(`${monthStr}01`);
@@ -35,9 +50,9 @@ exports.getAll = async (req, res) => {
       .populate('user', 'name email role')
       .sort({ createdAt: -1 });
 
+    const pyDate = getPyDate();
     const result = await Promise.all(commissions.map(async (c) => {
-      const now = new Date();
-      const stats = await getMonthStats(c.user._id, now.getFullYear(), now.getMonth() + 1);
+      const stats = await getMonthStats(c.user._id, pyDate.year, pyDate.month);
 
       return {
         ...c.toObject(),
@@ -103,9 +118,9 @@ exports.getMyStats = async (req, res) => {
   try {
     const userId = req.user.id;
     const commission = await Commission.findOne({ user: userId });
-    const now = new Date();
+    const pyDate = getPyDate();
 
-    const stats = await getMonthStats(userId, now.getFullYear(), now.getMonth() + 1);
+    const stats = await getMonthStats(userId, pyDate.year, pyDate.month);
 
     res.json({
       commission: commission || { monthlyTarget: 0, commissionPercent: 0 },
@@ -132,11 +147,11 @@ exports.getHistory = async (req, res) => {
       return res.json({ monthlyTarget: 0, commissionPercent: 0, history: [] });
     }
 
-    const now = new Date();
+    const pyDate = getPyDate();
     const history = [];
 
     for (let i = 0; i < months; i++) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const d = new Date(pyDate.year, pyDate.month - 1 - i, 1);
       const year = d.getFullYear();
       const month = d.getMonth() + 1;
 
