@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { productService, saleService } from "../services/api";
+import { productService, saleService, reportService } from "../services/api";
 import ExchangeRateDisplay from "../components/common/ExchangeRateDisplay";
 import {
   BarChart,
@@ -72,19 +72,25 @@ const DashboardPage = () => {
   const { user } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [sales, setSales] = useState<Sale[]>([]);
+  const [dashboardData, setDashboardData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [productsRes, salesRes] = await Promise.all([
+        const [productsRes, salesRes, dashboardRes] = await Promise.all([
           productService.getAll().catch(() => ({ data: [] })),
-          saleService.getAll().catch(() => ({ data: { sales: [] } })),
+          saleService.getAll({ limit: 50 }).catch(() => ({ data: { sales: [] } })),
+          reportService.getDashboard().catch(() => ({ data: null })),
         ]);
 
         setProducts(productsRes.data.map((p: any) => ({ ...p, id: p._id })));
         setSales(salesRes.data.sales || []);
+        
+        if (dashboardRes.data) {
+          setDashboardData(dashboardRes.data);
+        }
       } catch (err: any) {
         console.error("Error fetching data:", err);
         setError(err.message || "Error al cargar el dashboard");
@@ -132,15 +138,9 @@ const DashboardPage = () => {
   const todayKey = getPyDateKey();
   const monthStartKey = getMonthStartKey();
 
-  const salesToday = sales.filter(s => s.dateKey === todayKey && s.status !== "cancelled");
-  const salesMonth = sales.filter(s => s.dateKey >= monthStartKey && s.dateKey <= todayKey && s.status !== "cancelled");
-
-  const totalSalesToday = salesToday.reduce((acc, s) => acc + s.total, 0);
-  const totalSalesMonth = salesMonth.reduce((acc, s) => acc + s.total, 0);
-  const totalProfitMonth = salesMonth.reduce((acc, s) => acc + (s.profit || 0), 0);
-
-  const totalProductsToday = salesToday.reduce((acc, s) => acc + s.items.reduce((i, item) => i + item.quantity, 0), 0);
-  const totalProductsMonth = salesMonth.reduce((acc, s) => acc + s.items.reduce((i, item) => i + item.quantity, 0), 0);
+  const dashboardStats = dashboardData?.sales?.month || { total: 0, count: 0, profit: 0 };
+  const todayStats = dashboardData?.sales?.today || { total: 0, count: 0, profit: 0 };
+  const lastMonthStats = dashboardData?.sales?.lastMonth || { total: 0, count: 0 };
 
   const lowStockProducts = products.filter(p => p.stock > 0 && p.stock < p.minStock);
   const outOfStockProducts = products.filter(p => p.stock === 0);
@@ -242,8 +242,8 @@ const DashboardPage = () => {
             <ShoppingCart className="text-green-500" size={24} />
             <h3 className="text-gray-500 text-sm">Ventas Hoy</h3>
           </div>
-          <p className="text-2xl font-bold text-gray-800">${totalSalesToday.toFixed(2)}</p>
-          <p className="text-sm text-gray-400">{totalProductsToday} productos vendidos</p>
+          <p className="text-2xl font-bold text-gray-800">${todayStats.total.toFixed(2)}</p>
+          <p className="text-sm text-gray-400">{todayStats.count} ventas</p>
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow">
@@ -251,8 +251,8 @@ const DashboardPage = () => {
             <TrendingUp className="text-blue-500" size={24} />
             <h3 className="text-gray-500 text-sm">Ventas del Mes</h3>
           </div>
-          <p className="text-2xl font-bold text-gray-800">${totalSalesMonth.toFixed(2)}</p>
-          <p className="text-sm text-gray-400">{totalProductsMonth} productos vendidos</p>
+          <p className="text-2xl font-bold text-gray-800">${dashboardStats.total.toFixed(2)}</p>
+          <p className="text-sm text-gray-400">{dashboardStats.count} ventas</p>
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow">
@@ -260,7 +260,7 @@ const DashboardPage = () => {
             <DollarSign className="text-purple-500" size={24} />
             <h3 className="text-gray-500 text-sm">Ganancia del Mes</h3>
           </div>
-          <p className="text-2xl font-bold text-purple-600">${totalProfitMonth.toFixed(2)}</p>
+          <p className="text-2xl font-bold text-purple-600">${dashboardStats.profit.toFixed(2)}</p>
           <p className="text-sm text-gray-400">Margen operativo</p>
         </div>
       </div>
