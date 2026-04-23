@@ -26,7 +26,7 @@ const getMonthStats = async (userId, year, month) => {
     : Number(`${year}${String(month + 1).padStart(2, '0')}01`) - 1;
 
   const sales = await Sale.find({
-    user: userId,
+    createdBy: userId,
     dateKey: { $gte: monthStart, $lte: monthEnd },
     status: 'completed'
   }).lean();
