@@ -130,8 +130,7 @@ exports.salesSummary = async (req, res) => {
     }
     
     if (startDate || endDate) {
-      filter = {
-        ...filter,
+      const dateFilter = {
         $or: [
           { dateKey: { $gte: Number(startDate.replace(/-/g, '')), $lte: Number(endDate.replace(/-/g, '')) } },
           {
@@ -140,6 +139,12 @@ exports.salesSummary = async (req, res) => {
           }
         ]
       };
+      
+      if (filter.createdBy) {
+        filter = { $and: [filter, dateFilter] };
+      } else {
+        filter = dateFilter;
+      }
     }
 
     const [summary, byPayment, lowStockProducts] = await Promise.all([
