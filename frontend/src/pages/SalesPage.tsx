@@ -126,7 +126,7 @@ const SalesPage = () => {
     if (user) {
       fetchData();
     }
-  }, [filterUserId, filterStartDate, filterEndDate, user]);
+  }, [filterUserId, filterStartDate, filterEndDate, currentPage, user]);
 
   useEffect(() => {
     setCurrentPage(1);
