@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { settingsService, cashRegisterService } from "../services/api";
+import { settingsService, cashRegisterService, productService } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import ExchangeRateDisplay from "../components/common/ExchangeRateDisplay";
-import { Settings, Save, Building2, Receipt, FileText, Trash2 } from "lucide-react";
+import { Settings, Save, Building2, Receipt, FileText, Trash2, Download } from "lucide-react";
 
 interface SettingsData {
   businessName: string;
@@ -437,6 +437,59 @@ const SettingsPage = () => {
                 className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 disabled:opacity-50"
               >
                 Corregir Cierre Ayer
+              </button>
+            </div>
+            
+            <div className="flex items-center justify-between pt-4 border-t">
+              <div>
+                <p className="text-sm text-gray-600">Exportar productos</p>
+                <p className="text-xs text-gray-400">Descarga CSV con todos los productos</p>
+              </div>
+              <button
+                type="button"
+                onClick={async () => {
+                  setCleaning(true);
+                  try {
+                    const res = await productService.getAll();
+                    const products = res.data.map((p: any) => ({
+                      SKU: p.sku,
+                      Nombre: p.name,
+                      Marca: p.brand || '',
+                      Descripcion: p.description || '',
+                      'Codigo de Barras': p.barcode || '',
+                      'Precio Venta': p.salePrice,
+                      'Precio Costo': p.costPrice,
+                      Stock: p.stock,
+                      'Stock Min': p.minStock,
+                      'Stock Max': p.maxStock,
+                      Unidad: p.unit,
+                      Estado: p.status,
+                    }));
+
+                    const headers = Object.keys(products[0] || {}).join(',');
+                    const rows = products.map((p: any) => Object.values(p).join(',')).join('\n');
+                    const csv = headers + '\n' + rows;
+
+                    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `productos_${new Date().toISOString().split('T')[0]}.csv`;
+                    link.click();
+                    URL.revokeObjectURL(url);
+
+                    alert(`Exportados ${products.length} productos`);
+                  } catch (err) {
+                    alert("Error al exportar productos");
+                  } finally {
+                    setCleaning(false);
+                  }
+                }}
+                disabled={cleaning}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center gap-2"
+              >
+                <Download size={18} />
+                Exportar CSV
               </button>
             </div>
           </div>
