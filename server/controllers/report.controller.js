@@ -120,7 +120,7 @@ exports.dashboard = async (req, res) => {
 exports.salesSummary = async (req, res) => {
   try {
     const { startDate, endDate, userId } = req.query;
-    const filter: any = { status: 'completed' };
+    let filter = { status: 'completed' };
     
     if (req.user.role !== 'admin' && req.user.role !== 'supervisor') {
       filter.createdBy = req.user._id;
@@ -129,13 +129,16 @@ exports.salesSummary = async (req, res) => {
     }
     
     if (startDate || endDate) {
-      filter.$or = [
-        { dateKey: { $gte: Number(startDate.replace(/-/g, '')), $lte: Number(endDate.replace(/-/g, '')) } },
-        {
-          dateKey: { $exists: false },
-          createdAt: { $gte: new Date(startDate), $lte: new Date(endDate + 'T23:59:59') }
-        }
-      ];
+      filter = {
+        ...filter,
+        $or: [
+          { dateKey: { $gte: Number(startDate.replace(/-/g, '')), $lte: Number(endDate.replace(/-/g, '')) } },
+          {
+            dateKey: { $exists: false },
+            createdAt: { $gte: new Date(startDate), $lte: new Date(endDate + 'T23:59:59') }
+          }
+        ]
+      };
     }
 
     const [summary, byPayment, lowStockProducts] = await Promise.all([
