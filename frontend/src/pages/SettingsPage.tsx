@@ -452,23 +452,35 @@ const SettingsPage = () => {
                   try {
                     const res = await productService.getAll();
                     const products = res.data.map((p: any) => ({
-                      SKU: p.sku,
-                      Nombre: p.name,
-                      Marca: p.brand || '',
-                      Descripcion: p.description || '',
-                      'Codigo de Barras': p.barcode || '',
-                      'Precio Venta': p.salePrice,
-                      'Precio Costo': p.costPrice,
-                      Stock: p.stock,
-                      'Stock Min': p.minStock,
-                      'Stock Max': p.maxStock,
-                      Unidad: p.unit,
-                      Estado: p.status,
+                      SKU: p.sku || '',
+                      NOMBRE: p.name || '',
+                      MARCA: p.brand || '',
+                      DESCRIPCION: p.description || '',
+                      'CODIGO_DE_BARRAS': p.barcode || '',
+                      'PRECIO_VENTA': p.salePrice || 0,
+                      'PRECIO_COSTO': p.costPrice || 0,
+                      STOCK: p.stock || 0,
+                      'STOCK_MINIMO': p.minStock || 0,
+                      'STOCK_MAXIMO': p.maxStock || 0,
+                      UNIDAD: p.unit || '',
+                      ESTADO: p.status === 'active' ? 'Activo' : 'Inactivo',
                     }));
 
-                    const headers = Object.keys(products[0] || {}).join(',');
-                    const rows = products.map((p: any) => Object.values(p).join(',')).join('\n');
-                    const csv = headers + '\n' + rows;
+                    const headers = ['SKU', 'NOMBRE', 'MARCA', 'DESCRIPCION', 'CODIGO_DE_BARRAS', 'PRECIO_VENTA', 'PRECIO_COSTO', 'STOCK', 'STOCK_MINIMO', 'STOCK_MAXIMO', 'UNIDAD', 'ESTADO'];
+                    
+                    const escapeCSV = (val: any) => {
+                      if (val === null || val === undefined) return '';
+                      const str = String(val);
+                      if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                        return `"${str.replace(/"/g, '""')}"`;
+                      }
+                      return str;
+                    };
+
+                    const csvRows = products.map(p => 
+                      headers.map(h => escapeCSV(p[h as keyof typeof p])).join(',')
+                    );
+                    const csv = [headers.join(','), ...csvRows].join('\n');
 
                     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
                     const url = URL.createObjectURL(blob);
