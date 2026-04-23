@@ -119,11 +119,12 @@ exports.dashboard = async (req, res) => {
 
 exports.salesSummary = async (req, res) => {
   try {
-    const { startDate, endDate } = req.query;
-    const userId = req.user._id;
+    const { startDate, endDate, userId } = req.query;
     const filter: any = { status: 'completed' };
     
     if (req.user.role !== 'admin' && req.user.role !== 'supervisor') {
+      filter.createdBy = req.user._id;
+    } else if (userId) {
       filter.createdBy = userId;
     }
     

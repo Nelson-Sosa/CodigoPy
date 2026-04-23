@@ -148,40 +148,47 @@ const SalesPage = () => {
         params.userId = filterUserId;
       }
       
-      const [salesRes, clientsRes, productsRes, dashboardRes, summaryRes] = await Promise.all([
-        saleService.getAll(params),
-        clientService.getAll(),
-        productService.getAll(),
-        reportService.getDashboard().catch(() => ({ data: null })),
-        filterStartDate && filterEndDate ? reportService.getSalesSummary({ startDate: filterStartDate, endDate: filterEndDate }).catch(() => ({ data: null })) : Promise.resolve({ data: null }),
-      ]);
-      
-      setSales(salesRes.data.sales || []);
-      setTotalPages(salesRes.data.pages || 1);
-      setCurrentPage(salesRes.data.page || 1);
-      setClients(clientsRes.data || []);
-      setProducts(productsRes.data.map((p: any) => ({
-        ...p,
-        salePrice: p.salePrice || 0,
-        costPrice: p.costPrice || 0,
-        stock: p.stock || 0,
-      })));
-      
-      if (dashboardRes.data) {
-        setDashboardStats(dashboardRes.data.sales.month);
-        setTodayStats(dashboardRes.data.sales.today);
-      }
-      
-      if (summaryRes.data && filterStartDate && filterEndDate) {
-        setDashboardStats({
-          total: summaryRes.data.summary.totalRevenue || 0,
-          count: summaryRes.data.summary.totalSales || 0,
-          profit: summaryRes.data.summary.totalProfit || 0,
-        });
-      } else if (!filterStartDate && !filterEndDate && dashboardRes.data) {
-        setDashboardStats(dashboardRes.data.sales.month);
-        setTodayStats(dashboardRes.data.sales.today);
-      }
+      const summaryParams: any = {};
+        if (filterStartDate) summaryParams.startDate = filterStartDate;
+        if (filterEndDate) summaryParams.endDate = filterEndDate;
+        if (filterUserId) summaryParams.userId = filterUserId;
+        
+        if (!filterStartDate && !filterEndDate) {
+          const now = new Date();
+          summaryParams.startDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+          summaryParams.endDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        }
+        
+        const [salesRes, clientsRes, productsRes, dashboardRes, summaryRes] = await Promise.all([
+          saleService.getAll(params),
+          clientService.getAll(),
+          productService.getAll(),
+          reportService.getDashboard().catch(() => ({ data: null })),
+          reportService.getSalesSummary(summaryParams).catch(() => ({ data: null })),
+        ]);
+        
+        setSales(salesRes.data.sales || []);
+        setTotalPages(salesRes.data.pages || 1);
+        setCurrentPage(salesRes.data.page || 1);
+        setClients(clientsRes.data || []);
+        setProducts(productsRes.data.map((p: any) => ({
+          ...p,
+          salePrice: p.salePrice || 0,
+          costPrice: p.costPrice || 0,
+          stock: p.stock || 0,
+        })));
+        
+        if (dashboardRes.data) {
+          setTodayStats(dashboardRes.data.sales.today);
+        }
+        
+        if (summaryRes.data) {
+          setDashboardStats({
+            total: summaryRes.data.summary.totalRevenue || 0,
+            count: summaryRes.data.summary.totalSales || 0,
+            profit: summaryRes.data.summary.totalProfit || 0,
+          });
+        }
       
       if (user?.role === "admin") {
         const usersRes = await authService.getUsers();
