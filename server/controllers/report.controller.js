@@ -128,8 +128,6 @@ exports.salesSummary = async (req, res) => {
       if (start) filter.dateKey.$gte = start;
       if (end) filter.dateKey.$lte = end;
     }
-      if (endDate)   match.createdAt.$lte = new Date(endDate + 'T23:59:59');
-    }
 
     const [summary, byPayment, lowStockProducts] = await Promise.all([
       Sale.aggregate([
