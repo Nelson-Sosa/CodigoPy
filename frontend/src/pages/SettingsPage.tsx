@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { settingsService, cashRegisterService, productService } from "../services/api";
+import { settingsService, cashRegisterService, productService, saleService } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import ExchangeRateDisplay from "../components/common/ExchangeRateDisplay";
 import { Settings, Save, Building2, Receipt, FileText, Trash2, Download } from "lucide-react";
@@ -499,6 +499,77 @@ const SettingsPage = () => {
                 }}
                 disabled={cleaning}
                 className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center gap-2"
+              >
+                <Download size={18} />
+                Exportar CSV
+              </button>
+            </div>
+            
+            <div className="flex items-center justify-between pt-4 border-t">
+              <div>
+                <p className="text-sm text-gray-600">Exportar ventas</p>
+                <p className="text-xs text-gray-400">Descarga CSV con todas las ventas</p>
+              </div>
+              <button
+                type="button"
+                onClick={async () => {
+                  setCleaning(true);
+                  try {
+                    const res = await saleService.getAll();
+                    const sales = res.data.sales || res.data || [];
+                    
+                    const formattedSales = sales.map((s: any) => ({
+                      FACTURA: s.invoiceNumber || '',
+                      FECHA: s.createdAt ? new Date(s.createdAt).toLocaleDateString() : '',
+                      HORA: s.createdAt ? new Date(s.createdAt).toLocaleTimeString() : '',
+                      CLIENTE: s.clientName || 'Consumidor Final',
+                      'SUBTOTAL': s.subtotal || 0,
+                      DESCUENTO: s.discount || 0,
+                      TOTAL: s.total || 0,
+                      'PAGO': s.paymentMethod === 'cash' ? 'Efectivo' : 
+                              s.paymentMethod === 'card' ? 'Tarjeta' : 
+                              s.paymentMethod === 'transfer' ? 'Transferencia' : 
+                              s.paymentMethod === 'credit' ? 'Credito' : s.paymentMethod || '',
+                      ESTADO: s.status === 'completed' ? 'Completada' : 
+                             s.status === 'cancelled' ? 'Cancelada' : 
+                             s.status === 'pending' ? 'Pendiente' : s.status || '',
+                      USUARIO: s.createdBy?.name || '',
+                      NOTAS: s.notes || '',
+                    }));
+
+                    const headers = ['FACTURA', 'FECHA', 'HORA', 'CLIENTE', 'SUBTOTAL', 'DESCUENTO', 'TOTAL', 'PAGO', 'ESTADO', 'USUARIO', 'NOTAS'];
+                    
+                    const escapeCSV = (val: any) => {
+                      if (val === null || val === undefined) return '';
+                      const str = String(val);
+                      if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                        return `"${str.replace(/"/g, '""')}"`;
+                      }
+                      return str;
+                    };
+
+                    const csvRows = formattedSales.map((s: any) => 
+                      headers.map(h => escapeCSV(s[h as keyof typeof s])).join(',')
+                    );
+                    const csv = [headers.join(','), ...csvRows].join('\n');
+
+                    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `ventas_${new Date().toISOString().split('T')[0]}.csv`;
+                    link.click();
+                    URL.revokeObjectURL(url);
+
+                    alert(`Exportadas ${formattedSales.length} ventas`);
+                  } catch (err) {
+                    alert("Error al exportar ventas");
+                  } finally {
+                    setCleaning(false);
+                  }
+                }}
+                disabled={cleaning}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
               >
                 <Download size={18} />
                 Exportar CSV
