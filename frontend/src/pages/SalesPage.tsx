@@ -78,6 +78,7 @@ const SalesPage = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [dashboardStats, setDashboardStats] = useState<{ total: number; count: number; profit: number }>({ total: 0, count: 0, profit: 0 });
+  const [todayStats, setTodayStats] = useState<{ total: number; count: number; profit: number }>({ total: 0, count: 0, profit: 0 });
 
   const [clientId, setClientId] = useState("");
   const [items, setItems] = useState<SaleItem[]>([]);
@@ -168,6 +169,7 @@ const SalesPage = () => {
       
       if (dashboardRes.data) {
         setDashboardStats(dashboardRes.data.sales.month);
+        setTodayStats(dashboardRes.data.sales.today);
       }
       
       if (summaryRes.data && filterStartDate && filterEndDate) {
@@ -178,6 +180,7 @@ const SalesPage = () => {
         });
       } else if (!filterStartDate && !filterEndDate && dashboardRes.data) {
         setDashboardStats(dashboardRes.data.sales.month);
+        setTodayStats(dashboardRes.data.sales.today);
       }
       
       if (user?.role === "admin") {
@@ -444,7 +447,7 @@ const SalesPage = () => {
       });
       
       return {
-        today: { count: 0, total: 0, profit: 0 },
+        today: todayStats,
         period: {
           count: periodSales.length,
           total: periodSales.reduce((acc, s) => acc + s.total, 0),
@@ -455,11 +458,11 @@ const SalesPage = () => {
     }
     
     return {
-      today: { count: 0, total: 0, profit: 0 },
+      today: todayStats,
       period: dashboardStats,
       periodLabel,
     };
-  }, [sales, filterStartDate, filterEndDate, dashboardStats]);
+  }, [filterStartDate, filterEndDate, dashboardStats, todayStats]);
 
   if (loading) {
     return (
