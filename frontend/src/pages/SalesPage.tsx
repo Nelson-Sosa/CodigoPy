@@ -159,12 +159,19 @@ const SalesPage = () => {
           summaryParams.endDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
         }
         
-        const [salesRes, clientsRes, productsRes, dashboardRes, summaryRes] = await Promise.all([
+        const todayParams: any = {};
+        if (filterUserId) todayParams.userId = filterUserId;
+        const today = new Date();
+        todayParams.startDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        todayParams.endDate = todayParams.startDate;
+        
+        const [salesRes, clientsRes, productsRes, dashboardRes, summaryRes, todayRes] = await Promise.all([
           saleService.getAll(params),
           clientService.getAll(),
           productService.getAll(),
           reportService.getDashboard().catch(() => ({ data: null })),
           reportService.getSalesSummary(summaryParams).catch(() => ({ data: null })),
+          reportService.getSalesSummary(todayParams).catch(() => ({ data: null })),
         ]);
         
         setSales(salesRes.data.sales || []);
@@ -178,7 +185,7 @@ const SalesPage = () => {
           stock: p.stock || 0,
         })));
         
-        if (dashboardRes.data) {
+        if (dashboardRes.data && !filterUserId) {
           setTodayStats(dashboardRes.data.sales.today);
         }
         
@@ -187,6 +194,14 @@ const SalesPage = () => {
             total: summaryRes.data.summary.totalRevenue || 0,
             count: summaryRes.data.summary.totalSales || 0,
             profit: summaryRes.data.summary.totalProfit || 0,
+          });
+        }
+        
+        if (todayRes.data) {
+          setTodayStats({
+            total: todayRes.data.summary.totalRevenue || 0,
+            count: todayRes.data.summary.totalSales || 0,
+            profit: todayRes.data.summary.totalProfit || 0,
           });
         }
       

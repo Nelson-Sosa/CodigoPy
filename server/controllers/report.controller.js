@@ -122,7 +122,6 @@ exports.salesSummary = async (req, res) => {
   try {
     const { startDate, endDate, userId } = req.query;
     let filter = { status: 'completed' };
-    const mongoose = require('mongoose');
     
     if (req.user.role !== 'admin' && req.user.role !== 'supervisor') {
       filter.createdBy = req.user._id;
