@@ -120,13 +120,15 @@ exports.dashboard = async (req, res) => {
 exports.salesSummary = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
-    const filter = { status: 'completed' };
+    const filter: any = { status: 'completed' };
     if (startDate || endDate) {
-      const start = Number(startDate.replace(/-/g, ''));
-      const end = Number(endDate.replace(/-/g, ''));
-      filter.dateKey = {};
-      if (start) filter.dateKey.$gte = start;
-      if (end) filter.dateKey.$lte = end;
+      filter.$or = [
+        { dateKey: { $gte: Number(startDate.replace(/-/g, '')), $lte: Number(endDate.replace(/-/g, '')) } },
+        {
+          dateKey: { $exists: false },
+          createdAt: { $gte: new Date(startDate), $lte: new Date(endDate + 'T23:59:59') }
+        }
+      ];
     }
 
     const [summary, byPayment, lowStockProducts] = await Promise.all([
