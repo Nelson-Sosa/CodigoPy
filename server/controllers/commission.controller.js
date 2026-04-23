@@ -18,18 +18,23 @@ const getPyDate = () => {
   };
 };
 
-const getMonthStats = async (userId, year, month) => {
+const getMonthStats = async (userId, year, month, isAdmin = false) => {
   const monthStr = `${year}${String(month).padStart(2, '0')}`;
   const monthStart = Number(`${monthStr}01`);
   const monthEnd = month === 12 
     ? Number(`${year + 1}0101`) - 1 
     : Number(`${year}${String(month + 1).padStart(2, '0')}01`) - 1;
 
-  const sales = await Sale.find({
-    createdBy: userId,
+  const query = {
     dateKey: { $gte: monthStart, $lte: monthEnd },
     status: 'completed'
-  }).lean();
+  };
+
+  if (!isAdmin) {
+    query.createdBy = userId;
+  }
+
+  const sales = await Sale.find(query).lean();
 
   return {
     salesCount: sales.length,
@@ -117,16 +122,19 @@ exports.upsert = async (req, res) => {
 exports.getMyStats = async (req, res) => {
   try {
     const userId = req.user.id;
+    const userRole = req.user.role;
+    const isAdmin = userRole === 'admin' || userRole === 'supervisor';
     const commission = await Commission.findOne({ user: userId });
     const pyDate = getPyDate();
 
-    const stats = await getMonthStats(userId, pyDate.year, pyDate.month);
+    const stats = await getMonthStats(userId, pyDate.year, pyDate.month, isAdmin);
 
     res.json({
       commission: commission || { monthlyTarget: 0, commissionPercent: 0 },
+      isAdmin,
       stats: {
         ...stats,
-        percentTarget: (commission?.monthlyTarget || 0) > 0 
+        percentTarget: !isAdmin && (commission?.monthlyTarget || 0) > 0 
           ? (stats.profit / commission.monthlyTarget) * 100 
           : 0,
         commission: stats.profit * ((commission?.commissionPercent || 0) / 100),
