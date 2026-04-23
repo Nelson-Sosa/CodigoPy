@@ -100,7 +100,11 @@ const DashboardPage = () => {
     };
 
     window.addEventListener('inventoryUpdate', handleStorageChange);
-    return () => window.removeEventListener('inventoryUpdate', handleStorageChange);
+    window.addEventListener('saleCompleted', handleStorageChange);
+    return () => {
+      window.removeEventListener('inventoryUpdate', handleStorageChange);
+      window.removeEventListener('saleCompleted', handleStorageChange);
+    };
   }, []);
 
   if (loading) {

@@ -336,6 +336,7 @@ const SalesPage = () => {
       resetForm();
       fetchData();
       window.dispatchEvent(new Event('inventoryUpdate'));
+      window.dispatchEvent(new Event('saleCompleted'));
 
       if (newSale) {
         setCompletedSale(newSale);
@@ -1040,6 +1041,7 @@ const SalesPage = () => {
                         setSelectedSale(null);
                         fetchData();
                         window.dispatchEvent(new Event('inventoryUpdate'));
+                        window.dispatchEvent(new Event('saleCompleted'));
                       } catch (err: any) {
                         alert(err.response?.data?.message || "Error al cancelar venta");
                       }
@@ -1071,11 +1073,44 @@ const SalesPage = () => {
               <p className="text-gray-600 text-center mb-6">¿Desea imprimir un comprobante?</p>
               
               <div className="space-y-3">
-                <button
+<button
                   onClick={() => {
                     printTicket(completedSale);
                     setShowPrintModal(false);
                     setCompletedSale(null);
+                    window.dispatchEvent(new Event('saleCompleted'));
+                  }}
+                  className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg shadow-blue-500/30"
+                >
+                  <Ticket size={22} />
+                  <div className="text-left">
+                    <span className="font-semibold block">Imprimir Ticket</span>
+                    <span className="text-xs text-blue-100">Comprobante corto</span>
+                  </div>
+                </button>
+                
+                <button
+                  onClick={() => {
+                    printInvoice(completedSale);
+                    setShowPrintModal(false);
+                    setCompletedSale(null);
+                    window.dispatchEvent(new Event('saleCompleted'));
+                  }}
+                  className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all shadow-lg shadow-purple-500/30"
+                >
+                  <FileText size={22} />
+                  <div className="text-left">
+                    <span className="font-semibold block">Imprimir Factura</span>
+                    <span className="text-xs text-purple-100">Comprobante completo</span>
+                  </div>
+                </button>
+                
+                
+                <button
+                  onClick={() => {
+                    setShowPrintModal(false);
+                    setCompletedSale(null);
+                    window.dispatchEvent(new Event('saleCompleted'));
                   }}
                   className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg shadow-blue-500/30"
                 >
