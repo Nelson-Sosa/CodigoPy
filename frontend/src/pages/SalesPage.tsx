@@ -104,7 +104,7 @@ const SalesPage = () => {
         productInputRef.current?.focus();
         setShowProductDropdown(true);
       }
-      if (e.ctrlKey && e.key === 'n') {
+      if (e.ctrlKey && e.shiftKey && e.key === 'N') {
         e.preventDefault();
         setShowForm(true);
         setEditingSale(null);
@@ -458,7 +458,7 @@ const SalesPage = () => {
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
       <div className="bg-blue-50 border border-blue-100 rounded-lg px-4 py-2 text-xs text-blue-600 flex items-center gap-4">
-        <span><kbd className="bg-blue-100 px-1.5 py-0.5 rounded font-semibold">Ctrl+N</kbd> Nueva venta</span>
+        <span><kbd className="bg-blue-100 px-1.5 py-0.5 rounded font-semibold">Ctrl+Shift+N</kbd> Nueva venta</span>
         <span><kbd className="bg-blue-100 px-1.5 py-0.5 rounded font-semibold">Ctrl+F</kbd> Buscar producto</span>
       </div>
       <div className="flex justify-between items-center">
@@ -475,7 +475,7 @@ const SalesPage = () => {
         >
           <Plus size={20} />
           Nueva Venta
-          <span className="text-xs opacity-75 hidden sm:inline ml-1">(Ctrl+N)</span>
+          <span className="text-xs opacity-75 hidden sm:inline ml-1">(Ctrl+Shift+N)</span>
         </button>
       </div>
 
