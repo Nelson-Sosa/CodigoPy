@@ -1,14 +1,32 @@
 const Sale     = require('../models/Sale');
 const Product  = require('../models/Product');
 const Client   = require('../models/Client');
+const { getPyDateKey } = require('../utils/date');
+
+const getPyDate = () => {
+  const now = new Date();
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Asuncion',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).formatToParts(now);
+  return {
+    year: Number(parts.find(p => p.type === 'year').value),
+    month: Number(parts.find(p => p.type === 'month').value),
+    day: Number(parts.find(p => p.type === 'day').value),
+  };
+};
 
 exports.dashboard = async (req, res) => {
   try {
-    const now           = new Date();
-    const startOfDay    = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const startOfMonth  = new Date(now.getFullYear(), now.getMonth(), 1);
-    const startOfLast   = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const endOfLast     = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+    const pyDate = getPyDate();
+    const todayKey = pyDate.year * 10000 + pyDate.month * 100 + pyDate.day;
+    const monthStart = pyDate.year * 10000 + pyDate.month * 100 + 1;
+    const lastMonth = pyDate.month === 1 ? 12 : pyDate.month - 1;
+    const lastMonthYear = pyDate.month === 1 ? pyDate.year - 1 : pyDate.year;
+    const lastMonthEnd = new Date(lastMonthYear, lastMonth, 0).getDate();
+    const lastMonthEndKey = lastMonthYear * 10000 + lastMonth * 100 + lastMonthEnd;
 
     const [
       totalProducts, activeProducts, lowStockProducts, outOfStockProducts,
@@ -21,15 +39,15 @@ exports.dashboard = async (req, res) => {
       Product.countDocuments({ stock: 0, status: 'active' }),
       Client.countDocuments({ isActive: true }),
       Sale.aggregate([
-        { $match: { createdAt: { $gte: startOfDay }, status: 'completed' } },
+        { $match: { dateKey: todayKey, status: 'completed' } },
         { $group: { _id: null, total: { $sum: '$total' }, count: { $sum: 1 }, profit: { $sum: '$profit' } } },
       ]),
       Sale.aggregate([
-        { $match: { createdAt: { $gte: startOfMonth }, status: 'completed' } },
+        { $match: { dateKey: { $gte: monthStart, $lte: todayKey }, status: 'completed' } },
         { $group: { _id: null, total: { $sum: '$total' }, count: { $sum: 1 }, profit: { $sum: '$profit' } } },
       ]),
       Sale.aggregate([
-        { $match: { createdAt: { $gte: startOfLast, $lte: endOfLast }, status: 'completed' } },
+        { $match: { dateKey: { $gte: lastMonthYear * 10000 + lastMonth * 100 + 1, $lte: lastMonthEndKey }, status: 'completed' } },
         { $group: { _id: null, total: { $sum: '$total' }, count: { $sum: 1 } } },
       ]),
       Sale.find({ status: 'completed' }).sort({ createdAt: -1 }).limit(5).populate('client', 'name'),
@@ -45,8 +63,8 @@ exports.dashboard = async (req, res) => {
         { $group: { _id: null, total: { $sum: { $multiply: ['$stock', '$costPrice'] } } } },
       ]),
       Sale.aggregate([
-        { $match: { createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }, status: 'completed' } },
-        { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } }, total: { $sum: '$total' }, count: { $sum: 1 }, profit: { $sum: '$profit' } } },
+        { $match: { dateKey: { $gte: todayKey - 6, $lte: todayKey }, status: 'completed' } },
+        { $group: { _id: '$dateKey', total: { $sum: '$total' }, count: { $sum: 1 }, profit: { $sum: '$profit' } } },
         { $sort: { _id: 1 } },
       ]),
     ]);
