@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { settingsService, cashRegisterService, productService, saleService } from "../services/api";
+import { settingsService, cashRegisterService, productService, saleService, movementService } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import ExchangeRateDisplay from "../components/common/ExchangeRateDisplay";
 import { Settings, Save, Building2, Receipt, FileText, Trash2, Download } from "lucide-react";
@@ -570,6 +570,74 @@ const SettingsPage = () => {
                 }}
                 disabled={cleaning}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+              >
+                <Download size={18} />
+                Exportar CSV
+              </button>
+            </div>
+            
+            <div className="flex items-center justify-between pt-4 border-t">
+              <div>
+                <p className="text-sm text-gray-600">Exportar movimientos</p>
+                <p className="text-xs text-gray-400">Descarga CSV con movimientos de inventario</p>
+              </div>
+              <button
+                type="button"
+                onClick={async () => {
+                  setCleaning(true);
+                  try {
+                    const res = await movementService.getAll();
+                    const movements = res.data.movements || res.data || [];
+                    
+                    const formattedMovements = movements.map((m: any) => ({
+                      FECHA: m.createdAt ? new Date(m.createdAt).toLocaleDateString() : '',
+                      HORA: m.createdAt ? new Date(m.createdAt).toLocaleTimeString() : '',
+                      TIPO: m.type === 'in' ? 'Entrada' : 
+                            m.type === 'out' ? 'Salida' : 
+                            m.type === 'adjust' ? 'Ajuste' : m.type || '',
+                      PRODUCTO: m.productName || m.product?.name || '',
+                      SKU: m.product?.sku || '',
+                      CANTIDAD: m.quantity || 0,
+                      'STOCK ANTERIOR': m.previousStock || 0,
+                      'STOCK NUEVO': m.newStock || 0,
+                      MOTIVO: m.reason || '',
+                      USUARIO: m.createdBy?.name || '',
+                      NOTAS: m.notes || '',
+                    }));
+
+                    const headers = ['FECHA', 'HORA', 'TIPO', 'PRODUCTO', 'SKU', 'CANTIDAD', 'STOCK ANTERIOR', 'STOCK NUEVO', 'MOTIVO', 'USUARIO', 'NOTAS'];
+                    
+                    const escapeCSV = (val: any) => {
+                      if (val === null || val === undefined) return '';
+                      const str = String(val);
+                      if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                        return `"${str.replace(/"/g, '""')}"`;
+                      }
+                      return str;
+                    };
+
+                    const csvRows = formattedMovements.map((m: any) => 
+                      headers.map(h => escapeCSV(m[h as keyof typeof m])).join(',')
+                    );
+                    const csv = [headers.join(','), ...csvRows].join('\n');
+
+                    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `movimientos_${new Date().toISOString().split('T')[0]}.csv`;
+                    link.click();
+                    URL.revokeObjectURL(url);
+
+                    alert(`Exportados ${formattedMovements.length} movimientos`);
+                  } catch (err) {
+                    alert("Error al exportar movimientos");
+                  } finally {
+                    setCleaning(false);
+                  }
+                }}
+                disabled={cleaning}
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 flex items-center gap-2"
               >
                 <Download size={18} />
                 Exportar CSV
