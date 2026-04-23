@@ -141,6 +141,7 @@ export const exchangeRateService = {
 export const commissionService = {
   getMyStats: () => api.get('/commissions/stats'),
   getAll: () => api.get('/commissions/all'),
+  getHistory: (userId: string, months?: number) => api.get(`/commissions/history/${userId}`, { params: { months: months || 6 } }),
   upsert: (data: { userId: string; monthlyTarget: number; commissionPercent: number }) => api.post('/commissions/upsert', data),
 };
 
