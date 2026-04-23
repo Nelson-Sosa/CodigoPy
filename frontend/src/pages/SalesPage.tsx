@@ -457,32 +457,14 @@ const SalesPage = () => {
       startOfPeriod = new Date(filterStartDate + 'T00:00:00');
       endOfPeriod = new Date(filterEndDate + 'T23:59:59');
       periodLabel = `${format(new Date(filterStartDate + 'T00:00:00'), 'dd/MM')} - ${format(new Date(filterEndDate + 'T00:00:00'), 'dd/MM')}`;
-      
-      const startKey = startOfPeriod.getFullYear() * 10000 + (startOfPeriod.getMonth() + 1) * 100 + startOfPeriod.getDate();
-      const endKey = endOfPeriod.getFullYear() * 10000 + (endOfPeriod.getMonth() + 1) * 100 + endOfPeriod.getDate();
-      
-      const periodSales = sales.filter(s => {
-        if (s.status === "cancelled") return false;
-        const saleDate = new Date(s.createdAt);
-        const saleKey = saleDate.getFullYear() * 10000 + (saleDate.getMonth() + 1) * 100 + saleDate.getDate();
-        return saleKey >= startKey && saleKey <= endKey;
-      });
-      
-      return {
-        today: todayStats,
-        period: {
-          count: periodSales.length,
-          total: periodSales.reduce((acc, s) => acc + s.total, 0),
-          profit: periodSales.reduce((acc, s) => acc + (s.profit || 0), 0),
-        },
-        periodLabel,
-      };
     }
     
     return {
       today: todayStats,
       period: dashboardStats,
-      periodLabel,
+      periodLabel: filterStartDate && filterEndDate 
+        ? `${format(new Date(filterStartDate + 'T00:00:00'), 'dd/MM')} - ${format(new Date(filterEndDate + 'T00:00:00'), 'dd/MM')}`
+        : "Este Mes",
     };
   }, [filterStartDate, filterEndDate, dashboardStats, todayStats]);
 
