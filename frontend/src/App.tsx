@@ -21,6 +21,8 @@ import SettingsPage from "./pages/SettingsPage";
 import CashRegisterPage from "./pages/CashRegisterPage";
 import UsersPage from "./pages/UsersPage";
 import CommissionsPage from "./pages/Commissions/CommissionsPage";
+import PurchasesPage from "./pages/PurchasesPage";
+import PurchasesViewPage from "./pages/PurchasesViewPage";
 
 import MainLayout from "./components/layout/MainLayout";
 import ProtectedRoute from "./router/ProtectedRoute";
@@ -175,8 +177,26 @@ function App() {
             <Route
               path="/commissions"
               element={
-                <ProtectedRoute allowedRoles={["admin","supervisor","vendedor"]}>
+                <ProtectedRoute allowedRoles={["admin","vendedor"]}>
                   <CommissionsPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Compras - admin: completo, vendedor: solo vista */}
+            <Route
+              path="/purchases"
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <PurchasesPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/purchases-view"
+              element={
+                <ProtectedRoute allowedRoles={["vendedor"]}>
+                  <PurchasesViewPage />
                 </ProtectedRoute>
               }
             />
