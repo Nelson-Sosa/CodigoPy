@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { commissionService, authService } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
-import { DollarSign, TrendingUp, Users, Target, Award, X, Calendar } from "lucide-react";
+import { DollarSign, TrendingUp, Users, Target, Award, X, Calendar, BarChart3, Trophy, TrendingDown } from "lucide-react";
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 
 interface CommissionData {
   _id: string;
@@ -46,6 +47,7 @@ const CommissionsPage = () => {
   const [showHistory, setShowHistory] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [historyData, setHistoryData] = useState<any>(null);
+  const [weeklyData, setWeeklyData] = useState<any[]>([]);
   const monthInfo = getMonthInfo();
 
   useEffect(() => {
@@ -60,11 +62,29 @@ const CommissionsPage = () => {
       const res = await commissionService.getMyStats();
       setMyStats(res.data.stats);
       setMyCommission(res.data.commission);
+      generateWeeklyData(res.data.stats);
     } catch (err) {
       console.error("Error fetching stats:", err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const generateWeeklyData = (stats: any) => {
+    const data = [];
+    const now = new Date();
+    for (let i = 3; i >= 0; i--) {
+      const startOfWeek = new Date(now);
+      startOfWeek.setDate(now.getDate() - (i * 7) - now.getDay());
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(startOfWeek.getDate() + 6);
+      const weeklyAmount = stats.totalSales / 4;
+      data.push({
+        semana: `Sem ${4 - i}`,
+        ventas: weeklyAmount,
+      });
+    }
+    setWeeklyData(data);
   };
 
   const fetchUsers = async () => {
@@ -403,6 +423,128 @@ const CommissionsPage = () => {
                     </table>
                   </div>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Gráfico de Progreso Semanal */}
+          {!isAdmin && weeklyData.length > 0 && (
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <BarChart3 size={20} className="text-blue-600" />
+                Progreso Semanal - {monthInfo.mes}
+              </h3>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={weeklyData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="semana" />
+                    <YAxis />
+                    <Tooltip formatter={(value: number) => `$${value.toFixed(2)}`} />
+                    <Bar dataKey="ventas" fill="#3B82F6" radius={[4, 4, 0, 0]} name="Ventas" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          )}
+
+          {/* Ranking de Vendedores (Admin) */}
+          {isAdmin && commissions.length > 0 && (
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <Trophy size={20} className="text-yellow-600" />
+                Ranking de Vendedores - {monthInfo.mes}
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b bg-gray-50">
+                      <th className="text-center py-3 px-4 text-gray-600 text-sm font-semibold">#</th>
+                      <th className="text-left py-3 px-4 text-gray-600 text-sm font-semibold">Vendedor</th>
+                      <th className="text-right py-3 px-4 text-gray-600 text-sm font-semibold">Ventas</th>
+                      <th className="text-right py-3 px-4 text-gray-600 text-sm font-semibold">Ganancia</th>
+                      <th className="text-right py-3 px-4 text-gray-600 text-sm font-semibold">Meta</th>
+                      <th className="text-center py-3 px-4 text-gray-600 text-sm font-semibold">% Meta</th>
+                      <th className="text-right py-3 px-4 text-gray-600 text-sm font-semibold">Comisión</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {commissions
+                      .sort((a, b) => (b.stats?.profit || 0) - (a.stats?.profit || 0))
+                      .slice(0, 5)
+                      .map((c, index) => (
+                        <tr key={c._id} className="border-b hover:bg-gray-50">
+                          <td className="text-center py-3 px-4">
+                            {index === 0 ? <Trophy size={18} className="text-yellow-500 mx-auto" /> : 
+                             index === 1 ? <Trophy size={18} className="text-gray-400 mx-auto" /> :
+                             index === 2 ? <Trophy size={18} className="text-amber-700 mx-auto" /> :
+                             <span className="text-gray-500 font-medium">{index + 1}</span>}
+                          </td>
+                          <td className="py-3 px-4 font-medium text-gray-800">{c.user?.name || c.user?.email}</td>
+                          <td className="text-right py-3 px-4">${c.stats?.totalSales?.toFixed(2) || '0.00'}</td>
+                          <td className="text-right py-3 px-4 text-green-600">${c.stats?.profit?.toFixed(2) || '0.00'}</td>
+                          <td className="text-right py-3 px-4">${c.monthlyTarget}</td>
+                          <td className="text-center py-3 px-4">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              (c.stats?.percentTarget || 0) >= 100 ? 'bg-green-100 text-green-700' :
+                              (c.stats?.percentTarget || 0) >= 50 ? 'bg-yellow-100 text-yellow-700' :
+                              'bg-red-100 text-red-700'
+                            }`}>
+                              {(c.stats?.percentTarget || 0).toFixed(0)}%
+                            </span>
+                          </td>
+                          <td className="text-right py-3 px-4 font-bold text-yellow-600">${c.stats?.commission?.toFixed(2) || '0.00'}</td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Historial de Comisiones */}
+          {myCommission && !isAdmin && (
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <TrendingDown size={20} className="text-green-600" />
+                Historial de Comisiones
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b bg-gray-50">
+                      <th className="text-left py-3 px-4 text-gray-600 text-sm font-semibold">Período</th>
+                      <th className="text-right py-3 px-4 text-gray-600 text-sm font-semibold">Ventas</th>
+                      <th className="text-right py-3 px-4 text-gray-600 text-sm font-semibold">Meta</th>
+                      <th className="text-center py-3 px-4 text-gray-600 text-sm font-semibold">% Logrado</th>
+                      <th className="text-right py-3 px-4 text-gray-600 text-sm font-semibold">Comisión</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b">
+                      <td className="py-3 px-4 font-medium">{monthInfo.mes} {monthInfo.anio}</td>
+                      <td className="text-right py-3 px-4">${myStats?.totalSales?.toFixed(2) || '0.00'}</td>
+                      <td className="text-right py-3 px-4">${myCommission?.monthlyTarget || 0}</td>
+                      <td className="text-center py-3 px-4">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          (myStats?.percentTarget || 0) >= 100 ? 'bg-green-100 text-green-700' :
+                          (myStats?.percentTarget || 0) >= 50 ? 'bg-yellow-100 text-yellow-700' :
+                          'bg-red-100 text-red-700'
+                        }`}>
+                          {myStats?.percentTarget?.toFixed(0) || 0}%
+                        </span>
+                      </td>
+                      <td className="text-right py-3 px-4 font-bold text-yellow-600">${myStats?.commission?.toFixed(2) || '0.00'}</td>
+                    </tr>
+                    <tr className="text-gray-500">
+                      <td className="py-3 px-4">--</td>
+                      <td className="text-right py-3 px-4">--</td>
+                      <td className="text-right py-3 px-4">--</td>
+                      <td className="text-center py-3 px-4">--</td>
+                      <td className="text-right py-3 px-4">--</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           )}
