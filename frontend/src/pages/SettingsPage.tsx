@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { settingsService, cashRegisterService, productService, saleService, movementService } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import ExchangeRateDisplay from "../components/common/ExchangeRateDisplay";
+import PrintTest from "../components/settings/PrintTest";
 import { Settings, Save, Building2, Receipt, FileText, Trash2, Download } from "lucide-react";
 
 interface SettingsData {
@@ -377,6 +378,10 @@ const SettingsPage = () => {
 
         {isAdmin && (
           <ExchangeRateDisplay isAdmin={true} />
+        )}
+
+        {isAdmin && (
+          <PrintTest />
         )}
 
         {isAdmin && (
