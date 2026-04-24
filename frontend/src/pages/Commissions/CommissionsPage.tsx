@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { commissionService, authService } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
-import { DollarSign, TrendingUp, Users, Target, Award, X } from "lucide-react";
+import { DollarSign, TrendingUp, Users, Target, Award, X, Calendar } from "lucide-react";
 
 interface CommissionData {
   _id: string;
@@ -18,6 +18,21 @@ interface CommissionData {
   };
 }
 
+const getMonthInfo = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const mesNombre = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'][month];
+  return {
+    mes: mesNombre,
+    anio: year,
+    inicio: firstDay.toLocaleDateString('es-PY'),
+    fin: lastDay.toLocaleDateString('es-PY'),
+  };
+};
+
 const CommissionsPage = () => {
   const { user } = useAuth();
   const isAdmin = user?.role === "admin" || user?.role === "supervisor";
@@ -31,6 +46,7 @@ const CommissionsPage = () => {
   const [showHistory, setShowHistory] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [historyData, setHistoryData] = useState<any>(null);
+  const monthInfo = getMonthInfo();
 
   useEffect(() => {
     fetchData();
@@ -175,11 +191,15 @@ const CommissionsPage = () => {
 
           <div className="bg-white rounded-xl shadow-lg p-5 border-l-4 border-purple-500">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-500 text-sm">Meta</span>
+              <span className="text-gray-500 text-sm">Meta de {monthInfo.mes}</span>
               <Target size={20} className="text-purple-500" />
             </div>
             <p className="text-2xl font-bold text-gray-800">
               ${myCommission?.monthlyTarget || 0}
+            </p>
+            <p className="text-xs text-gray-400 flex items-center gap-1 mt-1">
+              <Calendar size={12} />
+              Hasta: {monthInfo.fin}
             </p>
             <div className="mt-2">
               <div className="w-full bg-gray-200 rounded-full h-2">
