@@ -267,7 +267,7 @@ const PrintTest = ({ ticketWidth = "80" }: PrintTestProps) => {
             <li>Ve a <strong>Dispositivos → Impresoras y escáneres</strong></li>
             <li>Selecciona tu impresora térmica y haz clic en <strong>"Administrar"</strong></li>
             <li>Haz clic en <strong>"Establecer como predeterminada"</strong></li>
-            <li>Verifica que el驱动 esté instalado correctamente</li>
+            <li>Verifica que el driver esté instalado correctamente</li>
           </ol>
         </div>
 
@@ -281,18 +281,18 @@ const PrintTest = ({ ticketWidth = "80" }: PrintTestProps) => {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="pt-4 flex items-center justify-center">
           <button
             onClick={handlePrintTest}
             disabled={printing}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition ${
+            className={`flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg font-medium transition ${
               printing
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                 : status === "success"
                 ? "bg-green-500 text-white hover:bg-green-600"
                 : status === "error"
                 ? "bg-red-500 text-white hover:bg-red-600"
-                : "bg-blue-600 text-white hover:bg-blue-700"
+                : "bg-blue-600 text-white hover:bg-blue-700 shadow-lg"
             }`}
           >
             {printing ? (
