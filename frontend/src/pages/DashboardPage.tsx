@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { productService, saleService, reportService } from "../services/api";
 import ExchangeRateDisplay from "../components/common/ExchangeRateDisplay";
+import NotificationPanel from "../components/notifications/NotificationPanel";
+import { useNotifications } from "../hooks/useNotifications";
 import {
   BarChart,
   Bar,
@@ -75,6 +77,31 @@ const DashboardPage = () => {
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { notifications, dismissNotification, addStockAlert, addSalesTargetAlert, activeCount } = useNotifications();
+
+  // Verificar stock bajo y meta de ventas
+  useEffect(() => {
+    if (!products.length || !dashboardData) return;
+
+    // Verificar stock bajo
+    products.forEach(p => {
+      if (p.minStock && p.stock > 0 && p.stock < p.minStock) {
+        addStockAlert(p.name, p.stock, p.minStock);
+      }
+    });
+
+    // Verificar meta de ventas
+    const monthSales = dashboardData?.sales?.month || {};
+    const monthlyTarget = Number(localStorage.getItem("monthlyTarget")) || 5000;
+    if (monthSales.total > 0 && monthlyTarget > 0) {
+      const percent = (monthSales.total / monthlyTarget) * 100;
+      if (percent >= 50 && percent < 75) {
+        addSalesTargetAlert(Math.floor(percent), monthlyTarget);
+      } else if (percent >= 100) {
+        addSalesTargetAlert(100, monthlyTarget);
+      }
+    }
+  }, [products.length, dashboardData]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -178,19 +205,25 @@ const DashboardPage = () => {
 
   return (
     <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-gray-50 min-h-screen">
-      {user && (
-        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-5">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-              <User size={20} className="text-blue-600" />
-            </div>
-            <div>
-              <p className="text-lg font-bold text-gray-800">Bienvenido, {user.name || user.email}</p>
-              <p className="text-gray-500 text-sm capitalize">({user.role})</p>
+      <div className="flex justify-between items-start">
+        {user && (
+          <div className="bg-white rounded-xl shadow-sm p-4 sm:p-5">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                <User size={20} className="text-blue-600" />
+              </div>
+              <div>
+                <p className="text-lg font-bold text-gray-800">Bienvenido, {user.name || user.email}</p>
+                <p className="text-gray-500 text-sm capitalize">({user.role})</p>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+        <NotificationPanel 
+          notifications={notifications} 
+          onDismiss={dismissNotification}
+        />
+      </div>
 
       <ExchangeRateDisplay />
 
