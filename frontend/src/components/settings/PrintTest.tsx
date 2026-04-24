@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { settingsService } from "../services/api";
+import { settingsService } from "../../services/api";
 import { Printer, CheckCircle, AlertCircle } from "lucide-react";
 
 interface PrintTestProps {
