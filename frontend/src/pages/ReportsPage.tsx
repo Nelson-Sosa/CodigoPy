@@ -15,6 +15,7 @@ interface Sale {
   profit: number;
   paymentMethod: string;
   status: string;
+  dateKey?: number;
   createdAt: string;
   createdBy?: { _id: string; name: string };
 }
@@ -46,6 +47,15 @@ interface User {
 
 type ReportType = "sales" | "inventory" | "profits" | "clients";
 
+const formatDateKey = (dateKey: number | undefined, fallback: string) => {
+    if (!dateKey) return fallback;
+    const str = dateKey.toString();
+    const year = str.slice(0, 4);
+    const month = str.slice(4, 6);
+    const day = str.slice(6, 8);
+    return `${day}/${month}/${year}`;
+  };
+
 const ReportsPage = () => {
   const [sales, setSales] = useState<Sale[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -64,13 +74,15 @@ const ReportsPage = () => {
 
   useEffect(() => {
     fetchData();
-  }, [selectedUserId]);
+  }, [selectedUserId, startDate, endDate]);
 
   const fetchData = async () => {
     try {
       setLoading(true);
       const params: any = {};
       if (selectedUserId) params.userId = selectedUserId;
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
       
       const [salesRes, productsRes, clientsRes, usersRes] = await Promise.all([
         saleService.getAll(params),
@@ -89,10 +101,7 @@ const ReportsPage = () => {
     }
   };
 
-  const filteredSales = sales.filter(s => {
-    const saleDate = new Date(s.createdAt);
-    return saleDate >= new Date(startDate) && saleDate <= new Date(endDate + 'T23:59:59') && s.status !== "cancelled";
-  });
+  const filteredSales = sales.filter(s => s.status !== "cancelled");
 
   const exportToCSV = (data: any[], filename: string, headers: string[]) => {
     const csvContent = [
@@ -289,7 +298,7 @@ const ReportsPage = () => {
                     Total: s.total,
                     Ganancia: s.profit?.toFixed(2),
                     'Método Pago': getPaymentLabel(s.paymentMethod),
-                    Fecha: format(new Date(s.createdAt), 'yyyy-MM-dd HH:mm')
+                    Fecha: s.dateKey ? formatDateKey(s.dateKey, '') : format(new Date(s.createdAt), 'yyyy-MM-dd HH:mm')
                   })),
                   'reporte_ventas',
                   ['Folio', 'Vendedor', 'Cliente', 'Subtotal', 'Descuento', 'Total', 'Ganancia', 'Método Pago', 'Fecha']
@@ -332,7 +341,7 @@ const ReportsPage = () => {
                     <td className="p-3 text-right font-bold text-green-600">${sale.total.toFixed(2)}</td>
                     <td className="p-3 text-right text-blue-600">${(sale.profit || 0).toFixed(2)}</td>
                     <td className="p-3">{getPaymentLabel(sale.paymentMethod)}</td>
-                    <td className="p-3 text-gray-500">{format(new Date(sale.createdAt), 'dd/MM/yyyy HH:mm')}</td>
+                    <td className="p-3 text-gray-500">{formatDateKey(sale.dateKey, format(new Date(sale.createdAt), 'dd/MM/yyyy HH:mm'))}</td>
                   </tr>
                 ))}
                 {filteredSales.length === 0 && (
