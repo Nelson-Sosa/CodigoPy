@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { commissionService, authService, saleService } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
-import { DollarSign, TrendingUp, Users, Target, Award, X, Calendar, Trophy, TrendingDown, ShoppingCart } from "lucide-react";
+import { DollarSign, TrendingUp, Users, Target, Award, X, Calendar, Trophy, ShoppingCart } from "lucide-react";
 
 interface CommissionData {
   _id: string;
@@ -35,7 +35,7 @@ const getMonthInfo = () => {
 
 const CommissionsPage = () => {
   const { user } = useAuth();
-  const isAdmin = user?.role === "admin" || user?.role === "supervisor";
+  const isAdmin = user?.role === "admin";
   const [commissions, setCommissions] = useState<CommissionData[]>([]);
   const [myStats, setMyStats] = useState<any>(null);
   const [myCommission, setMyCommission] = useState<any>(null);
