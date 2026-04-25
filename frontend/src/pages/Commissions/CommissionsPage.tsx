@@ -64,10 +64,8 @@ const CommissionsPage = () => {
       ]);
       setMyStats(statsRes.data.stats);
       setMyCommission(statsRes.data.commission);
-      console.log("Full response:", salesRes);
       if (!isAdmin) {
         const allSales = salesRes.data.sales || [];
-        console.log("All sales:", allSales);
         setMySales(allSales.slice(0, 20));
       }
     } catch (err) {
@@ -471,8 +469,8 @@ const CommissionsPage = () => {
             </div>
           )}
 
-          {/* Mis Ventas del Mes */}
-          {!isAdmin && (mySales.length > 0 || myStats?.totalSales > 0) && (
+{/* Mis Ventas del Mes */}
+          {!isAdmin && (
             <div className="bg-white rounded-xl shadow-lg p-6">
               <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                 <ShoppingCart size={20} className="text-blue-600" />
@@ -506,39 +504,42 @@ const CommissionsPage = () => {
                   </div>
                 </div>
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b bg-gray-50">
-                      <th className="text-left py-2 px-3 text-gray-600 text-sm font-semibold">Fecha</th>
-                      <th className="text-left py-2 px-3 text-gray-600 text-sm font-semibold">Cliente</th>
-                      <th className="text-right py-2 px-3 text-gray-600 text-sm font-semibold">Total</th>
-                      <th className="text-center py-2 px-3 text-gray-600 text-sm font-semibold">Estado</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {mySales.slice(0, 20).map((sale: any) => (
-                      <tr key={sale._id} className="border-b hover:bg-gray-50">
-                        <td className="py-2 px-3 text-sm">{new Date(sale.createdAt).toLocaleDateString('es-PY')}</td>
-                        <td className="py-2 px-3 text-sm font-medium">{sale.clientName || '-'}</td>
-                        <td className="py-2 px-3 text-sm text-right">${sale.total?.toFixed(2)}</td>
-                        <td className="py-2 px-3 text-center">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            sale.status === 'completed' ? 'bg-green-100 text-green-700' :
-                            sale.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                            'bg-red-100 text-red-700'
-                          }`}>
-                            {sale.status === 'completed' ? 'Completado' : sale.status}
-                          </span>
-                        </td>
+              {mySales.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b bg-gray-50">
+                        <th className="text-left py-2 px-3 text-gray-600 text-sm font-semibold">Fecha</th>
+                        <th className="text-left py-2 px-3 text-gray-600 text-sm font-semibold">Cliente</th>
+                        <th className="text-right py-2 px-3 text-gray-600 text-sm font-semibold">Total</th>
+                        <th className="text-center py-2 px-3 text-gray-600 text-sm font-semibold">Estado</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-                {mySales.length > 20 && (
-                  <p className="text-sm text-gray-500 mt-2 text-center">+ {mySales.length - 20} ventas más</p>
-                )}
-              </div>
+                    </thead>
+                    <tbody>
+                      {mySales.map((sale: any) => (
+                        <tr key={sale._id} className="border-b hover:bg-gray-50">
+                          <td className="py-2 px-3 text-sm">{new Date(sale.createdAt).toLocaleDateString('es-PY')}</td>
+                          <td className="py-2 px-3 text-sm font-medium">{sale.clientName || '-'}</td>
+                          <td className="py-2 px-3 text-sm text-right">${sale.total?.toFixed(2)}</td>
+                          <td className="py-2 px-3 text-center">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              sale.status === 'completed' ? 'bg-green-100 text-green-700' :
+                              sale.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                              'bg-red-100 text-red-700'
+                            }`}>
+                              {sale.status === 'completed' ? 'Completado' : sale.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p className="text-gray-500 text-center py-4">
+                  {myStats?.totalSales > 0 ? 'No hay ventas en el historial' : 'Sin ventas este mes'}
+                </p>
+)}
             </div>
           )}
         </>
