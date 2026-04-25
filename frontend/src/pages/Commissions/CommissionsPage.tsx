@@ -64,8 +64,11 @@ const CommissionsPage = () => {
       ]);
       setMyStats(statsRes.data.stats);
       setMyCommission(statsRes.data.commission);
+      console.log("isAdmin:", isAdmin);
+      console.log("sales response:", salesRes.data);
       if (!isAdmin) {
         const allSales = salesRes.data.sales || [];
+        console.log("allSales count:", allSales.length);
         setMySales(allSales.slice(0, 20));
       }
     } catch (err) {
