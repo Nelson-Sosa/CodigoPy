@@ -73,6 +73,8 @@ const ReportsPage = () => {
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [invPage, setInvPage] = useState(1);
+  const [invTotalPages, setInvTotalPages] = useState(1);
   const pageSize = 20;
 
   useEffect(() => {
@@ -460,7 +462,7 @@ const ReportsPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {products.map(product => (
+                {products.slice((invPage - 1) * pageSize, invPage * pageSize).map(product => (
                   <tr key={product._id} className="border-t hover:bg-gray-50">
                     <td className="p-3 font-medium">{product.sku}</td>
                     <td className="p-3">{product.name}</td>
@@ -495,6 +497,28 @@ const ReportsPage = () => {
               </tfoot>
             </table>
           </div>
+
+          {products.length > pageSize && (
+            <div className="flex justify-center items-center gap-2 mt-4">
+              <button
+                onClick={() => setInvPage(p => Math.max(1, p - 1))}
+                disabled={invPage === 1}
+                className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+              >
+                Anterior
+              </button>
+              <span className="px-3 py-1 text-sm">
+                Página {invPage} de {Math.ceil(products.length / pageSize)}
+              </span>
+              <button
+                onClick={() => setInvPage(p => Math.min(Math.ceil(products.length / pageSize), p + 1))}
+                disabled={invPage >= Math.ceil(products.length / pageSize)}
+                className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+              >
+                Siguiente
+              </button>
+            </div>
+          )}
         </div>
       )}
 
