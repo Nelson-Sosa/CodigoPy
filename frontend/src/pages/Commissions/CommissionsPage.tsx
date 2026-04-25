@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { commissionService, authService } from "../../services/api";
+import { commissionService, authService, saleService } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
-import { DollarSign, TrendingUp, Users, Target, Award, X, Calendar, Trophy } from "lucide-react";
+import { DollarSign, TrendingUp, Users, Target, Award, X, Calendar, Trophy, ShoppingCart } from "lucide-react";
 
 interface CommissionData {
   _id: string;
@@ -46,6 +46,7 @@ const CommissionsPage = () => {
   const [showHistory, setShowHistory] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [historyData, setHistoryData] = useState<any>(null);
+  const [mySales, setMySales] = useState<any[]>([]);
   const monthInfo = getMonthInfo();
 
   useEffect(() => {
@@ -60,6 +61,24 @@ const CommissionsPage = () => {
       const statsRes = await commissionService.getMyStats();
       setMyStats(statsRes.data.stats);
       setMyCommission(statsRes.data.commission);
+      
+      if (!isAdmin) {
+        const salesRes = await saleService.getMySales();
+        const allSales = salesRes.data.sales || [];
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth();
+        
+        const monthSales = allSales.filter((sale: any) => {
+          if (!sale.dateKey) return false;
+          const str = sale.dateKey.toString();
+          const saleYear = parseInt(str.slice(0, 4));
+          const saleMonth = parseInt(str.slice(4, 6)) - 1;
+          return saleYear === currentYear && saleMonth === currentMonth;
+        });
+        
+        setMySales(monthSales);
+      }
     } catch (err) {
       console.error("Error fetching:", err);
     } finally {
@@ -213,6 +232,42 @@ const CommissionsPage = () => {
             <p className="text-xs text-gray-400">
               ({myCommission?.commissionPercent || 0}% de ganancia)
             </p>
+          </div>
+        </div>
+      )}
+
+      {/* Mis Ventas del Mes - Vendedor */}
+      {!isAdmin && mySales.length > 0 && (
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <ShoppingCart size={20} className="text-blue-600" />
+            Mis Ventas de {monthInfo.mes} ({mySales.length})
+          </h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="text-left py-2 px-3 text-gray-600">Folio</th>
+                  <th className="text-left py-2 px-3 text-gray-600">Cliente</th>
+                  <th className="text-right py-2 px-3 text-gray-600">Total</th>
+                  <th className="text-right py-2 px-3 text-gray-600">Ganancia</th>
+                  <th className="text-center py-2 px-3 text-gray-600">Método</th>
+                  <th className="text-left py-2 px-3 text-gray-600">Fecha</th>
+                </tr>
+              </thead>
+              <tbody>
+                {mySales.map((sale: any) => (
+                  <tr key={sale._id} className="border-b hover:bg-gray-50">
+                    <td className="py-2 px-3 font-medium">{sale.invoiceNumber || '-'}</td>
+                    <td className="py-2 px-3">{sale.clientName || 'Cliente General'}</td>
+                    <td className="py-2 px-3 text-right font-bold text-green-600">${sale.total?.toFixed(2)}</td>
+                    <td className="py-2 px-3 text-right text-blue-600">${(sale.profit || 0).toFixed(2)}</td>
+                    <td className="py-2 px-3 text-center">{sale.paymentMethod === 'cash' ? 'Efectivo' : sale.paymentMethod}</td>
+                    <td className="py-2 px-3 text-gray-500">{sale.dateKey ? (() => { const d = sale.dateKey.toString(); return `${d.slice(6,8)}/${d.slice(4,6)}/${d.slice(0,4)}`; })() : '-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
