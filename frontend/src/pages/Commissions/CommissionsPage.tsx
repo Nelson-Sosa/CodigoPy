@@ -64,9 +64,20 @@ const CommissionsPage = () => {
       ]);
       setMyStats(statsRes.data.stats);
       setMyCommission(statsRes.data.commission);
+      
+      // Convertir dateKey a fecha y filtrar ventas del mes actual
       const allSales = salesRes.data.sales || [];
-      console.log("mySales received:", allSales);
-      setMySales(allSales);
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth();
+      
+      const filteredSales = allSales.filter((sale: any) => {
+        const saleDate = new Date(sale.dateKey.toString().slice(0, 4), sale.dateKey.toString().slice(4, 6) - 1, sale.dateKey.toString().slice(6, 8));
+        return saleDate.getFullYear() === currentYear && saleDate.getMonth() === currentMonth;
+      });
+      
+      console.log("mySales received:", filteredSales);
+      setMySales(filteredSales);
     } catch (err) {
       console.error("Error fetching:", err);
     } finally {
@@ -508,7 +519,7 @@ const CommissionsPage = () => {
                     <tbody>
                       {mySales.map((sale: any) => (
                         <tr key={sale._id} className="border-b hover:bg-gray-50">
-                          <td className="py-2 px-3 text-sm">{new Date(sale.createdAt).toLocaleDateString('es-PY')}</td>
+                          <td className="py-2 px-3 text-sm">{sale.dateKey ? new Date(sale.dateKey.toString().slice(0,4), parseInt(sale.dateKey.toString().slice(4,6))-1, sale.dateKey.toString().slice(6,8)).toLocaleDateString('es-PY') : '-'}</td>
                           <td className="py-2 px-3 text-sm font-medium">{sale.clientName || '-'}</td>
                           <td className="py-2 px-3 text-sm text-right">${sale.total?.toFixed(2)}</td>
                           <td className="py-2 px-3 text-center">
