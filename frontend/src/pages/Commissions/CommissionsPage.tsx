@@ -64,13 +64,9 @@ const CommissionsPage = () => {
       ]);
       setMyStats(statsRes.data.stats);
       setMyCommission(statsRes.data.commission);
-      console.log("isAdmin:", isAdmin);
-      console.log("sales response:", salesRes.data);
-      if (!isAdmin) {
-        const allSales = salesRes.data.sales || [];
-        console.log("allSales count:", allSales.length);
-        setMySales(allSales.slice(0, 20));
-      }
+      const allSales = salesRes.data.sales || [];
+      console.log("mySales received:", allSales);
+      setMySales(allSales);
     } catch (err) {
       console.error("Error fetching:", err);
     } finally {
@@ -473,7 +469,7 @@ const CommissionsPage = () => {
           )}
 
 {/* Mis Ventas del Mes */}
-          {!isAdmin && (
+          {mySales.length > 0 && (
             <div className="bg-white rounded-xl shadow-lg p-6">
               <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                 <ShoppingCart size={20} className="text-blue-600" />
@@ -536,13 +532,13 @@ const CommissionsPage = () => {
                         </tr>
                       ))}
                     </tbody>
-                  </table>
+</table>
                 </div>
               ) : (
                 <p className="text-gray-500 text-center py-4">
                   {myStats?.totalSales > 0 ? 'No hay ventas en el historial' : 'Sin ventas este mes'}
                 </p>
-)}
+              )}
             </div>
           )}
         </>
