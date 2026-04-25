@@ -63,21 +63,28 @@ const CommissionsPage = () => {
       setMyCommission(statsRes.data.commission);
       
       if (!isAdmin) {
-        const salesRes = await saleService.getMySales();
-        const allSales = salesRes.data.sales || [];
-        const now = new Date();
-        const currentYear = now.getFullYear();
-        const currentMonth = now.getMonth();
-        
-        const monthSales = allSales.filter((sale: any) => {
-          if (!sale.dateKey) return false;
-          const str = sale.dateKey.toString();
-          const saleYear = parseInt(str.slice(0, 4));
-          const saleMonth = parseInt(str.slice(4, 6)) - 1;
-          return saleYear === currentYear && saleMonth === currentMonth;
-        });
-        
-        setMySales(monthSales);
+        try {
+          const salesRes = await saleService.getMySales();
+          console.log("Sales response:", salesRes.data);
+          const allSales = salesRes.data.sales || [];
+          console.log("All sales:", allSales.length);
+          const now = new Date();
+          const currentYear = now.getFullYear();
+          const currentMonth = now.getMonth();
+          
+          const monthSales = allSales.filter((sale: any) => {
+            if (!sale.dateKey) return false;
+            const str = sale.dateKey.toString();
+            const saleYear = parseInt(str.slice(0, 4));
+            const saleMonth = parseInt(str.slice(4, 6)) - 1;
+            return saleYear === currentYear && saleMonth === currentMonth;
+          });
+          
+          console.log("Month sales:", monthSales.length);
+          setMySales(monthSales);
+        } catch (err) {
+          console.error("Error fetching sales:", err);
+        }
       }
     } catch (err) {
       console.error("Error fetching:", err);
@@ -237,12 +244,14 @@ const CommissionsPage = () => {
       )}
 
       {/* Mis Ventas del Mes - Vendedor */}
-      {!isAdmin && mySales.length > 0 && (
+      {!isAdmin && (
         <div className="bg-white rounded-xl shadow-lg p-6">
           <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
             <ShoppingCart size={20} className="text-blue-600" />
             Mis Ventas de {monthInfo.mes} ({mySales.length})
           </h3>
+          <p className="text-xs text-gray-500 mb-2">isAdmin: {String(isAdmin)} | mySales.length: {mySales.length}</p>
+          {mySales.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-gray-50">
@@ -269,6 +278,9 @@ const CommissionsPage = () => {
               </tbody>
             </table>
           </div>
+          ) : (
+            <p className="text-gray-500 text-center py-4">No hay ventas este mes</p>
+          )}
         </div>
       )}
 
