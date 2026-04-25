@@ -64,10 +64,10 @@ const CommissionsPage = () => {
       ]);
       setMyStats(statsRes.data.stats);
       setMyCommission(statsRes.data.commission);
-      console.log("Stats:", statsRes.data);
-      console.log("Sales:", salesRes.data);
+      console.log("Full response:", salesRes);
       if (!isAdmin) {
         const allSales = salesRes.data.sales || [];
+        console.log("All sales:", allSales);
         setMySales(allSales.slice(0, 20));
       }
     } catch (err) {
