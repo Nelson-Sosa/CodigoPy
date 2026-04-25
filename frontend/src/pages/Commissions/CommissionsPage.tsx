@@ -459,7 +459,7 @@ const CommissionsPage = () => {
           )}
 
 {/* Mis Ventas del Mes */}
-          {!isAdmin && (
+          {mySales.length > 0 && (
             <div className="bg-white rounded-xl shadow-lg p-6">
               <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                 <ShoppingCart size={20} className="text-blue-600" />
