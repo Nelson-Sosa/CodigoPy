@@ -458,9 +458,8 @@ const CommissionsPage = () => {
             </div>
           )}
 
-{/* Mis Ventas del Mes */}
-          {!isAdmin && (
-            <div className="bg-white rounded-xl shadow-lg p-6">
+{/* Mis Ventas del Mes - siempre mostrar para vendedor */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
               <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                 <ShoppingCart size={20} className="text-blue-600" />
                 Mis Ventas de {monthInfo.mes} {monthInfo.anio}
@@ -531,7 +530,6 @@ const CommissionsPage = () => {
                 </p>
               )}
             </div>
-          )}
         </>
       )}
     </div>
