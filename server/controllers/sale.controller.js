@@ -97,7 +97,7 @@ exports.getMySales = async (req, res) => {
     const recentSales = await Sale.find(baseFilter)
       .populate('client', 'name')
       .sort({ createdAt: -1 })
-      .limit(10);
+      .limit(50);
 
     res.json({
       today: todayStats,
