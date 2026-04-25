@@ -47,6 +47,7 @@ const CommissionsPage = () => {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [historyData, setHistoryData] = useState<any>(null);
   const [mySales, setMySales] = useState<any[]>([]);
+  const [debugSales, setDebugSales] = useState(0);
   const monthInfo = getMonthInfo();
 
   useEffect(() => {
@@ -67,6 +68,7 @@ const CommissionsPage = () => {
       const allSales = salesRes.data.sales || [];
       console.log("mySales received:", allSales);
       setMySales(allSales);
+      setDebugSales(allSales.length);
     } catch (err) {
       console.error("Error fetching:", err);
     } finally {
@@ -459,13 +461,13 @@ const CommissionsPage = () => {
           )}
 
 {/* Mis Ventas del Mes */}
-          {mySales.length > 0 && (
+          {debugSales > 0 && (
             <div className="bg-white rounded-xl shadow-lg p-6">
               <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                 <ShoppingCart size={20} className="text-blue-600" />
                 Mis Ventas de {monthInfo.mes} {monthInfo.anio}
               </h3>
-              <p className="text-xs text-gray-500">Ventas cargadas: {mySales.length}</p>
+              <p className="text-xs text-gray-500">Ventas: {debugSales}</p>
               <div className="mb-4 p-4 bg-gray-50 rounded-lg">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
