@@ -60,12 +60,12 @@ const CommissionsPage = () => {
     try {
       const [statsRes, salesRes] = await Promise.all([
         commissionService.getMyStats(),
-        !isAdmin ? saleService.getMySales() : Promise.resolve({ data: { sales: [] } }),
+        !isAdmin ? saleService.getMySales() : Promise.resolve({ data: { recentSales: [] } }),
       ]);
       setMyStats(statsRes.data.stats);
       setMyCommission(statsRes.data.commission);
       if (!isAdmin) {
-        setMySales(salesRes.data.sales || []);
+        setMySales(salesRes.data.recentSales || []);
       }
     } catch (err) {
       console.error("Error fetching stats:", err);
