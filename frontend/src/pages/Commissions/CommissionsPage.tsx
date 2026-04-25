@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { commissionService, authService } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
-import { DollarSign, TrendingUp, Users, Target, Award, X, Calendar, BarChart3, Trophy, TrendingDown } from "lucide-react";
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
+import { DollarSign, TrendingUp, Users, Target, Award, X, Calendar, Trophy, TrendingDown } from "lucide-react";
 
 interface CommissionData {
   _id: string;
@@ -47,7 +46,6 @@ const CommissionsPage = () => {
   const [showHistory, setShowHistory] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [historyData, setHistoryData] = useState<any>(null);
-  const [weeklyData, setWeeklyData] = useState<any[]>([]);
   const monthInfo = getMonthInfo();
 
   useEffect(() => {
@@ -62,29 +60,11 @@ const CommissionsPage = () => {
       const res = await commissionService.getMyStats();
       setMyStats(res.data.stats);
       setMyCommission(res.data.commission);
-      generateWeeklyData(res.data.stats);
     } catch (err) {
       console.error("Error fetching stats:", err);
     } finally {
       setLoading(false);
     }
-  };
-
-  const generateWeeklyData = (stats: any) => {
-    const data = [];
-    const now = new Date();
-    for (let i = 3; i >= 0; i--) {
-      const startOfWeek = new Date(now);
-      startOfWeek.setDate(now.getDate() - (i * 7) - now.getDay());
-      const endOfWeek = new Date(startOfWeek);
-      endOfWeek.setDate(startOfWeek.getDate() + 6);
-      const weeklyAmount = stats.totalSales / 4;
-      data.push({
-        semana: `Sem ${4 - i}`,
-        ventas: weeklyAmount,
-      });
-    }
-    setWeeklyData(data);
   };
 
   const fetchUsers = async () => {
@@ -425,27 +405,6 @@ const CommissionsPage = () => {
                 </div>
               </div>
 </div>
-      )}
-
-      {/* Gráfico de Progreso Semanal */}
-      {weeklyData.length > 0 && (
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <BarChart3 size={20} className="text-blue-600" />
-            Progreso Semanal - {monthInfo.mes}
-          </h3>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={weeklyData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="semana" />
-                <YAxis />
-                <Tooltip formatter={(value: number) => `$${value.toFixed(2)}`} />
-                <Bar dataKey="ventas" fill="#3B82F6" radius={[4, 4, 0, 0]} name="Ventas" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
       )}
 
       {/* Ranking de Vendedores (Admin) */}
