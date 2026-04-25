@@ -64,6 +64,7 @@ const CommissionsPage = () => {
       ]);
       setMyStats(statsRes.data.stats);
       setMyCommission(statsRes.data.commission);
+      console.log("Stats response:", statsRes.data);
       console.log("Sales response:", salesRes.data);
       if (!isAdmin) {
         setMySales(salesRes.data.recentSales || []);
