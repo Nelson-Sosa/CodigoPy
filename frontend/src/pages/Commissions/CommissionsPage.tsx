@@ -424,31 +424,31 @@ const CommissionsPage = () => {
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+</div>
+      )}
 
-          {/* Gráfico de Progreso Semanal */}
-          {!isAdmin && weeklyData.length > 0 && (
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <BarChart3 size={20} className="text-blue-600" />
-                Progreso Semanal - {monthInfo.mes}
-              </h3>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={weeklyData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="semana" />
-                    <YAxis />
-                    <Tooltip formatter={(value: number) => `$${value.toFixed(2)}`} />
-                    <Bar dataKey="ventas" fill="#3B82F6" radius={[4, 4, 0, 0]} name="Ventas" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          )}
+      {/* Gráfico de Progreso Semanal */}
+      {weeklyData.length > 0 && (
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <BarChart3 size={20} className="text-blue-600" />
+            Progreso Semanal - {monthInfo.mes}
+          </h3>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={weeklyData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="semana" />
+                <YAxis />
+                <Tooltip formatter={(value: number) => `$${value.toFixed(2)}`} />
+                <Bar dataKey="ventas" fill="#3B82F6" radius={[4, 4, 0, 0]} name="Ventas" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
 
-          {/* Ranking de Vendedores (Admin) */}
+      {/* Ranking de Vendedores (Admin) */}
           {isAdmin && commissions.length > 0 && (
             <div className="bg-white rounded-xl shadow-lg p-6">
               <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
