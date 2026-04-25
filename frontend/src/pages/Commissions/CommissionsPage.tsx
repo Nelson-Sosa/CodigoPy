@@ -460,7 +460,7 @@ const CommissionsPage = () => {
             </div>
           )}
 
-{/* Mis Ventas del Mes */}
+{/* Mis Ventas del Mes - SIEMPRE mostrar si hay ventas */}
           {debugSales > 0 && (
             <div className="bg-white rounded-xl shadow-lg p-6">
               <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
@@ -468,6 +468,7 @@ const CommissionsPage = () => {
                 Mis Ventas de {monthInfo.mes} {monthInfo.anio}
               </h3>
               <p className="text-xs text-gray-500">Ventas: {debugSales}</p>
+              <p className="text-xs text-gray-500">isAdmin: {isAdmin ? 'true' : 'false'}</p>
               <div className="mb-4 p-4 bg-gray-50 rounded-lg">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
