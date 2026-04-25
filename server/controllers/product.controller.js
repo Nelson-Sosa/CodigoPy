@@ -22,7 +22,7 @@ exports.getAll = async (req, res) => {
     const products = await Product.find(filter)
       .populate('category', 'name color icon')
       .sort({ createdAt: -1 })
-      .limit(100);
+      .limit(1000);
 
     res.json(products);
   } catch (err) {
