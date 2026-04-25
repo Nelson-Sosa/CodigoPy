@@ -75,6 +75,7 @@ const ReportsPage = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [invPage, setInvPage] = useState(1);
   const [invTotalPages, setInvTotalPages] = useState(1);
+  const [salesTotal, setSalesTotal] = useState(0);
   const pageSize = 20;
 
   useEffect(() => {
@@ -84,7 +85,7 @@ const ReportsPage = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const params: any = { page: currentPage, limit: pageSize };
+      const params: any = { limit: 500 };
       if (selectedUserId) params.userId = selectedUserId;
       if (startDate) params.startDate = startDate;
       if (endDate) params.endDate = endDate;
@@ -96,7 +97,7 @@ const ReportsPage = () => {
         authService.getUsers(),
       ]);
       setSales(salesRes.data.sales || []);
-      setTotalPages(salesRes.data.pages || 1);
+      setTotalPages(Math.ceil((salesRes.data.total || 0) / pageSize));
       setProducts(productsRes.data || []);
       setClients(clientsRes.data || []);
       setUsers(usersRes.data || []);
@@ -108,6 +109,7 @@ const ReportsPage = () => {
   };
 
   const filteredSales = sales.filter(s => s.status !== "cancelled");
+  const paginatedSales = filteredSales.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const exportToCSV = (data: any[], filename: string, headers: string[]) => {
     const csvContent = [
@@ -333,7 +335,7 @@ const ReportsPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredSales.map(sale => (
+                {paginatedSales.map(sale => (
                   <tr key={sale._id} className="border-t hover:bg-gray-50">
                     <td className="p-3 font-medium">{sale.invoiceNumber}</td>
                     <td className="p-3 text-sm">
