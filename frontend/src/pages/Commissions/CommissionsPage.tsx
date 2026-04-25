@@ -60,17 +60,18 @@ const CommissionsPage = () => {
     try {
       const [statsRes, salesRes] = await Promise.all([
         commissionService.getMyStats(),
-        !isAdmin ? saleService.getMySales() : Promise.resolve({ data: { recentSales: [] } }),
+        !isAdmin ? saleService.getAll({ limit: 50 }) : Promise.resolve({ data: { sales: [] } }),
       ]);
       setMyStats(statsRes.data.stats);
       setMyCommission(statsRes.data.commission);
-      console.log("Stats response:", statsRes.data);
-      console.log("Sales response:", salesRes.data);
+      console.log("Stats:", statsRes.data);
+      console.log("Sales:", salesRes.data);
       if (!isAdmin) {
-        setMySales(salesRes.data.recentSales || []);
+        const allSales = salesRes.data.sales || [];
+        setMySales(allSales.slice(0, 20));
       }
     } catch (err) {
-      console.error("Error fetching stats:", err);
+      console.error("Error fetching:", err);
     } finally {
       setLoading(false);
     }
