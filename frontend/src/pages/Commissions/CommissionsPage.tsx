@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { commissionService, authService } from "../../services/api";
+import { commissionService, authService, saleService } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
-import { DollarSign, TrendingUp, Users, Target, Award, X, Calendar, Trophy, TrendingDown } from "lucide-react";
+import { DollarSign, TrendingUp, Users, Target, Award, X, Calendar, Trophy, TrendingDown, ShoppingCart } from "lucide-react";
 
 interface CommissionData {
   _id: string;
@@ -46,6 +46,7 @@ const CommissionsPage = () => {
   const [showHistory, setShowHistory] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [historyData, setHistoryData] = useState<any>(null);
+  const [mySales, setMySales] = useState<any[]>([]);
   const monthInfo = getMonthInfo();
 
   useEffect(() => {
@@ -57,9 +58,15 @@ const CommissionsPage = () => {
 
   const fetchData = async () => {
     try {
-      const res = await commissionService.getMyStats();
-      setMyStats(res.data.stats);
-      setMyCommission(res.data.commission);
+      const [statsRes, salesRes] = await Promise.all([
+        commissionService.getMyStats(),
+        !isAdmin ? saleService.getMySales() : Promise.resolve({ data: { sales: [] } }),
+      ]);
+      setMyStats(statsRes.data.stats);
+      setMyCommission(statsRes.data.commission);
+      if (!isAdmin) {
+        setMySales(salesRes.data.sales || []);
+      }
     } catch (err) {
       console.error("Error fetching stats:", err);
     } finally {
@@ -461,49 +468,73 @@ const CommissionsPage = () => {
             </div>
           )}
 
-          {/* Historial de Comisiones */}
-          {myCommission && !isAdmin && (
+          {/* Mis Ventas del Mes */}
+          {myCommission && !isAdmin && mySales.length > 0 && (
             <div className="bg-white rounded-xl shadow-lg p-6">
               <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <TrendingDown size={20} className="text-green-600" />
-                Historial de Comisiones
+                <ShoppingCart size={20} className="text-blue-600" />
+                Mis Ventas de {monthInfo.mes} {monthInfo.anio}
               </h3>
+              <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-500">Meta mensual</p>
+                    <p className="text-xl font-bold text-purple-600">${myCommission?.monthlyTarget || 0}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Vendido</p>
+                    <p className="text-xl font-bold text-green-600">${myStats?.totalSales?.toFixed(2) || '0.00'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Faltante</p>
+                    <p className="text-xl font-bold text-red-500">${Math.max(0, (myCommission?.monthlyTarget || 0) - (myStats?.totalSales || 0)).toFixed(2)}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">% Logrado</p>
+                    <p className="text-xl font-bold text-blue-600">{myStats?.percentTarget?.toFixed(0) || 0}%</p>
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <div className="w-full bg-gray-200 rounded-full h-3">
+                    <div
+                      className={`h-3 rounded-full ${getProgressColor(myStats?.percentTarget || 0)}`}
+                      style={{ width: `${Math.min(myStats?.percentTarget || 0, 100)}%` }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b bg-gray-50">
-                      <th className="text-left py-3 px-4 text-gray-600 text-sm font-semibold">Período</th>
-                      <th className="text-right py-3 px-4 text-gray-600 text-sm font-semibold">Ventas</th>
-                      <th className="text-right py-3 px-4 text-gray-600 text-sm font-semibold">Meta</th>
-                      <th className="text-center py-3 px-4 text-gray-600 text-sm font-semibold">% Logrado</th>
-                      <th className="text-right py-3 px-4 text-gray-600 text-sm font-semibold">Comisión</th>
+                      <th className="text-left py-2 px-3 text-gray-600 text-sm font-semibold">Fecha</th>
+                      <th className="text-left py-2 px-3 text-gray-600 text-sm font-semibold">Cliente</th>
+                      <th className="text-right py-2 px-3 text-gray-600 text-sm font-semibold">Total</th>
+                      <th className="text-center py-2 px-3 text-gray-600 text-sm font-semibold">Estado</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr className="border-b">
-                      <td className="py-3 px-4 font-medium">{monthInfo.mes} {monthInfo.anio}</td>
-                      <td className="text-right py-3 px-4">${myStats?.totalSales?.toFixed(2) || '0.00'}</td>
-                      <td className="text-right py-3 px-4">${myCommission?.monthlyTarget || 0}</td>
-                      <td className="text-center py-3 px-4">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          (myStats?.percentTarget || 0) >= 100 ? 'bg-green-100 text-green-700' :
-                          (myStats?.percentTarget || 0) >= 50 ? 'bg-yellow-100 text-yellow-700' :
-                          'bg-red-100 text-red-700'
-                        }`}>
-                          {myStats?.percentTarget?.toFixed(0) || 0}%
-                        </span>
-                      </td>
-                      <td className="text-right py-3 px-4 font-bold text-yellow-600">${myStats?.commission?.toFixed(2) || '0.00'}</td>
-                    </tr>
-                    <tr className="text-gray-500">
-                      <td className="py-3 px-4">--</td>
-                      <td className="text-right py-3 px-4">--</td>
-                      <td className="text-right py-3 px-4">--</td>
-                      <td className="text-center py-3 px-4">--</td>
-                      <td className="text-right py-3 px-4">--</td>
-                    </tr>
+                    {mySales.slice(0, 20).map((sale: any) => (
+                      <tr key={sale._id} className="border-b hover:bg-gray-50">
+                        <td className="py-2 px-3 text-sm">{new Date(sale.createdAt).toLocaleDateString('es-PY')}</td>
+                        <td className="py-2 px-3 text-sm font-medium">{sale.clientName || '-'}</td>
+                        <td className="py-2 px-3 text-sm text-right">${sale.total?.toFixed(2)}</td>
+                        <td className="py-2 px-3 text-center">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            sale.status === 'completed' ? 'bg-green-100 text-green-700' :
+                            sale.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                            'bg-red-100 text-red-700'
+                          }`}>
+                            {sale.status === 'completed' ? 'Completado' : sale.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
+                {mySales.length > 20 && (
+                  <p className="text-sm text-gray-500 mt-2 text-center">+ {mySales.length - 20} ventas más</p>
+                )}
               </div>
             </div>
           )}
