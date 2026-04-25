@@ -79,7 +79,7 @@ const ReportsPage = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const params: any = {};
+      const params: any = { limit: 500 };
       if (selectedUserId) params.userId = selectedUserId;
       if (startDate) params.startDate = startDate;
       if (endDate) params.endDate = endDate;

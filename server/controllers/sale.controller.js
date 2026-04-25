@@ -20,16 +20,7 @@ exports.getAll = async (req, res) => {
     if (startDate || endDate) {
       const start = Number(startDate.replace(/-/g, ''));
       const end = Number(endDate.replace(/-/g, ''));
-      filter.$or = [
-        { dateKey: { $gte: start, $lte: end } },
-        {
-          dateKey: { $exists: false },
-          createdAt: {
-            $gte: new Date(startDate),
-            $lte: new Date(endDate + 'T23:59:59')
-          }
-        }
-      ];
+      filter.dateKey = { $gte: start, $lte: end };
     }
 
     const total = await Sale.countDocuments(filter);
