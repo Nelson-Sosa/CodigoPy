@@ -122,17 +122,7 @@ const CommissionsPage = () => {
     } catch (err) {
       alert("Error al cargar historial");
     }
-  };
-
-  const startEdit = (c: CommissionData) => {
-    setEditingId(c.user._id);
-    setEditForm({
-      monthlyTarget: c.monthlyTarget || 0,
-      commissionPercent: c.commissionPercent || 0,
-    });
-  };
-
-  const getProgressColor = (percent: number) => {
+  };  const getProgressColor = (percent: number) => {
     if (percent >= 100) return "bg-green-500";
     if (percent >= 75) return "bg-blue-500";
     if (percent >= 50) return "bg-yellow-500";
