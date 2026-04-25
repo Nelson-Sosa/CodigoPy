@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { commissionService, authService, saleService } from "../../services/api";
+import { commissionService, authService } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
-import { DollarSign, TrendingUp, Users, Target, Award, X, Calendar, Trophy, ShoppingCart } from "lucide-react";
+import { DollarSign, TrendingUp, Users, Target, Award, X, Calendar, Trophy } from "lucide-react";
 
 interface CommissionData {
   _id: string;
@@ -46,7 +46,6 @@ const CommissionsPage = () => {
   const [showHistory, setShowHistory] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [historyData, setHistoryData] = useState<any>(null);
-  const [mySales, setMySales] = useState<any[]>([]);
   const monthInfo = getMonthInfo();
 
   useEffect(() => {
@@ -58,26 +57,9 @@ const CommissionsPage = () => {
 
   const fetchData = async () => {
     try {
-      const [statsRes, salesRes] = await Promise.all([
-        commissionService.getMyStats(),
-        !isAdmin ? saleService.getAll({ limit: 50 }) : Promise.resolve({ data: { sales: [] } }),
-      ]);
+      const statsRes = await commissionService.getMyStats();
       setMyStats(statsRes.data.stats);
       setMyCommission(statsRes.data.commission);
-      
-      // Convertir dateKey a fecha y filtrar ventas del mes actual
-      const allSales = salesRes.data.sales || [];
-      const now = new Date();
-      const currentYear = now.getFullYear();
-      const currentMonth = now.getMonth();
-      
-      const filteredSales = allSales.filter((sale: any) => {
-        const saleDate = new Date(sale.dateKey.toString().slice(0, 4), sale.dateKey.toString().slice(4, 6) - 1, sale.dateKey.toString().slice(6, 8));
-        return saleDate.getFullYear() === currentYear && saleDate.getMonth() === currentMonth;
-      });
-      
-      console.log("mySales received:", filteredSales);
-      setMySales(filteredSales);
     } catch (err) {
       console.error("Error fetching:", err);
     } finally {
@@ -468,81 +450,6 @@ const CommissionsPage = () => {
               </div>
             </div>
           )}
-
-{/* Mis Ventas del Mes */}
-            {mySales && mySales.length > 0 && (
-          <div className="bg-white rounded-xl shadow-lg p-6">
-              <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <ShoppingCart size={20} className="text-blue-600" />
-                Mis Ventas de {monthInfo.mes} {monthInfo.anio}
-              </h3>
-              <p className="text-xs text-gray-500 mb-4">Ventas: {mySales.length}</p>
-              <div className="mb-4 p-4 bg-gray-50 rounded-lg">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div>
-                    <p className="text-sm text-gray-500">Meta mensual</p>
-                    <p className="text-xl font-bold text-purple-600">${myCommission?.monthlyTarget || 0}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Vendido</p>
-                    <p className="text-xl font-bold text-green-600">${myStats?.totalSales?.toFixed(2) || '0.00'}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Faltante</p>
-                    <p className="text-xl font-bold text-red-500">${Math.max(0, (myCommission?.monthlyTarget || 0) - (myStats?.totalSales || 0)).toFixed(2)}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">% Logrado</p>
-                    <p className="text-xl font-bold text-blue-600">{myStats?.percentTarget?.toFixed(0) || 0}%</p>
-                  </div>
-                </div>
-                <div className="mt-3">
-                  <div className="w-full bg-gray-200 rounded-full h-3">
-                    <div
-                      className={`h-3 rounded-full ${getProgressColor(myStats?.percentTarget || 0)}`}
-                      style={{ width: `${Math.min(myStats?.percentTarget || 0, 100)}%` }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-              {Array.isArray(mySales) && mySales.length > 0 ?(
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b bg-gray-50">
-                        <th className="text-left py-2 px-3 text-gray-600 text-sm font-semibold">Fecha</th>
-                        <th className="text-left py-2 px-3 text-gray-600 text-sm font-semibold">Cliente</th>
-                        <th className="text-right py-2 px-3 text-gray-600 text-sm font-semibold">Total</th>
-                        <th className="text-center py-2 px-3 text-gray-600 text-sm font-semibold">Estado</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {mySales.map((sale: any) => (
-                        <tr key={sale._id} className="border-b hover:bg-gray-50">
-                          <td className="py-2 px-3 text-sm">{sale.dateKey ? new Date(sale.dateKey.toString().slice(0,4), parseInt(sale.dateKey.toString().slice(4,6))-1, sale.dateKey.toString().slice(6,8)).toLocaleDateString('es-PY') : '-'}</td>
-                          <td className="py-2 px-3 text-sm font-medium">{sale.clientName || '-'}</td>
-                          <td className="py-2 px-3 text-sm text-right">${sale.total?.toFixed(2)}</td>
-                          <td className="py-2 px-3 text-center">
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              sale.status === 'completed' ? 'bg-green-100 text-green-700' :
-                              sale.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                              'bg-red-100 text-red-700'
-                            }`}>
-                              {sale.status === 'completed' ? 'Completado' : sale.status}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-</table>
-                </div>
-              ) : (
-                <p className="text-gray-500 text-center py-4">
-                  {myStats?.totalSales > 0 ? 'No hay ventas en el historial' : 'Sin ventas este mes'}
-                </p>
-              )}
-            </div>
-            )}
         </>
       )}
     </div>
