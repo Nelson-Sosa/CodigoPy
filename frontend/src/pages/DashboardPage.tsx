@@ -68,6 +68,7 @@ interface Sale {
   paymentMethod: string;
   status: string;
   createdAt: string;
+  createdBy?: { name: string };
 }
 
 const DashboardPage = () => {

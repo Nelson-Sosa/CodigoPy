@@ -9,11 +9,11 @@ import { format } from "date-fns";
 interface SaleItem {
   product: string;
   productName: string;
-  description: string;
+  description?: string;
   sku: string;
   quantity: number;
   unitPrice: number;
-  costPrice: number;
+  costPrice?: number;
   subtotal: number;
 }
 
@@ -42,6 +42,8 @@ interface Product {
   salePrice: number;
   costPrice: number;
   stock: number;
+  barcode?: string;
+  description?: string;
 }
 
 interface Client {
@@ -325,7 +327,7 @@ const SalesPage = () => {
   };
 
   const subtotal = items.reduce((acc, item) => acc + item.subtotal, 0);
-  const totalCost = items.reduce((acc, item) => acc + (item.costPrice * item.quantity), 0);
+  const totalCost = items.reduce((acc, item) => acc + ((item.costPrice || 0) * item.quantity), 0);
   const total = subtotal - discount;
   const profit = total - totalCost;
 
@@ -339,9 +341,9 @@ const SalesPage = () => {
     if (!priceValidation.valid) {
       try {
         setPriceAlertData({
-          product: priceValidation.product,
-          margin: priceValidation.margin,
-          cost: priceValidation.cost,
+          product: priceValidation.product || '',
+          margin: priceValidation.margin || 0,
+          cost: priceValidation.cost || 0,
           price: priceValidation.price || 0
         });
         setShowPriceAlert(true);
@@ -860,7 +862,7 @@ const SalesPage = () => {
                             </div>
                           </td>
                           <td className="p-2 sm:p-3 text-center text-gray-500 text-xs sm:text-sm">
-                            ${item.costPrice.toFixed(2)}
+                            ${(item.costPrice || 0).toFixed(2)}
                           </td>
                           <td className="p-2 sm:p-3 align-middle">
                             {(() => {
@@ -891,7 +893,7 @@ const SalesPage = () => {
                                     <div className="absolute -top-1 -right-1 group z-10">
                                       <span className="w-3 h-3 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] font-bold cursor-help">!</span>
                                       <div className="absolute bottom-full right-0 mb-1 hidden group-hover:block bg-gray-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
-                                        Min: ${(item.costPrice * 1.15).toFixed(2)} (15%)
+                                        Min: ${((item.costPrice || 0) * 1.15).toFixed(2)} (15%)
                                       </div>
                                     </div>
                                   )}
