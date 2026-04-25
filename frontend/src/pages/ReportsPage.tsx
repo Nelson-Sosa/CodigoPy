@@ -71,15 +71,18 @@ const ReportsPage = () => {
   });
   const [endDate, setEndDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [selectedUserId, setSelectedUserId] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const pageSize = 20;
 
   useEffect(() => {
     fetchData();
-  }, [selectedUserId, startDate, endDate]);
+  }, [selectedUserId, startDate, endDate, currentPage]);
 
   const fetchData = async () => {
     try {
       setLoading(true);
-      const params: any = { limit: 500 };
+      const params: any = { page: currentPage, limit: pageSize };
       if (selectedUserId) params.userId = selectedUserId;
       if (startDate) params.startDate = startDate;
       if (endDate) params.endDate = endDate;
@@ -91,6 +94,7 @@ const ReportsPage = () => {
         authService.getUsers(),
       ]);
       setSales(salesRes.data.sales || []);
+      setTotalPages(salesRes.data.pages || 1);
       setProducts(productsRes.data || []);
       setClients(clientsRes.data || []);
       setUsers(usersRes.data || []);
@@ -366,6 +370,28 @@ const ReportsPage = () => {
               )}
             </table>
           </div>
+
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-2 mt-4">
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+              >
+                Anterior
+              </button>
+              <span className="px-3 py-1 text-sm">
+                Página {currentPage} de {totalPages}
+              </span>
+              <button
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+              >
+                Siguiente
+              </button>
+            </div>
+          )}
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
             <div className="bg-gray-50 p-4 rounded-lg">
