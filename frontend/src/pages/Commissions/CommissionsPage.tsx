@@ -46,6 +46,9 @@ const CommissionsPage = () => {
   const [showHistory, setShowHistory] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [historyData, setHistoryData] = useState<any>(null);
+  const [monthSalesData, setMonthSalesData] = useState<any[]>([]);
+  const [showMonthSales, setShowMonthSales] = useState(false);
+  const [salesUserName, setSalesUserName] = useState<string>("");
   const [mySales, setMySales] = useState<any[]>([]);
   const monthInfo = getMonthInfo();
 
@@ -126,7 +129,33 @@ const CommissionsPage = () => {
     } catch (err) {
       alert("Error al cargar historial");
     }
-  };  const getProgressColor = (percent: number) => {
+  };
+
+  const handleViewMonthSales = async (userId: string, userName: string) => {
+    try {
+      const res = await saleService.getAll({ userId, limit: 100 });
+      const allSales = res.data.sales || [];
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth();
+      
+      const monthSales = allSales.filter((sale: any) => {
+        if (!sale.dateKey) return false;
+        const str = sale.dateKey.toString();
+        const saleYear = parseInt(str.slice(0, 4));
+        const saleMonth = parseInt(str.slice(4, 6)) - 1;
+        return saleYear === currentYear && saleMonth === currentMonth;
+      });
+      
+      setSalesUserName(userName);
+      setMonthSalesData(monthSales);
+      setShowMonthSales(true);
+    } catch (err) {
+      alert("Error al cargar ventas");
+    }
+  };
+
+  const getProgressColor = (percent: number) => {
     if (percent >= 100) return "bg-green-500";
     if (percent >= 75) return "bg-blue-500";
     if (percent >= 50) return "bg-yellow-500";
@@ -380,6 +409,12 @@ const CommissionsPage = () => {
                                 >
                                   Historial
                                 </button>
+                                <button
+                                  onClick={() => handleViewMonthSales(u._id, u.name)}
+                                  className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
+                                >
+                                  Ver Ventas
+                                </button>
                               </div>
                             )}
                           </td>
@@ -446,7 +481,51 @@ const CommissionsPage = () => {
                 </div>
               </div>
 </div>
-      )}
+          )}
+
+          {/* Ventas del Mes Modal */}
+          {showMonthSales && (
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+              <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+                <div className="bg-gradient-to-r from-blue-500 to-blue-700 p-4 text-white flex justify-between items-center">
+                  <h3 className="text-lg font-bold">Ventas de {salesUserName} - {monthInfo.mes}</h3>
+                  <button onClick={() => setShowMonthSales(false)} className="p-1 hover:bg-white/20 rounded">
+                    <X size={20} />
+                  </button>
+                </div>
+                <div className="p-4 overflow-y-auto max-h-[60vh]">
+                  {monthSalesData.length > 0 ? (
+                    <table className="w-full text-sm">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="text-left py-2 px-3 text-gray-600">Folio</th>
+                          <th className="text-left py-2 px-3 text-gray-600">Cliente</th>
+                          <th className="text-right py-2 px-3 text-gray-600">Total</th>
+                          <th className="text-right py-2 px-3 text-gray-600">Ganancia</th>
+                          <th className="text-center py-2 px-3 text-gray-600">Método</th>
+                          <th className="text-left py-2 px-3 text-gray-600">Fecha</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {monthSalesData.map((sale: any) => (
+                          <tr key={sale._id} className="border-b hover:bg-gray-50">
+                            <td className="py-2 px-3 font-medium">{sale.invoiceNumber || '-'}</td>
+                            <td className="py-2 px-3">{sale.clientName || 'Cliente General'}</td>
+                            <td className="py-2 px-3 text-right font-bold text-green-600">${sale.total?.toFixed(2)}</td>
+                            <td className="py-2 px-3 text-right text-blue-600">${(sale.profit || 0).toFixed(2)}</td>
+                            <td className="py-2 px-3 text-center">{sale.paymentMethod === 'cash' ? 'Efectivo' : sale.paymentMethod}</td>
+                            <td className="py-2 px-3 text-gray-500">{sale.dateKey ? (() => { const d = sale.dateKey.toString(); return `${d.slice(6,8)}/${d.slice(4,6)}/${d.slice(0,4)}`; })() : '-'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p className="text-gray-500 text-center py-4">No hay ventas este mes</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
       {/* Ranking de Vendedores (Admin) */}
           {isAdmin && commissions.length > 0 && (
