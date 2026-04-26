@@ -65,9 +65,7 @@ const CommissionsPage = () => {
       if (!isAdmin) {
         try {
           const salesRes = await saleService.getMySales();
-          console.log("Sales response:", salesRes.data);
           const allSales = salesRes.data.recentSales || [];
-          console.log("All sales:", allSales.length);
           setMySales(allSales);
         } catch (err) {
           console.error("Error fetching sales:", err);
@@ -237,7 +235,6 @@ const CommissionsPage = () => {
             <ShoppingCart size={20} className="text-blue-600" />
             Mis Ventas de {monthInfo.mes} ({mySales.length})
           </h3>
-          <p className="text-xs text-gray-500 mb-2">isAdmin: {String(isAdmin)} | mySales.length: {mySales.length}</p>
           {mySales.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
