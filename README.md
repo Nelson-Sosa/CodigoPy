@@ -94,7 +94,7 @@
 ### Despliegue
 | Servicio | Uso |
 |----------|-----|
-| Vercel | Frontend (CDN global) |
+| Render | Frontend (CDN global) |
 | Render | Backend API |
 | MongoDB Atlas | Base de datos en la nube |
 
