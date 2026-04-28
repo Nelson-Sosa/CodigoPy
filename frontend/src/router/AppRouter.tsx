@@ -45,6 +45,16 @@ const AppRouter = () => {
         }
       />
 
+      {/* VENDEDOR: Solo ver categorías */}
+      <Route
+        path="/categories-view"
+        element={
+          <ProtectedRoute allowedRoles={["vendedor"]}>
+            <CategoriesViewPage />
+          </ProtectedRoute>
+        }
+      />
+
       <Route path="/unauthorized" element={<UnauthorizedPage />} />
       <Route path="*" element={<LoginPage />} />
     </Routes>
