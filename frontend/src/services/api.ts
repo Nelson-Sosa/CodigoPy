@@ -20,14 +20,13 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// ⚠️ NO redirigir a login automáticamente - el AuthContext maneja eso
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    const url = error.config?.url || '';
-    if (error.response?.status === 401 && !url.includes('/auth/login')) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+    // Solo loggear, NO hacer window.location.href
+    if (error.response?.status === 401) {
+      console.warn('API 401:', error.config?.url);
     }
     return Promise.reject(error);
   }

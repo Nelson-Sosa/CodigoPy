@@ -28,14 +28,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+useEffect(() => {
     const verifyToken = async () => {
       const token = localStorage.getItem("token");
+      const storedUser = localStorage.getItem("user");
+      
+      // Si no hay token, no verificar
       if (!token) {
         setLoading(false);
         return;
       }
-
+      
+      // Si hay usuario en localStorage, usarlo MIENTRAS se verifica
+      if (storedUser) {
+        try {
+          const parsed = JSON.parse(storedUser);
+          setUser(parsed);
+        } catch {}
+      }
+      
       try {
         const res = await authService.getMe();
         const userData = res.data;
@@ -45,10 +56,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         };
         setUser(userWithId);
         localStorage.setItem("user", JSON.stringify(userWithId));
-      } catch {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        setUser(null);
+      } catch (error: any) {
+        // Solo limpiar si el token es realmente inválido (401)
+        if (error.response?.status === 401) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          setUser(null);
+        }
+        // Si es error de red, mantener el usuario existente
       } finally {
         setLoading(false);
       }
