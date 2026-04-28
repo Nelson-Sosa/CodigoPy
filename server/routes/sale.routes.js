@@ -1,11 +1,11 @@
 const r = require('express').Router();
 const c = require('../controllers/sale.controller');
-const { protect, adminOnly, adminOrSupervisor } = require('../middleware/auth.middleware');
+const { protect, adminOnly, admin } = require('../middleware/auth.middleware');
 r.get('/',              protect, c.getAll);
 r.get('/my-sales',     protect, c.getMySales);
 r.get('/user-stats',    protect, adminOnly, c.getUserStats);
 r.get('/:id',           protect, c.getById);
 r.post('/',             protect, c.create);
-r.put('/:id',           protect, adminOrSupervisor, c.update);
-r.patch('/:id/cancel',  protect, adminOrSupervisor, c.cancel);
+r.put('/:id',           protect, admin, c.update);
+r.patch('/:id/cancel',  protect, admin, c.cancel);
 module.exports = r;

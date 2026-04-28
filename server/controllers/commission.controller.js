@@ -126,7 +126,7 @@ exports.getMyStats = async (req, res) => {
   try {
     const userId = req.user.id;
     const userRole = req.user.role;
-    const isAdmin = userRole === 'admin' || userRole === 'supervisor';
+    const isAdmin = userRole === 'admin';
     const commission = await Commission.findOne({ user: userId });
     const pyDate = getPyDate();
 

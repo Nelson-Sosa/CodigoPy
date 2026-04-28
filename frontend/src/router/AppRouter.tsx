@@ -25,11 +25,11 @@ const AppRouter = () => {
         }
       />
 
-      {/* ADMIN Y SUPERVISOR: Compras completas */}
+      {/* ADMIN: Compras completas */}
       <Route
         path="/purchases"
         element={
-          <ProtectedRoute allowedRoles={["admin", "supervisor"]}>
+          <ProtectedRoute allowedRoles={["admin"]}>
             <PurchasesPage />
           </ProtectedRoute>
         }

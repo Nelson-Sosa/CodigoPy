@@ -9,7 +9,7 @@ exports.getAll = async (req, res) => {
     const { startDate, endDate, status, client, userId, page = 1, limit = 20 } = req.query;
     const filter = {};
     const userRole = req.user.role;
-    const isAdmin = userRole === 'admin' || userRole === 'supervisor';
+    const isAdmin = userRole === 'admin';
 
     if (!isAdmin) {
       filter.createdBy = req.user._id;

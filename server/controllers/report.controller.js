@@ -123,7 +123,7 @@ exports.salesSummary = async (req, res) => {
     const { startDate, endDate, userId } = req.query;
     let filter = { status: 'completed' };
     
-    if (req.user.role !== 'admin' && req.user.role !== 'supervisor') {
+    if (req.user.role !== 'admin') {
       filter.createdBy = req.user._id;
     } else if (userId) {
       filter.createdBy = new mongoose.Types.ObjectId(userId);
