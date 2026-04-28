@@ -13,6 +13,7 @@ interface Category {
 const CategoriesViewPage = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -20,14 +21,16 @@ const CategoriesViewPage = () => {
 
   const fetchData = async () => {
     try {
+      setError(null);
       const res = await categoryService.getAll();
-      console.log("Categories response:", res.data);
+      console.log("Categories API response:", res.status, res.data);
       setCategories(res.data || []);
     } catch (err: any) {
-      console.error("Error:", err.response?.status, err.message);
+      console.error("Categories error:", err.response?.status, err.message);
       if (err.response?.status === 401) {
-        window.location.href = '/login';
-        return;
+        setError("Tu sesión ha expirado. Por favor, inicia sesión nuevamente.");
+      } else {
+        setError("Error al cargar categorías. Intenta nuevamente.");
       }
     } finally {
       setLoading(false);
@@ -51,6 +54,12 @@ const CategoriesViewPage = () => {
         </h1>
       </div>
 
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg">
+          {error}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {categories.map(cat => (
           <div key={cat._id} className="bg-white rounded-xl shadow-md p-5 flex items-center gap-4">
@@ -68,7 +77,7 @@ const CategoriesViewPage = () => {
         ))}
       </div>
 
-      {categories.length === 0 && (
+      {!error && categories.length === 0 && (
         <div className="text-center py-12 text-gray-400">
           No hay categorías registradas
         </div>
