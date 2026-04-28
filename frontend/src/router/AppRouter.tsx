@@ -6,7 +6,7 @@ import RegisterPage from "../pages/RegisterPage";
 import DashboardPage from "../pages/DashboardPage";
 import PurchasesPage from "../pages/PurchasesPage";
 import PurchasesViewPage from "../pages/PurchasesViewPage";
-import UnauthorizedPage from "../pages/UnauthorizedPage";
+import CategoriesViewPage from "../pages/Categories/CategoriesViewPage";
 
 const AppRouter = () => {
   return (
