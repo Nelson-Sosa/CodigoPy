@@ -61,7 +61,9 @@ const CategoriesPage = () => {
                   className="bg-white rounded-xl shadow-md p-5 hover:shadow-lg transition"
                 >
                   <div className="mb-3">
-                    <h3 className="font-bold text-lg text-gray-800">{category.name}</h3>
+                    <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
+                      {category.icon || '📦'} {category.name}
+                    </h3>
                     {category.description && (
                       <p className="text-sm text-gray-500">{category.description}</p>
                     )}
