@@ -23,6 +23,7 @@ import UsersPage from "./pages/UsersPage";
 import CommissionsPage from "./pages/Commissions/CommissionsPage";
 import PurchasesPage from "./pages/PurchasesPage";
 import PurchasesViewPage from "./pages/PurchasesViewPage";
+import CategoriesViewPage from "./pages/Categories/CategoriesViewPage";
 
 import MainLayout from "./components/layout/MainLayout";
 import ProtectedRoute from "./router/ProtectedRoute";
@@ -89,6 +90,16 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={["admin"]}>
                   <CategoriesPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Categorías - vista solo lectura para vendedor */}
+            <Route
+              path="/categories-view"
+              element={
+                <ProtectedRoute allowedRoles={["vendedor"]}>
+                  <CategoriesViewPage />
                 </ProtectedRoute>
               }
             />
