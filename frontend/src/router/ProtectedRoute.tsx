@@ -8,8 +8,17 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
-  const { user } = useAuth();
-
+  const { user, loading } = useAuth();
+  
+    // 🔥 1. Esperar a que termine la validación del token
+  if (loading) {
+    return (
+      <div style={{ textAlign: "center", marginTop: "50px" }}>
+        <p>Cargando sistema...</p>
+      </div>
+    );
+  }
+  
   // No autenticado → login
   if (!user) {
     return <Navigate to="/login" replace />;
