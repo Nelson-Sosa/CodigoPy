@@ -21,9 +21,14 @@ const CategoriesViewPage = () => {
   const fetchData = async () => {
     try {
       const res = await categoryService.getAll();
+      console.log("Categories response:", res.data);
       setCategories(res.data || []);
-    } catch (err) {
-      console.error("Error:", err);
+    } catch (err: any) {
+      console.error("Error:", err.response?.status, err.message);
+      if (err.response?.status === 401) {
+        window.location.href = '/login';
+        return;
+      }
     } finally {
       setLoading(false);
     }

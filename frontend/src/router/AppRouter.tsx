@@ -49,7 +49,11 @@ const AppRouter = () => {
       {/* VENDEDOR: Solo ver categorías */}
       <Route
         path="/categories-view"
-        element={<CategoriesViewPage />}
+        element={
+          <ProtectedRoute allowedRoles={["vendedor"]}>
+            <CategoriesViewPage />
+          </ProtectedRoute>
+        }
       />
 
       <Route path="/unauthorized" element={<UnauthorizedPage />} />
