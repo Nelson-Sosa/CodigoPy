@@ -76,6 +76,7 @@ const SalesPage = () => {
   const [showPriceAlert, setShowPriceAlert] = useState(false);
   const [priceAlertData, setPriceAlertData] = useState<{product: string; margin: number; cost: number; price: number} | null>(null);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [saleToCancel, setSaleToCancel] = useState<Sale | null>(null);
   const [filterUserId, setFilterUserId] = useState<string>("");
   const [filterStartDate, setFilterStartDate] = useState<string>("");
   const [filterEndDate, setFilterEndDate] = useState<string>("");
@@ -1100,7 +1101,7 @@ const SalesPage = () => {
                   </button>
                   <button
                     onClick={() => {
-                      setSelectedSale(selectedSale);
+                      setSaleToCancel(selectedSale);
                       setShowCancelModal(true);
                     }}
                     className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition flex items-center gap-2 text-sm"
@@ -1178,59 +1179,73 @@ const SalesPage = () => {
         </div>
       )}
 
-      {showPriceAlert && priceAlertData && (
+{showPriceAlert && priceAlertData && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden animate-scale-in">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden animate-in fade-in zoom-in duration-200">
+            {/* Header */}
             <div className="bg-gradient-to-r from-red-500 to-orange-500 p-6 text-center text-white">
               <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
                 <TrendingUp size={32} className="text-white rotate-180" />
               </div>
               <h3 className="text-xl font-bold">Margen muy bajo</h3>
+              <p className="text-white/80 text-sm mt-1">{priceAlertData.product}</p>
             </div>
-            
+           
+            {/* Body */}
             <div className="p-6">
-              <div className="bg-red-50 rounded-xl p-4 mb-4">
-                <p className="text-gray-600 text-sm mb-2">Producto:</p>
-                <p className="text-gray-900 font-semibold">{priceAlertData.product}</p>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-3 mb-4">
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-gray-500 text-xs">Margen actual</p>
-                  <p className="text-red-600 font-bold text-lg">{priceAlertData.margin.toFixed(0)}%</p>
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="bg-gray-50 p-3 rounded-lg text-center">
+                  <p className="text-xs text-gray-500">Precio Costo</p>
+                  <p className="font-bold">${priceAlertData.cost.toFixed(2)}</p>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-gray-500 text-xs">Margen mínimo</p>
-                  <p className="text-green-600 font-bold text-lg">15%</p>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-gray-500 text-xs">Costo</p>
-                  <p className="text-gray-900 font-semibold">${priceAlertData.cost.toFixed(2)}</p>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-gray-500 text-xs">Precio actual</p>
-                  <p className="text-red-600 font-semibold">${priceAlertData.price.toFixed(2)}</p>
+                <div className="bg-gray-50 p-3 rounded-lg text-center">
+                  <p className="text-xs text-gray-500">Precio Venta</p>
+                  <p className="font-bold text-red-600">${priceAlertData.price.toFixed(2)}</p>
                 </div>
               </div>
-              
-              <p className="text-gray-500 text-sm text-center mb-4">
-                El precio mínimo debe ser: <span className="text-green-600 font-bold">${(priceAlertData.cost * 1.15).toFixed(2)}</span>
+              <p className="text-sm text-gray-600 mb-4">
+                El margen es de solo <span className="font-bold text-red-600">${priceAlertData.margin.toFixed(1)}%</span>. 
+                El mínimo requerido es 15%.
               </p>
-              
               <button
-                onClick={() => {
-                  setShowPriceAlert(false);
-                  setPriceAlertData(null);
-                }}
-                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-xl transition-all font-medium"
+                onClick={() => { setShowPriceAlert(false); setPriceAlertData(null); }}
+                className="w-full py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
               >
-                <X size={20} />
                 Entendido
               </button>
             </div>
           </div>
         </div>
       )}
+
+      {/* Modal de Confirmación para Cancelar Venta */}
+      <ConfirmModal
+        isOpen={showCancelModal}
+        title="⚠️ Cancelar Venta"
+        message={`¿Estás seguro que querés cancelar la venta ${saleToCancel?.invoiceNumber || ''}? Esta acción no se puede deshacer.`}
+        confirmText="Sí, Cancelar Venta"
+        cancelText="No, Volver"
+        onConfirm={async () => {
+          try {
+            setSaving(true);
+            await saleService.cancel(saleToCancel!._id);
+            setSaleToCancel(null);
+            setShowCancelModal(false);
+            fetchData();
+            window.dispatchEvent(new Event('inventoryUpdate'));
+            window.dispatchEvent(new Event('saleCompleted'));
+          } catch (err: any) {
+            alert(err.response?.data?.message || "Error al cancelar venta");
+          } finally {
+            setSaving(false);
+          }
+        }}
+        onCancel={() => {
+          setShowCancelModal(false);
+          setSaleToCancel(null);
+        }}
+        loading={saving}
+      />
     </div>
   );
 };
