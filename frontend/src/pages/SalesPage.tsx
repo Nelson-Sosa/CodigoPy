@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useMemo } from "react";
 import { saleService, clientService, productService, authService, reportService } from "../services/api";
 import { ShoppingCart, Plus, Eye, X, Trash2, Search, User, Package, Edit2, Printer, Receipt, TrendingUp, DollarSign, Calendar, Check, FileText, Ticket } from "lucide-react";
+import ConfirmModal from "../components/modals/ConfirmModal";
 import { printInvoice } from "../components/invoice/InvoiceGenerator";
 import { printTicket } from "../utils/ticketPrinter";
 import { useAuth } from "../context/AuthContext";
@@ -74,6 +75,7 @@ const SalesPage = () => {
   const [showPrintModal, setShowPrintModal] = useState(false);
   const [showPriceAlert, setShowPriceAlert] = useState(false);
   const [priceAlertData, setPriceAlertData] = useState<{product: string; margin: number; cost: number; price: number} | null>(null);
+  const [showCancelModal, setShowCancelModal] = useState(false);
   const [filterUserId, setFilterUserId] = useState<string>("");
   const [filterStartDate, setFilterStartDate] = useState<string>("");
   const [filterEndDate, setFilterEndDate] = useState<string>("");
@@ -1097,17 +1099,9 @@ const SalesPage = () => {
                     Editar
                   </button>
                   <button
-                    onClick={async () => {
-                      if (!confirm(`┬┐Cancelar venta ${selectedSale.invoiceNumber}?`)) return;
-                      try {
-                        await saleService.cancel(selectedSale._id);
-                        setSelectedSale(null);
-                        fetchData();
-                        window.dispatchEvent(new Event('inventoryUpdate'));
-                        window.dispatchEvent(new Event('saleCompleted'));
-                      } catch (err: any) {
-                        alert(err.response?.data?.message || "Error al cancelar venta");
-                      }
+                    onClick={() => {
+                      setSelectedSale(selectedSale);
+                      setShowCancelModal(true);
                     }}
                     className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition flex items-center gap-2 text-sm"
                   >
