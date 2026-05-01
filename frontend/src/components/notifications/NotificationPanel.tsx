@@ -23,15 +23,16 @@ const NotificationPanel = ({ notifications, onDismiss, onViewAll }: Notification
   const activeNotifications = notifications.filter(n => {
     if (n.dismissed) return false;
     
-    // Filtrar notificaciones de "sales" para admin
-    if (n.type === 'sales') {
+    // Filtrar notificaciones de "sales" por userId
+    if (n.type === 'sales' && n.userId) {
       const userStr = localStorage.getItem("user");
       if (userStr) {
         try {
           const user = JSON.parse(userStr);
-          if (user.role === 'admin') return false;
-        } catch {}
+          return n.userId === (user.id || user._id);
+        } catch { return false; }
       }
+      return false;
     }
     
     return true;

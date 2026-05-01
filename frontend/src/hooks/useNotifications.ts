@@ -36,7 +36,8 @@ export const useNotifications = () => {
       // Evitar duplicados del mismo tipo
       const exists = prev.some(n => 
         n.type === notification.type && 
-        !n.dismissed
+        !n.dismissed &&
+        n.userId === newNotification.userId // <-- NUEVO: filtrar por userId
       );
       if (exists) return prev;
       return [newNotification, ...prev].slice(0, 10); // Max 10 notificaciones
@@ -73,10 +74,13 @@ export const useNotifications = () => {
       } catch {}
     }
     
+    const user = userStr ? JSON.parse(userStr) : null;
+    
     return addNotification({
       type: "sales",
       title: "🎯 Meta de Ventas",
       message: `Has alcanzado el ${currentPercent.toFixed(0)}% de tu meta mensual ($${targetAmount})`,
+      userId: user?.id || user?._id || "", // <-- NUEVO: asociar al usuario
     });
   }, [addNotification]);
 
