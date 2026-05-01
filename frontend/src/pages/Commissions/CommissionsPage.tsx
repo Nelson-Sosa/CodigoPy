@@ -69,7 +69,21 @@ const CommissionsPage = () => {
         try {
           const salesRes = await saleService.getMySales();
           const allSales = salesRes.data.recentSales || [];
-          setMySales(allSales);
+          
+          // Filtrar solo ventas del mes actual (Mayo 2026 = 202605)
+          const now = new Date();
+          const currentYear = now.getFullYear();
+          const currentMonth = now.getMonth();
+          
+          const monthSales = allSales.filter((sale: any) => {
+            if (!sale.dateKey) return false;
+            const str = sale.dateKey.toString();
+            const saleYear = parseInt(str.slice(0, 4));
+            const saleMonth = parseInt(str.slice(4, 6)) - 1;
+            return saleYear === currentYear && saleMonth === currentMonth;
+          });
+          
+          setMySales(monthSales);
         } catch (err) {
           console.error("Error fetching sales:", err);
         }
