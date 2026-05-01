@@ -64,6 +64,15 @@ export const useNotifications = () => {
   }, [addNotification]);
 
   const addSalesTargetAlert = useCallback((currentPercent: number, targetAmount: number) => {
+    // Solo notificar a vendedores, no a admin
+    const userStr = localStorage.getItem("user");
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        if (user.role === 'admin') return; // No notificar a admin
+      } catch {}
+    }
+    
     return addNotification({
       type: "sales",
       title: "🎯 Meta de Ventas",

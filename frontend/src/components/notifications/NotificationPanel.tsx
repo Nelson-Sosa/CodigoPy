@@ -8,6 +8,7 @@ export interface Notification {
   message: string;
   timestamp?: Date;
   dismissed?: boolean;
+  targetRoles?: ("admin" | "vendedor")[]; // <-- NUEVO: para qué roles es esta notificación
 }
 
 interface NotificationPanelProps {
@@ -19,7 +20,22 @@ interface NotificationPanelProps {
 const NotificationPanel = ({ notifications, onDismiss, onViewAll }: NotificationPanelProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const activeNotifications = notifications.filter(n => !n.dismissed);
+  const activeNotifications = notifications.filter(n => {
+    if (n.dismissed) return false;
+    
+    // Filtrar notificaciones de "sales" para admin
+    if (n.type === 'sales') {
+      const userStr = localStorage.getItem("user");
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          if (user.role === 'admin') return false;
+        } catch {}
+      }
+    }
+    
+    return true;
+  });
 
   const getIcon = (type: string) => {
     switch (type) {
