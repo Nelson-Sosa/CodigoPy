@@ -1,4 +1,17 @@
 require('dotenv').config();
+
+// Validación de seguridad para JWT_SECRET
+if (!process.env.JWT_SECRET) {
+  if (process.env.NODE_ENV === 'production') {
+    console.error('❌ FATAL: JWT_SECRET no está configurado en las variables de entorno para producción.');
+    process.exit(1);
+  } else {
+    console.warn('⚠️ [SEGURIDAD] JWT_SECRET no está definido en el archivo .env.');
+    console.warn('⚠️ [SEGURIDAD] Usando clave provisional sólo para desarrollo local.');
+    process.env.JWT_SECRET = 'dev_jwt_secret_local_only_codigopy_insecure';
+  }
+}
+
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');

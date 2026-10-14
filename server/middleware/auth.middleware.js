@@ -28,3 +28,22 @@ exports.admin = (req, res, next) => {
   if (req.user?.role === 'admin') return next();
   return res.status(403).json({ message: 'Solo administradores pueden hacer esto' });
 };
+
+exports.optionalAuth = async (req, res, next) => {
+  const auth = req.headers.authorization;
+  if (!auth?.startsWith('Bearer')) return next();
+
+  try {
+    const token = auth.split(' ')[1];
+    if (process.env.JWT_SECRET) {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await User.findById(decoded.id).select('-password');
+      if (user && user.isActive) {
+        req.user = user;
+      }
+    }
+  } catch {
+    // Si el token es inválido o expiró, se continúa como público sin req.user
+  }
+  next();
+};

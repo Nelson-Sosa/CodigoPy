@@ -151,15 +151,29 @@ CodigoPy/
 
 ---
 
-## 📋 Credenciales de Prueba
+## 📋 Gestión de Credenciales y Seguridad
 
-El sistema incluye datos de prueba precargados:
+> ⚠️ **Aviso de Seguridad**: Nunca almacene contraseñas en texto claro en repositorios ni use contraseñas por defecto en entornos accesibles públicamente.
 
-| Rol | Email | Contraseña |
-|-----|-------|------------|
-| Administrador | admin@codigopy.com | admin123 |
-| Supervisor | supervisor@codigopy.com | super123 |
-| Operador | operador@codigopy.com | oper123 |
+### Cuentas Iniciales en Entorno Local
+Para inicializar usuarios de prueba en un entorno local de desarrollo controlado, ejecute:
+```bash
+cd server
+npm run seed
+```
+
+### Procedimiento de Rotación de Contraseña de Administrador
+Si se utilizaron contraseñas iniciales o por defecto en una base de datos desplegada, deben rotarse inmediatamente:
+1. **Desde la Interfaz Web**: Iniciar sesión como Administrador, acceder a **Gestión de Usuarios** (`/users`), seleccionar el usuario administrador y hacer clic en **Cambiar contraseña**.
+2. **Vía API**: Enviar una solicitud autenticada con token de administrador:
+   ```http
+   PUT /api/auth/users/:id/password
+   Authorization: Bearer <TOKEN_ADMIN>
+   Content-Type: application/json
+
+   { "password": "<NUEVA_CONTRASENA_ROBUSTA>" }
+   ```
+3. **Variables de Entorno**: Configure siempre `JWT_SECRET` con un valor secreto de alta entropía (mínimo 32 caracteres) en las variables de entorno de producción.
 
 ---
 

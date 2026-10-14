@@ -48,7 +48,24 @@ exports.register = async (req, res) => {
     const exists = await User.findOne({ email });
     if (exists) return res.status(400).json({ message: 'Email ya registrado' });
 
-    const user = await User.create({ name, email, password, role: role || 'operator' });
+    const totalUsers = await User.countDocuments();
+    const requesterIsAdmin = req.user && req.user.role === 'admin';
+
+    let assignedRole = 'vendedor';
+
+    if (role === 'admin') {
+      // Solo un administrador autenticado o el primer usuario del sistema pueden ser admin
+      if (!requesterIsAdmin && totalUsers > 0) {
+        return res.status(403).json({
+          message: 'No tienes permisos para registrar una cuenta con rol administrador'
+        });
+      }
+      assignedRole = 'admin';
+    } else if (role && role === 'vendedor') {
+      assignedRole = 'vendedor';
+    }
+
+    const user = await User.create({ name, email, password, role: assignedRole });
     res.status(201).json({ token: generateToken(user._id), user });
   } catch (err) {
     res.status(500).json({ message: err.message });
