@@ -44,15 +44,15 @@ export const useInventory = () => {
           movementService.getAll({ limit: 100 }),
         ]);
 
-        const mappedProducts = prodRes.data.map((p: any) => ({
+        const mappedProducts = prodRes.data.map((p: Product & { costPrice?: number }) => ({
           ...p,
-          id: p._id,
-          cost: p.costPrice || p.cost,
+          id: p.id || p._id || "",
+          cost: p.costPrice || p.cost || 0,
         }));
 
-        const mappedMovements = movRes.data.map((m: any) => ({
+        const mappedMovements = movRes.data.map((m: Movement) => ({
           ...m,
-          id: m._id,
+          id: m.id || m._id || "",
         }));
 
         setProducts(mappedProducts);

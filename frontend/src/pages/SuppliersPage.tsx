@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import type { AxiosError } from "axios";
 import { supplierService } from "../services/api";
 import { Truck, Plus, Pencil, Trash2, Phone, Mail, MapPin, X } from "lucide-react";
 
@@ -66,7 +67,7 @@ const SuppliersPage = () => {
   const fetchSuppliers = async () => {
     try {
       const res = await supplierService.getAll();
-      setSuppliers(res.data.map((s: any) => ({ ...s, id: s._id })));
+      setSuppliers(res.data.map((s: Supplier & { _id?: string }) => ({ ...s, id: s._id || s.id })));
     } catch (err) {
       console.error("Error fetching suppliers:", err);
     } finally {
@@ -149,8 +150,9 @@ const SuppliersPage = () => {
       setShowForm(false);
       resetForm();
       fetchSuppliers();
-    } catch (err: any) {
-      setErrors({ submit: err.response?.data?.message || "Error al guardar" });
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      setErrors({ submit: axiosErr.response?.data?.message || "Error al guardar" });
     } finally {
       setSaving(false);
     }
@@ -192,7 +194,7 @@ const SuppliersPage = () => {
           onClick={() => { resetForm(); setShowForm(true); }}
           className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700 transition text-sm sm:text-base"
         >
-          <Plus size={18} sm:size={20} />
+          <Plus size={20} />
           <span className="hidden sm:inline">Nuevo Proveedor</span>
           <span className="sm:hidden">Agregar</span>
         </button>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 import { productService, saleService, reportService } from "../services/api";
 import ExchangeRateDisplay from "../components/common/ExchangeRateDisplay";
 import NotificationPanel from "../components/notifications/NotificationPanel";
@@ -16,33 +16,6 @@ import {
   Line,
 } from "recharts";
 import { Package, TrendingUp, AlertTriangle, DollarSign, ShoppingCart, User } from "lucide-react";
-
-const getPyDateKey = (): number => {
-  const now = new Date();
-  const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'America/Asuncion',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit'
-  }).formatToParts(now);
-  const year = parts.find(p => p.type === 'year')?.value || '2026';
-  const month = parts.find(p => p.type === 'month')?.value || '01';
-  const day = parts.find(p => p.type === 'day')?.value || '01';
-  return Number(`${year}${month}${day}`);
-};
-
-const getMonthStartKey = (): number => {
-  const now = new Date();
-  const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'America/Asuncion',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit'
-  }).formatToParts(now);
-  const year = parts.find(p => p.type === 'year')?.value || '2026';
-  const month = parts.find(p => p.type === 'month')?.value || '01';
-  return Number(`${year}${month}01`);
-};
 
 interface Product {
   _id: string;
@@ -71,14 +44,22 @@ interface Sale {
   createdBy?: { name: string };
 }
 
+interface DashboardData {
+  sales?: {
+    today?: { total: number; count: number; profit: number };
+    month?: { total: number; count: number; profit: number };
+    lastMonth?: { total: number; count: number };
+  };
+}
+
 const DashboardPage = () => {
   const { user } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [sales, setSales] = useState<Sale[]>([]);
-  const [dashboardData, setDashboardData] = useState<any>(null);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { notifications, dismissNotification, addStockAlert, addSalesTargetAlert, activeCount } = useNotifications();
+  const { notifications, dismissNotification, addStockAlert, addSalesTargetAlert } = useNotifications();
 
   // Verificar stock bajo y meta de ventas
   useEffect(() => {
@@ -92,7 +73,7 @@ const DashboardPage = () => {
     });
 
     // Verificar meta de ventas
-    const monthSales = dashboardData?.sales?.month || {};
+    const monthSales = dashboardData?.sales?.month || { total: 0, count: 0, profit: 0 };
     const monthlyTarget = Number(localStorage.getItem("monthlyTarget")) || 5000;
     if (monthSales.total > 0 && monthlyTarget > 0) {
       const percent = (monthSales.total / monthlyTarget) * 100;
@@ -102,7 +83,7 @@ const DashboardPage = () => {
         addSalesTargetAlert(100, monthlyTarget);
       }
     }
-  }, [products.length, dashboardData]);
+  }, [products, dashboardData, addStockAlert, addSalesTargetAlert]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -113,15 +94,15 @@ const DashboardPage = () => {
           reportService.getDashboard().catch(() => ({ data: null })),
         ]);
 
-        setProducts(productsRes.data.map((p: any) => ({ ...p, id: p._id })));
+        setProducts(productsRes.data.map((p: Product & { _id?: string }) => ({ ...p, id: p._id || p.id })));
         setSales(salesRes.data.sales || []);
         
         if (dashboardRes.data) {
           setDashboardData(dashboardRes.data);
         }
-      } catch (err: any) {
+      } catch (err) {
         console.error("Error fetching data:", err);
-        setError(err.message || "Error al cargar el dashboard");
+        setError(err instanceof Error ? err.message : "Error al cargar el dashboard");
       } finally {
         setLoading(false);
       }
@@ -163,12 +144,8 @@ const DashboardPage = () => {
     );
   }
 
-  const todayKey = getPyDateKey();
-  const monthStartKey = getMonthStartKey();
-
   const dashboardStats = dashboardData?.sales?.month || { total: 0, count: 0, profit: 0 };
   const todayStats = dashboardData?.sales?.today || { total: 0, count: 0, profit: 0 };
-  const lastMonthStats = dashboardData?.sales?.lastMonth || { total: 0, count: 0 };
 
   const lowStockProducts = products.filter(p => p.stock > 0 && p.stock < p.minStock);
   const outOfStockProducts = products.filter(p => p.stock === 0);

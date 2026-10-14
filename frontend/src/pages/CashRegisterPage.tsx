@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import type { AxiosError } from "axios";
 import { cashRegisterService, saleService } from "../services/api";
 import { DollarSign, Lock, Unlock, ShoppingCart, CreditCard, Banknote, ArrowRightLeft, History, X, Eye, TrendingUp } from "lucide-react";
 import { format } from "date-fns";
 import { useExchangeRate } from "../hooks/useExchangeRate";
 import CurrencyDisplay from "../components/common/CurrencyDisplay";
-import { ToastContainer, useToast } from "../components/common/Toast";
+import { ToastContainer } from "../components/common/Toast";
+import { useToast } from "../hooks/useToast";
 
 const getPyDateKey = (): number => {
   const now = new Date();
@@ -164,9 +166,10 @@ const CashRegisterPage = () => {
         return s.dateKey === todayKey;
       });
       setTodaySales(filteredSales);
-    } catch (err: any) {
-      console.error("Error fetching data:", err);
-      setError(err.response?.data?.message || "Error al cargar los datos. Intenta de nuevo.");
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      console.error("Error fetching data:", axiosErr);
+      setError(axiosErr.response?.data?.message || "Error al cargar los datos. Intenta de nuevo.");
     } finally {
       setLoading(false);
     }
@@ -180,8 +183,9 @@ const CashRegisterPage = () => {
         alert("Caja abierta exitosamente");
         fetchData();
         setOpeningAmount(0);
-      } catch (err: any) {
-        alert(err.response?.data?.message || "Error al abrir caja");
+      } catch (err) {
+        const axiosErr = err as AxiosError<{ message?: string }>;
+        alert(axiosErr.response?.data?.message || "Error al abrir caja");
       } finally {
         setActionLoading(false);
       }
@@ -198,8 +202,9 @@ const CashRegisterPage = () => {
         addToast(`Caja reabierta a las ${time}`, 'success');
         fetchData();
         setReopenAmount(0);
-      } catch (err: any) {
-        addToast(err.response?.data?.message || "Error al reabrir caja", 'error');
+      } catch (err) {
+        const axiosErr = err as AxiosError<{ message?: string }>;
+        addToast(axiosErr.response?.data?.message || "Error al reabrir caja", 'error');
       } finally {
         setActionLoading(false);
       }
@@ -227,8 +232,9 @@ const CashRegisterPage = () => {
       alert("Caja cerrada exitosamente");
       fetchData();
       setShowPreCloseModal(false);
-    } catch (err: any) {
-      alert(err.response?.data?.message || "Error al cerrar caja");
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      alert(axiosErr.response?.data?.message || "Error al cerrar caja");
     } finally {
       setActionLoading(false);
     }
@@ -243,8 +249,9 @@ const CashRegisterPage = () => {
       await saleService.cancel(sale._id);
       alert("Venta cancelada exitosamente");
       fetchData();
-    } catch (err: any) {
-      alert(err.response?.data?.message || "Error al cancelar venta");
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      alert(axiosErr.response?.data?.message || "Error al cancelar venta");
     } finally {
       setActionLoading(false);
     }

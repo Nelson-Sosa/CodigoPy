@@ -1,4 +1,11 @@
 require('dotenv').config();
+
+// Protección contra ejecución accidental en producción
+if (process.env.NODE_ENV === 'production') {
+  console.error('❌ OPERACIÓN ABORTADA: No se permite ejecutar scripts de seed en entorno de producción.');
+  process.exit(1);
+}
+
 const mongoose = require('mongoose');
 const connectDB = require('./config/db');
 

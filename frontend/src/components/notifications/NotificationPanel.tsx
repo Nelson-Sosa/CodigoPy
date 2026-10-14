@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Bell, X, AlertTriangle, TrendingUp, Package, CheckCircle } from "lucide-react";
+import { useState } from "react";
+import { Bell, X, AlertTriangle, TrendingUp, CheckCircle } from "lucide-react";
 
 export interface Notification {
   id: string;
@@ -9,6 +9,7 @@ export interface Notification {
   timestamp?: Date;
   dismissed?: boolean;
   targetRoles?: ("admin" | "vendedor")[]; // <-- NUEVO: para qué roles es esta notificación
+  userId?: string;
 }
 
 interface NotificationPanelProps {

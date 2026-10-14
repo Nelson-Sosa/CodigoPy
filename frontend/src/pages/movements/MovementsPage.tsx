@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import { useAuth } from "../../context/AuthContext";
+import { useEffect, useState, useCallback } from "react";
 import { movementService, productService } from "../../services/api";
 import { format } from "date-fns";
+import { useAuth } from "../../context/authContextDef";
 
 import MovementForm from "../../components/movements/MovementForm";
 import MovementTable from "../../components/movements/MovementTable";
@@ -37,23 +37,23 @@ const MovementsPage = () => {
   const [filterStartDate, setFilterStartDate] = useState("");
   const [filterEndDate, setFilterEndDate] = useState("");
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       const [productsRes, movementsRes] = await Promise.all([
         productService.getAll(),
         movementService.getAll({ limit: 200 }),
       ]);
 
-      const mappedProducts = productsRes.data.map((p: any) => ({
+      const mappedProducts = productsRes.data.map((p: Product) => ({
         ...p,
-        id: p._id,
+        id: p.id || p._id,
       }));
 
       const mappedMovements = movementsRes.data
-        .filter((m: any) => !m.reason?.startsWith("Venta "))
-        .map((m: any) => ({
+        .filter((m: Movement) => !m.reason?.startsWith("Venta "))
+        .map((m: Movement) => ({
           ...m,
-          id: m._id,
+          id: m.id || m._id,
         }));
 
       setProducts(mappedProducts);
@@ -61,10 +61,44 @@ const MovementsPage = () => {
     } catch (err) {
       console.error("Error loading data:", err);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    loadData();
+    let isMounted = true;
+
+    const fetchInitialData = async () => {
+      try {
+        const [productsRes, movementsRes] = await Promise.all([
+          productService.getAll(),
+          movementService.getAll({ limit: 200 }),
+        ]);
+
+        const mappedProducts = productsRes.data.map((p: Product) => ({
+          ...p,
+          id: p.id || p._id,
+        }));
+
+        const mappedMovements = movementsRes.data
+          .filter((m: Movement) => !m.reason?.startsWith("Venta "))
+          .map((m: Movement) => ({
+            ...m,
+            id: m.id || m._id,
+          }));
+
+        if (isMounted) {
+          setProducts(mappedProducts);
+          setMovements(mappedMovements);
+        }
+      } catch (err) {
+        console.error("Error loading data:", err);
+      }
+    };
+
+    fetchInitialData();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const getTypeLabel = (type: string) => {

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { AxiosError } from 'axios';
 import { useExchangeRate } from '../../hooks/useExchangeRate';
 import { RefreshCw, DollarSign, X, ArrowRight, Clock, Edit3, Check } from 'lucide-react';
 
@@ -195,8 +196,13 @@ const ExchangeRateDisplay = ({ isAdmin = false, compact = false }: ExchangeRateD
     try {
       await updateRate(editingCurrency, editValue);
       setEditingCurrency(null);
-    } catch (err: any) {
-      const errorMsg = err?.response?.data?.message || err.message || 'Error al guardar';
+    } catch (err: unknown) {
+      let errorMsg = 'Error al guardar';
+      if (err instanceof AxiosError && err.response?.data?.message) {
+        errorMsg = err.response.data.message;
+      } else if (err instanceof Error) {
+        errorMsg = err.message;
+      }
       alert(errorMsg);
     } finally {
       setSaving(false);

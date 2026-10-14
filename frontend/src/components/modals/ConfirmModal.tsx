@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { X, AlertTriangle } from "lucide-react";
 
 interface ConfirmModalProps {

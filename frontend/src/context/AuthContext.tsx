@@ -1,24 +1,7 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { useState, useEffect, ReactNode } from "react";
+import { AxiosError } from "axios";
 import { authService } from "../services/api";
-
-export interface User {
-  _id?: string;
-  id: string;
-  name?: string;
-  email: string;
-  role: "admin" | "vendedor";
-  token?: string;
-}
-
-interface AuthContextType {
-  user: User | null;
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  logout: () => void;
-  register: (data: { name: string; email: string; password: string; role?: string }) => Promise<{ success: boolean; error?: string }>;
-  loading: boolean;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+import { AuthContext, User } from "./authContextDef";
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(() => {
@@ -28,7 +11,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   });
   const [loading, setLoading] = useState(true);
 
-useEffect(() => {
+  useEffect(() => {
     const verifyToken = async () => {
       const token = localStorage.getItem("token");
       const storedUser = localStorage.getItem("user");
@@ -44,7 +27,9 @@ useEffect(() => {
         try {
           const parsed = JSON.parse(storedUser);
           setUser(parsed);
-        } catch {}
+        } catch (e) {
+          console.warn("Error al parsear el usuario almacenado:", e);
+        }
       }
       
       try {
@@ -56,9 +41,9 @@ useEffect(() => {
         };
         setUser(userWithId);
         localStorage.setItem("user", JSON.stringify(userWithId));
-      } catch (error: any) {
+      } catch (error: unknown) {
         // Solo limpiar si el token es realmente inválido (401)
-        if (error.response?.status === 401) {
+        if (error instanceof AxiosError && error.response?.status === 401) {
           localStorage.removeItem("token");
           localStorage.removeItem("user");
           setUser(null);
@@ -88,15 +73,16 @@ useEffect(() => {
       localStorage.setItem("user", JSON.stringify(userWithId));
       
       return { success: true };
-    } catch (error: any) {
-      if (error.response) {
-        const message = error.response.data?.message || "Credenciales inválidas";
-        return { success: false, error: message };
-      } else if (error.request) {
-        return { success: false, error: "No se pudo conectar al servidor. Verifica tu conexión." };
-      } else {
-        return { success: false, error: "Error al iniciar sesión" };
+    } catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        if (error.response) {
+          const message = (error.response.data as { message?: string })?.message || "Credenciales inválidas";
+          return { success: false, error: message };
+        } else if (error.request) {
+          return { success: false, error: "No se pudo conectar al servidor. Verifica tu conexión." };
+        }
       }
+      return { success: false, error: "Error al iniciar sesión" };
     }
   };
 
@@ -122,8 +108,8 @@ useEffect(() => {
       localStorage.setItem("user", JSON.stringify(userWithId));
       
       return { success: true };
-    } catch (error: any) {
-      const message = error.response?.data?.message || "Error al registrar usuario";
+    } catch (error: unknown) {
+      const message = (error instanceof AxiosError && (error.response?.data as { message?: string })?.message) || "Error al registrar usuario";
       return { success: false, error: message };
     }
   };
@@ -135,8 +121,4 @@ useEffect(() => {
   );
 };
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error("useAuth must be used within AuthProvider");
-  return context;
-};
+export default AuthProvider;

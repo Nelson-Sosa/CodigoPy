@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import type { AxiosError } from "axios";
 import { authService } from "../services/api";
 import { User } from "../types/User";
-import { ToastContainer, useToast } from "../components/common/Toast";
+import { ToastContainer } from "../components/common/Toast";
+import { useToast } from "../hooks/useToast";
 import { UserPlus, Users, Shield, UserCog, Trash2, Key, X } from "lucide-react";
 
 const UsersPage = () => {
@@ -16,14 +18,10 @@ const UsersPage = () => {
 
   const { toasts, addToast, removeToast } = useToast();
 
-  useEffect(() => {
-    refreshUsers();
-  }, []);
-
-  const refreshUsers = async () => {
+  const refreshUsers = useCallback(async () => {
     try {
       const res = await authService.getUsers();
-      const mapped = res.data.map((u: any) => ({
+      const mapped = res.data.map((u: User & { _id?: string; isActive?: boolean }) => ({
         ...u,
         id: u._id || u.id,
         active: u.isActive !== false,
@@ -33,7 +31,11 @@ const UsersPage = () => {
       console.error("Error fetching users:", err);
       addToast("Error al cargar usuarios", "error");
     }
-  };
+  }, [addToast]);
+
+  useEffect(() => {
+    refreshUsers();
+  }, [refreshUsers]);
 
   const handleEdit = (user: User) => {
     setSelectedUser(user);
@@ -68,8 +70,9 @@ const UsersPage = () => {
       }
       setShowForm(false);
       refreshUsers();
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Error al guardar");
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      setError(axiosErr.response?.data?.message || "Error al guardar");
     } finally {
       setLoading(false);
     }
@@ -82,8 +85,9 @@ const UsersPage = () => {
       await authService.deleteUser(user.id);
       addToast("Usuario eliminado correctamente", "success");
       refreshUsers();
-    } catch (err: any) {
-      addToast(err.response?.data?.message || "Error al eliminar", "error");
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      addToast(axiosErr.response?.data?.message || "Error al eliminar", "error");
     }
   };
 
@@ -95,8 +99,9 @@ const UsersPage = () => {
       await authService.updateUser(user.id, { isActive: !user.active });
       addToast(`Usuario ${action === "desactivar" ? "desactivado" : "activado"}`, "success");
       refreshUsers();
-    } catch (err: any) {
-      addToast(err.response?.data?.message || "Error", "error");
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      addToast(axiosErr.response?.data?.message || "Error", "error");
     }
   };
 
@@ -121,8 +126,9 @@ const UsersPage = () => {
       await authService.changePassword(selectedUser!.id, passwordData.password);
       addToast("Contraseña actualizada correctamente", "success");
       setShowPasswordModal(false);
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Error al cambiar contraseña");
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      setError(axiosErr.response?.data?.message || "Error al cambiar contraseña");
     }
   };
 

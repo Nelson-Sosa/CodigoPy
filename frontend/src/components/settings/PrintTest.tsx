@@ -27,7 +27,7 @@ const PrintTest = ({ ticketWidth = "80" }: PrintTestProps) => {
       phone = res.data?.phone || "";
       ruc = res.data?.ruc || "";
       footerMessage = res.data?.footerMessage || "¡Gracias por su compra!";
-    } catch (e) {
+    } catch {
       // Usar valores por defecto
     }
 
@@ -246,7 +246,7 @@ const PrintTest = ({ ticketWidth = "80" }: PrintTestProps) => {
         setPrinting(false);
         setTimeout(() => setStatus("idle"), 3000);
       }, 300);
-    } catch (error) {
+    } catch {
       setStatus("error");
       setPrinting(false);
     }

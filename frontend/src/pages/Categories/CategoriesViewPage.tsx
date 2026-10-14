@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { AxiosError } from "axios";
 import { categoryService } from "../../services/api";
 import { Package } from "lucide-react";
 
@@ -25,10 +26,14 @@ const CategoriesViewPage = () => {
       const res = await categoryService.getAll();
       console.log("Categories API response:", res.status, res.data);
       setCategories(res.data || []);
-    } catch (err: any) {
-      console.error("Categories error:", err.response?.status, err.message);
-      if (err.response?.status === 401) {
-        setError("Tu sesión ha expirado. Por favor, inicia sesión nuevamente.");
+    } catch (err: unknown) {
+      if (err instanceof AxiosError) {
+        console.error("Categories error:", err.response?.status, err.message);
+        if (err.response?.status === 401) {
+          setError("Tu sesión ha expirado. Por favor, inicia sesión nuevamente.");
+        } else {
+          setError("Error al cargar categorías. Intenta nuevamente.");
+        }
       } else {
         setError("Error al cargar categorías. Intenta nuevamente.");
       }

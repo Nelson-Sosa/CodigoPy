@@ -23,9 +23,9 @@ export const useCategories = () => {
     try {
       setLoading(true);
       const res = await categoryService.getAll();
-      const mapped = res.data.map((c: any) => ({
+      const mapped = res.data.map((c: Category) => ({
         ...c,
-        id: c._id,
+        id: c.id || c._id,
       }));
       setCategories(mapped);
     } catch (err) {

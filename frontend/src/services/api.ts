@@ -1,6 +1,22 @@
 import axios from 'axios';
 
-const API_URL = 'https://codigopy-api.onrender.com/api';
+// VITE_API_URL se inyecta en tiempo de compilación (build time) con Vite.
+// En producción en Firebase Hosting, debe definirse VITE_API_URL con la URL de Koyeb.
+const resolveApiUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (envUrl && typeof envUrl === 'string' && envUrl.trim().length > 0) {
+    const trimmed = envUrl.trim().replace(/\/+$/, '');
+    return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
+  }
+  // En desarrollo local, fallback al puerto real del backend (5000)
+  if (import.meta.env.DEV) {
+    return 'http://localhost:5000/api';
+  }
+  // En producción sin variable definida, usar ruta relativa para evitar llamar a localhost
+  return '/api';
+};
+
+const API_URL = resolveApiUrl();
 
 const api = axios.create({
   baseURL: API_URL,

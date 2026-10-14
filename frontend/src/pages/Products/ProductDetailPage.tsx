@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { productService } from "../../services/api";
 import { Package, Tag, Info, PackagePlus, Pencil, ArrowLeft, TrendingUp, TrendingDown } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../context/useAuth";
 
 interface Product {
   _id: string;
@@ -61,9 +61,9 @@ const ProductDetailPage = () => {
           price: prod.salePrice,
           cost: prod.costPrice,
         });
-        setMovements(res.data.movements.map((m: any) => ({
+        setMovements(res.data.movements.map((m: Movement) => ({
           ...m,
-          id: m._id,
+          id: m.id || m._id,
         })));
       } catch (err) {
         console.error("Error fetching product:", err);
@@ -93,9 +93,9 @@ const ProductDetailPage = () => {
         price: prod.salePrice,
         cost: prod.costPrice,
       });
-      setMovements(res.data.movements.map((m: any) => ({
+      setMovements(res.data.movements.map((m: Movement) => ({
         ...m,
-        id: m._id,
+        id: m.id || m._id,
       })));
 
       setAdjustQty("");
@@ -162,7 +162,7 @@ const ProductDetailPage = () => {
         onClick={() => navigate("/products")}
         className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors text-sm sm:text-base"
       >
-        <ArrowLeft size={18} sm:size={20} />
+        <ArrowLeft size={18} />
         <span className="hidden sm:inline">Volver a productos</span>
         <span className="sm:hidden">Volver</span>
       </button>
@@ -214,7 +214,7 @@ const ProductDetailPage = () => {
               {product.description && (
                 <div className="mt-4 p-3 sm:p-4 bg-gray-50 rounded-xl">
                   <h3 className="font-semibold text-gray-700 flex items-center gap-2 mb-2 text-sm sm:text-base">
-                    <Info size={16} sm:size={18} />
+                    <Info size={16} />
                     Descripción
                   </h3>
                   <p className="text-gray-600 text-xs sm:text-sm">{product.description}</p>
@@ -270,14 +270,14 @@ const ProductDetailPage = () => {
               <div className="grid grid-cols-2 gap-2 sm:gap-4">
                 <div className="bg-green-50 rounded-xl p-2 sm:p-4">
                   <p className="text-green-600 text-xs sm:text-sm font-medium flex items-center gap-1">
-                    <TrendingUp size={14} sm:size={16} />
+                    <TrendingUp size={14} />
                     Precio de Venta
                   </p>
                   <p className="text-xl sm:text-2xl font-bold text-gray-800">${product.price.toFixed(2)}</p>
                 </div>
                 <div className="bg-orange-50 rounded-xl p-2 sm:p-4">
                   <p className="text-orange-600 text-xs sm:text-sm font-medium flex items-center gap-1">
-                    <TrendingDown size={14} sm:size={16} />
+                    <TrendingDown size={14} />
                     Costo
                   </p>
                   <p className="text-xl sm:text-2xl font-bold text-gray-800">${product.cost.toFixed(2)}</p>

@@ -4,20 +4,17 @@ import { Notification } from "../components/notifications/NotificationPanel";
 const STORAGE_KEY = "codigopy_notifications";
 
 export const useNotifications = () => {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-
-  // Cargar notificaciones del localStorage al iniciar
-  useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        setNotifications(parsed);
-      } catch (e) {
-        console.error("Error parsing notifications:", e);
+  const [notifications, setNotifications] = useState<Notification[]>(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        return JSON.parse(stored);
       }
+    } catch (e) {
+      console.error("Error parsing notifications:", e);
     }
-  }, []);
+    return [];
+  });
 
   // Guardar en localStorage cuando cambian
   useEffect(() => {
@@ -71,7 +68,9 @@ export const useNotifications = () => {
       try {
         const user = JSON.parse(userStr);
         if (user.role === 'admin') return; // No notificar a admin
-      } catch {}
+      } catch (e) {
+        console.warn("Error leyendo usuario para alertas de meta:", e);
+      }
     }
     
     const user = userStr ? JSON.parse(userStr) : null;

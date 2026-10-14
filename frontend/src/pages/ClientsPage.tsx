@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import type { AxiosError } from "axios";
 import { clientService } from "../services/api";
 import { Users, Plus, Search, Edit2, Trash2, X, Phone, Mail, MapPin, FileText } from "lucide-react";
 
 interface Client {
   _id: string;
-  id: string;
+  id?: string;
   name: string;
   ruc: string;
   phone: string;
@@ -35,28 +36,31 @@ const ClientsPage = () => {
   const [notes, setNotes] = useState("");
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    fetchClients();
-  }, []);
+  const isFirstMount = useRef(true);
 
-  const fetchClients = async () => {
+  const fetchClients = useCallback(async () => {
     try {
       setLoading(true);
       const res = await clientService.getAll({ search });
-      setClients(res.data.map((c: any) => ({ ...c, id: c._id })));
+      setClients(res.data.map((c: Client) => ({ ...c, id: c._id || c.id || "" })));
     } catch (err) {
       console.error("Error fetching clients:", err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [search]);
 
   useEffect(() => {
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      fetchClients();
+      return;
+    }
     const debounce = setTimeout(() => {
       fetchClients();
     }, 300);
     return () => clearTimeout(debounce);
-  }, [search]);
+  }, [fetchClients]);
 
   const resetForm = () => {
     setName("");
@@ -115,8 +119,9 @@ const ClientsPage = () => {
       setShowForm(false);
       resetForm();
       fetchClients();
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Error al guardar cliente");
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      setError(axiosErr.response?.data?.message || "Error al guardar cliente");
     } finally {
       setSaving(false);
     }
@@ -128,8 +133,9 @@ const ClientsPage = () => {
     try {
       await clientService.delete(client._id);
       fetchClients();
-    } catch (err: any) {
-      alert(err.response?.data?.message || "Error al eliminar cliente");
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      alert(axiosErr.response?.data?.message || "Error al eliminar cliente");
     }
   };
 

@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { productService, categoryService } from "../../services/api";
 import ProductTable from "../../components/products/ProductTable";
 import type { Product } from "../../types/Product";
-import { useAuth } from "../../context/AuthContext";
+import type { Category } from "../../types/category";
+import { useAuth } from "../../context/useAuth";
 import { Package, Plus } from "lucide-react";
 
 const ProductsPage = () => {
@@ -12,7 +13,7 @@ const ProductsPage = () => {
   const isAdmin = user?.role === "admin";
 
   const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -36,7 +37,7 @@ const ProductsPage = () => {
         productService.getAll(),
         categoryService.getAll(),
       ]);
-      setProducts(prodRes.data.map((p: any) => ({ ...p, id: p._id })));
+      setProducts(prodRes.data.map((p: Product & { _id?: string }) => ({ ...p, id: p._id || p.id })));
       setCategories(catRes.data);
     } catch (err) {
       console.error("Error fetching data:", err);
@@ -124,7 +125,7 @@ const ProductsPage = () => {
             onClick={() => navigate("/products/new")}
             className="w-1/2 sm:w-auto bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl flex items-center justify-center gap-2 hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-lg shadow-green-500/30 font-medium text-xs sm:text-sm"
           >
-            <Plus size={16} sm:size={18} />
+            <Plus size={18} />
             <span>Agregar Producto</span>
           </button>
         )}
@@ -157,7 +158,7 @@ const ProductsPage = () => {
           <option value="discontinued">Descontinuado</option>
         </select>
         <select
-          onChange={e => setStockFilter(e.target.value as any)}
+          onChange={e => setStockFilter((e.target.value as "low" | "out") || null)}
           className="border p-2 rounded"
         >
           <option value="">Todos los stocks</option>

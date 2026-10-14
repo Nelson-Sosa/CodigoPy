@@ -105,6 +105,7 @@ const CategoriesPage = () => {
 
         <div className="lg:col-span-1">
           <CategoryForm
+            key={editingCategory?.id || "new"}
             onSave={handleSave}
             editingCategory={editingCategory}
             onCancel={() => setEditingCategory(null)}

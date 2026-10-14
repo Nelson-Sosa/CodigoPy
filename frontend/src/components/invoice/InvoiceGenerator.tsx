@@ -111,7 +111,7 @@ export const generateInvoiceHTML = async (sale: SaleData): Promise<string> => {
   try {
     const res = await settingsService.get();
     settings = { ...settings, ...res.data };
-  } catch (e) {
+  } catch {
     console.log("Using default settings");
   }
 
@@ -127,7 +127,7 @@ export const generateInvoiceHTML = async (sale: SaleData): Promise<string> => {
     } else if (rateRes.data?.exchangeRate) {
       exchangeRate = rateRes.data.exchangeRate;
     }
-  } catch (e) {
+  } catch {
     console.log("Using default exchange rate");
   }
   

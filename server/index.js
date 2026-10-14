@@ -20,8 +20,32 @@ const app = express();
 
 connectDB();
 
+// Orígenes permitidos para CORS (desarrollo y dominios autorizados)
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://codigo-py-flax.vercel.app',
+  'https://codigo-py-frontend.onrender.com'
+];
+
+// Si CLIENT_URL está definido (por ejemplo, el dominio de Firebase Hosting en Koyeb), agregarlo
+if (process.env.CLIENT_URL) {
+  process.env.CLIENT_URL.split(',').forEach((url) => {
+    const trimmed = url.trim().replace(/\/+$/, '');
+    if (trimmed && !allowedOrigins.includes(trimmed)) {
+      allowedOrigins.push(trimmed);
+    }
+  });
+}
+
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://codigo-py-flax.vercel.app', 'https://codigo-py-frontend.onrender.com'],
+  origin: (origin, callback) => {
+    // Permitir solicitudes sin origen (curl, pruebas locales, health checks internos)
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error(`CORS no permitido para el origen: ${origin}`));
+  },
   credentials: true
 }));
 app.use(express.json());

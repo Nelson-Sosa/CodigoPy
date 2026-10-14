@@ -1,11 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { CheckCircle, XCircle, Info, X } from 'lucide-react';
-
-interface Toast {
-  id: string;
-  message: string;
-  type: 'success' | 'error' | 'info';
-}
+import { Toast } from '../../hooks/useToast';
 
 interface ToastProps {
   toasts: Toast[];
@@ -51,21 +46,6 @@ export const ToastContainer = ({ toasts, onRemove }: ToastProps) => {
       ))}
     </div>
   );
-};
-
-export const useToast = () => {
-  const [toasts, setToasts] = useState<Toast[]>([]);
-
-  const addToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
-    const id = Date.now().toString();
-    setToasts((prev) => [...prev, { id, message, type }]);
-  };
-
-  const removeToast = (id: string) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-  };
-
-  return { toasts, addToast, removeToast };
 };
 
 export default ToastContainer;

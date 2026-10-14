@@ -1,10 +1,11 @@
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useState, useRef, useMemo, useCallback } from "react";
+import type { AxiosError } from "axios";
 import { saleService, clientService, productService, authService, reportService } from "../services/api";
 import { ShoppingCart, Plus, Eye, X, Trash2, Search, User, Package, Edit2, Printer, Receipt, TrendingUp, DollarSign, Calendar, Check, FileText, Ticket } from "lucide-react";
 import ConfirmModal from "../components/modals/ConfirmModal";
 import { printInvoice } from "../components/invoice/InvoiceGenerator";
 import { printTicket } from "../utils/ticketPrinter";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 import { format } from "date-fns";
 
 interface SaleItem {
@@ -71,7 +72,7 @@ const SalesPage = () => {
   const [editingSale, setEditingSale] = useState<Sale | null>(null);
   const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
   const [saving, setSaving] = useState(false);
-  const [completedSale, setCompletedSale] = useState<any>(null);
+  const [completedSale, setCompletedSale] = useState<Sale | null>(null);
   const [showPrintModal, setShowPrintModal] = useState(false);
   const [showPriceAlert, setShowPriceAlert] = useState(false);
   const [priceAlertData, setPriceAlertData] = useState<{product: string; margin: number; cost: number; price: number} | null>(null);
@@ -129,87 +130,78 @@ const SalesPage = () => {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  useEffect(() => {
-    if (user) {
-      fetchData();
-    }
-  }, [filterUserId, filterStartDate, filterEndDate, currentPage, user]);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filterUserId, filterStartDate, filterEndDate]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const params: any = { page: currentPage, limit: 20 };
+      const params: Record<string, string | number> = { page: currentPage, limit: 20 };
       
       if (filterStartDate) params.startDate = filterStartDate;
       if (filterEndDate) params.endDate = filterEndDate;
       
       if (user?.role === "vendedor") {
-        params.userId = user.id || user._id;
+        params.userId = user.id || user._id || "";
       } else if (filterUserId) {
         params.userId = filterUserId;
       }
       
-      const summaryParams: any = {};
-        if (filterStartDate) summaryParams.startDate = filterStartDate;
-        if (filterEndDate) summaryParams.endDate = filterEndDate;
-        if (filterUserId) summaryParams.userId = filterUserId;
-        
-        if (!filterStartDate && !filterEndDate) {
-          const now = new Date();
-          summaryParams.startDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
-          summaryParams.endDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-        }
-        
-        const todayParams: any = {};
-        if (filterUserId) todayParams.userId = filterUserId;
-        const today = new Date();
-        todayParams.startDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-        todayParams.endDate = todayParams.startDate;
-        
-        const [salesRes, clientsRes, productsRes, dashboardRes, summaryRes, todayRes] = await Promise.all([
-          saleService.getAll(params),
-          clientService.getAll(),
-          productService.getAll(),
-          reportService.getDashboard().catch(() => ({ data: null })),
-          reportService.getSalesSummary(summaryParams).catch(() => ({ data: null })),
-          reportService.getSalesSummary(todayParams).catch(() => ({ data: null })),
-        ]);
-        
-        setSales(salesRes.data.sales || []);
-        setTotalPages(salesRes.data.pages || 1);
-        setCurrentPage(salesRes.data.page || 1);
-        setClients(clientsRes.data || []);
-        setProducts(productsRes.data.map((p: any) => ({
-          ...p,
-          salePrice: p.salePrice || 0,
-          costPrice: p.costPrice || 0,
-          stock: p.stock || 0,
-        })));
-        
-        if (dashboardRes.data && !filterUserId) {
-          setTodayStats(dashboardRes.data.sales.today);
-        }
-        
-        if (summaryRes.data) {
-          setDashboardStats({
-            total: summaryRes.data.summary.totalRevenue || 0,
-            count: summaryRes.data.summary.totalSales || 0,
-            profit: summaryRes.data.summary.totalProfit || 0,
-          });
-        }
-        
-        if (todayRes.data) {
-          setTodayStats({
-            total: todayRes.data.summary.totalRevenue || 0,
-            count: todayRes.data.summary.totalSales || 0,
-            profit: todayRes.data.summary.totalProfit || 0,
-          });
-        }
+      const summaryParams: Record<string, string> = {};
+      if (filterStartDate) summaryParams.startDate = filterStartDate;
+      if (filterEndDate) summaryParams.endDate = filterEndDate;
+      if (filterUserId) summaryParams.userId = filterUserId;
       
+      if (!filterStartDate && !filterEndDate) {
+        const now = new Date();
+        summaryParams.startDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+        summaryParams.endDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      }
+      
+      const todayParams: Record<string, string> = {};
+      if (filterUserId) todayParams.userId = filterUserId;
+      const today = new Date();
+      todayParams.startDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+      todayParams.endDate = todayParams.startDate;
+      
+      const [salesRes, clientsRes, productsRes, dashboardRes, summaryRes, todayRes] = await Promise.all([
+        saleService.getAll(params),
+        clientService.getAll(),
+        productService.getAll(),
+        reportService.getDashboard().catch(() => ({ data: null })),
+        reportService.getSalesSummary(summaryParams).catch(() => ({ data: null })),
+        reportService.getSalesSummary(todayParams).catch(() => ({ data: null })),
+      ]);
+      
+      setSales(salesRes.data.sales || []);
+      setTotalPages(salesRes.data.pages || 1);
+      setCurrentPage(salesRes.data.page || 1);
+      setClients(clientsRes.data || []);
+      setProducts(productsRes.data.map((p: Product & { _id?: string }) => ({
+        ...p,
+        _id: p._id || "",
+        salePrice: p.salePrice || 0,
+        costPrice: p.costPrice || 0,
+        stock: p.stock || 0,
+      })));
+      
+      if (dashboardRes.data && !filterUserId) {
+        setTodayStats(dashboardRes.data.sales.today);
+      }
+      
+      if (summaryRes.data) {
+        setDashboardStats({
+          total: summaryRes.data.summary.totalRevenue || 0,
+          count: summaryRes.data.summary.totalSales || 0,
+          profit: summaryRes.data.summary.totalProfit || 0,
+        });
+      }
+      
+      if (todayRes.data) {
+        setTodayStats({
+          total: todayRes.data.summary.totalRevenue || 0,
+          count: todayRes.data.summary.totalSales || 0,
+          profit: todayRes.data.summary.totalProfit || 0,
+        });
+      }
+    
       if (user?.role === "admin") {
         const usersRes = await authService.getUsers();
         setUsers(usersRes.data || []);
@@ -221,7 +213,17 @@ const SalesPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, filterEndDate, filterStartDate, filterUserId, user]);
+
+  useEffect(() => {
+    if (user) {
+      fetchData();
+    }
+  }, [fetchData, user]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterUserId, filterStartDate, filterEndDate]);
 
   const filteredProducts = products.filter(p =>
     p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
@@ -282,7 +284,7 @@ const SalesPage = () => {
       return;
     }
     const item = items.find(i => i.product === productId);
-    if (item && quantity > products.find(p => p._id === productId)?.stock!) {
+    if (item && quantity > (products.find(p => p._id === productId)?.stock ?? 0)) {
       alert("No hay suficiente stock");
       return;
     }
@@ -359,10 +361,19 @@ const SalesPage = () => {
 
     setSaving(true);
     try {
-      const saleData: any = {
+      const saleData: {
+        items: SaleItem[];
+        subtotal: number;
+        discount: number;
+        total: number;
+        paymentMethod: string;
+        notes?: string;
+        clientId?: string;
+      } = {
         items: items.map(item => ({
           product: item.product,
           productName: item.productName,
+          sku: item.sku,
           quantity: item.quantity,
           unitPrice: item.unitPrice,
           costPrice: item.costPrice,
@@ -397,10 +408,11 @@ const SalesPage = () => {
         setCompletedSale(newSale);
         setShowPrintModal(true);
       } else {
-        alert("┬íVenta actualizada exitosamente!");
+        alert("¡Venta actualizada exitosamente!");
       }
-    } catch (err: any) {
-      alert(err.response?.data?.message || "Error al guardar venta");
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      alert(axiosErr.response?.data?.message || "Error al guardar venta");
     } finally {
       setSaving(false);
     }
@@ -419,7 +431,7 @@ const SalesPage = () => {
     setEditingSale(sale);
     setClientId(sale.client?._id || "");
       setItems(sale.items.map(item => ({
-        product: typeof item.product === 'object' ? (item.product as any)._id : item.product,
+        product: typeof item.product === 'object' ? ((item.product as unknown as { _id?: string })._id || "") : String(item.product),
         productName: item.productName,
         sku: item.sku || "",
         quantity: item.quantity,
@@ -445,25 +457,12 @@ const SalesPage = () => {
       cash: "Efectivo",
       card: "Tarjeta",
       transfer: "Transferencia",
-      credit: "Cr├®dito",
+      credit: "Crédito",
     };
     return labels[method] || method;
   };
 
   const displayStats = useMemo(() => {
-    const today = new Date();
-    const todayKey = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
-    
-    let startOfPeriod: Date;
-    let endOfPeriod: Date;
-    let periodLabel = "Este Mes";
-    
-    if (filterStartDate && filterEndDate) {
-      startOfPeriod = new Date(filterStartDate + 'T00:00:00');
-      endOfPeriod = new Date(filterEndDate + 'T23:59:59');
-      periodLabel = `${format(new Date(filterStartDate + 'T00:00:00'), 'dd/MM')} - ${format(new Date(filterEndDate + 'T00:00:00'), 'dd/MM')}`;
-    }
-    
     return {
       today: todayStats,
       period: dashboardStats,
@@ -471,7 +470,7 @@ const SalesPage = () => {
         ? `${format(new Date(filterStartDate + 'T00:00:00'), 'dd/MM')} - ${format(new Date(filterEndDate + 'T00:00:00'), 'dd/MM')}`
         : "Este Mes",
     };
-  }, [filterStartDate, filterEndDate, dashboardStats, todayStats]);
+  }, [filterStartDate, filterEndDate, todayStats, dashboardStats]);
 
   if (loading) {
     return (
@@ -1045,7 +1044,7 @@ const SalesPage = () => {
               <div className="mb-4">
                 <p className="text-xs text-gray-500 mb-2">Productos ({selectedSale.items.length})</p>
                 <div className="space-y-2">
-                  {selectedSale.items.map((item: any, i: number) => (
+                  {selectedSale.items.map((item: SaleItem, i: number) => (
                     <div key={i} className="flex justify-between items-center text-sm bg-white border rounded-lg p-2">
                       <div>
                         <p className="font-medium">{item.productName}</p>
@@ -1234,8 +1233,9 @@ const SalesPage = () => {
             fetchData();
             window.dispatchEvent(new Event('inventoryUpdate'));
             window.dispatchEvent(new Event('saleCompleted'));
-          } catch (err: any) {
-            alert(err.response?.data?.message || "Error al cancelar venta");
+          } catch (err) {
+            const axiosErr = err as AxiosError<{ message?: string }>;
+            alert(axiosErr.response?.data?.message || "Error al cancelar venta");
           } finally {
             setSaving(false);
           }

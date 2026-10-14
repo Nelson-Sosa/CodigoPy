@@ -1,5 +1,12 @@
-const mongoose = require('mongoose');
 require('dotenv').config();
+
+// Protección contra ejecución accidental en producción
+if (process.env.NODE_ENV === 'production') {
+  console.error('❌ OPERACIÓN ABORTADA: No se permite ejecutar scripts de seed en entorno de producción.');
+  process.exit(1);
+}
+
+const mongoose = require('mongoose');
 
 const User = require('./models/User');
 const Client = require('./models/Client');

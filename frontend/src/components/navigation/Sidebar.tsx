@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../context/useAuth";
 import { LayoutDashboard, Package, Tag, ArrowLeftRight, BarChart3, ShoppingCart, Users, Settings, DollarSign, X, UserCog, Award, ClipboardList } from "lucide-react";
 
 interface SidebarProps {
@@ -29,8 +29,8 @@ const Sidebar = ({ onClose }: SidebarProps) => {
     { label: "Caja", path: "/cash-register", icon: DollarSign, roles: ["admin", "vendedor"] },
     { label: "Ventas", path: "/sales", icon: ShoppingCart, roles: ["admin", "vendedor"] },
     { label: "Productos", path: "/products", icon: Package, roles: ["admin", "vendedor"] },
-    { label: "Categorías", path: user?.role === "admin" ? "/categories" : "/categories-view", icon: Tag, roles: ["admin", "vendedor"] },
-    { label: "Compras", path: user?.role === "admin" || user?.role === "supervisor" ? "/purchases" : "/purchases-view", icon: ClipboardList, roles: ["admin", "supervisor", "vendedor"] },
+    { label: "Categorías", path: isAdmin ? "/categories" : "/categories-view", icon: Tag, roles: ["admin", "vendedor"] },
+    { label: "Compras", path: isAdmin ? "/purchases" : "/purchases-view", icon: ClipboardList, roles: ["admin", "supervisor", "vendedor"] },
     { label: "Clientes", path: "/clients", icon: Users, roles: ["admin", "vendedor"] },
     { label: "Proveedores", path: "/suppliers", icon: Users, roles: ["admin"] },
     { label: "Movimientos", path: "/movements", icon: ArrowLeftRight, roles: ["admin"] },

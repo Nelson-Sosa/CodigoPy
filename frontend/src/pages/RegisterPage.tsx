@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/authContextDef";
 import { DollarSign, AlertCircle, Eye, EyeOff, Loader2 } from "lucide-react";
 
 const RegisterPage = () => {
@@ -118,17 +118,19 @@ const RegisterPage = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Rol
+                Rol asignado
               </label>
               <select
                 value={role}
-                onChange={(e) => setRole(e.target.value as "admin" | "vendedor")}
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none transition"
-                disabled={loading}
+                onChange={(e) => setRole(e.target.value as "vendedor")}
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none transition bg-gray-50 cursor-not-allowed"
+                disabled={true}
               >
                 <option value="vendedor">Vendedor</option>
-                <option value="admin">Administrador</option>
               </select>
+              <p className="text-xs text-gray-500 mt-1">
+                El registro público asigna el rol Vendedor. Los administradores se gestionan desde el panel de control.
+              </p>
             </div>
 
             <button

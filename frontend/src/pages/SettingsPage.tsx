@@ -1,9 +1,60 @@
 import { useEffect, useState } from "react";
+import type { AxiosError } from "axios";
 import { settingsService, cashRegisterService, productService, saleService, movementService } from "../services/api";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 import ExchangeRateDisplay from "../components/common/ExchangeRateDisplay";
 import PrintTest from "../components/settings/PrintTest";
 import { Settings, Save, Building2, Receipt, FileText, Trash2, Download } from "lucide-react";
+
+interface ExportProduct {
+  sku?: string;
+  name?: string;
+  brand?: string;
+  description?: string;
+  barcode?: string;
+  salePrice?: number;
+  costPrice?: number;
+  stock?: number;
+  minStock?: number;
+  maxStock?: number;
+  unit?: string;
+  status?: string;
+}
+
+interface ExportSale {
+  invoiceNumber?: string;
+  createdAt?: string;
+  clientName?: string;
+  subtotal?: number;
+  discount?: number;
+  total?: number;
+  paymentMethod?: string;
+  status?: string;
+  createdBy?: { name?: string };
+  notes?: string;
+}
+
+interface ExportMovement {
+  createdAt?: string;
+  type?: string;
+  productName?: string;
+  product?: { name?: string; sku?: string };
+  quantity?: number;
+  previousStock?: number;
+  newStock?: number;
+  reason?: string;
+  createdBy?: { name?: string };
+  notes?: string;
+}
+
+const escapeCSV = (val: unknown): string => {
+  if (val === null || val === undefined) return '';
+  const str = String(val);
+  if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+    return `"${str.replace(/"/g, '""')}"`;
+  }
+  return str;
+};
 
 interface SettingsData {
   businessName: string;
@@ -94,7 +145,7 @@ const SettingsPage = () => {
       await settingsService.update(dataToSave);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
-    } catch (err) {
+    } catch {
       alert("Error al guardar configuración");
     } finally {
       setSaving(false);
@@ -403,7 +454,7 @@ const SettingsPage = () => {
                   try {
                     const res = await cashRegisterService.cleanDuplicates();
                     alert(res.data.message);
-                  } catch (err) {
+                  } catch {
                     alert("Error al limpiar duplicados");
                   } finally {
                     setCleaning(false);
@@ -433,7 +484,8 @@ const SettingsPage = () => {
                     const res = await cashRegisterService.fixClosing(dateKey);
                     alert(res.data.message || "Cierre corregido");
                   } catch (err) {
-                    alert(err.response?.data?.message || "Error al corregir cierre");
+                    const axiosErr = err as AxiosError<{ message?: string }>;
+                    alert(axiosErr.response?.data?.message || "Error al corregir cierre");
                   } finally {
                     setCleaning(false);
                   }
@@ -456,7 +508,7 @@ const SettingsPage = () => {
                   setCleaning(true);
                   try {
                     const res = await productService.getAll();
-                    const products = res.data.map((p: any) => ({
+                    const products = (res.data || []).map((p: ExportProduct) => ({
                       SKU: p.sku || '',
                       NOMBRE: p.name || '',
                       MARCA: p.brand || '',
@@ -472,18 +524,9 @@ const SettingsPage = () => {
                     }));
 
                     const headers = ['SKU', 'NOMBRE', 'MARCA', 'DESCRIPCION', 'CODIGO_DE_BARRAS', 'PRECIO_VENTA', 'PRECIO_COSTO', 'STOCK', 'STOCK_MINIMO', 'STOCK_MAXIMO', 'UNIDAD', 'ESTADO'];
-                    
-                    const escapeCSV = (val: any) => {
-                      if (val === null || val === undefined) return '';
-                      const str = String(val);
-                      if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-                        return `"${str.replace(/"/g, '""')}"`;
-                      }
-                      return str;
-                    };
 
-                    const csvRows = products.map(p => 
-                      headers.map(h => escapeCSV(p[h as keyof typeof p])).join(',')
+                    const csvRows = products.map((p: Record<string, unknown>) => 
+                      headers.map(h => escapeCSV(p[h])).join(',')
                     );
                     const csv = [headers.join(','), ...csvRows].join('\n');
 
@@ -496,7 +539,7 @@ const SettingsPage = () => {
                     URL.revokeObjectURL(url);
 
                     alert(`Exportados ${products.length} productos`);
-                  } catch (err) {
+                  } catch {
                     alert("Error al exportar productos");
                   } finally {
                     setCleaning(false);
@@ -521,9 +564,9 @@ const SettingsPage = () => {
                   setCleaning(true);
                   try {
                     const res = await saleService.getAll();
-                    const sales = res.data.sales || res.data || [];
+                    const sales: ExportSale[] = res.data.sales || res.data || [];
                     
-                    const formattedSales = sales.map((s: any) => ({
+                    const formattedSales = sales.map((s: ExportSale) => ({
                       FACTURA: s.invoiceNumber || '',
                       FECHA: s.createdAt ? new Date(s.createdAt).toLocaleDateString() : '',
                       HORA: s.createdAt ? new Date(s.createdAt).toLocaleTimeString() : '',
@@ -543,18 +586,9 @@ const SettingsPage = () => {
                     }));
 
                     const headers = ['FACTURA', 'FECHA', 'HORA', 'CLIENTE', 'SUBTOTAL', 'DESCUENTO', 'TOTAL', 'PAGO', 'ESTADO', 'USUARIO', 'NOTAS'];
-                    
-                    const escapeCSV = (val: any) => {
-                      if (val === null || val === undefined) return '';
-                      const str = String(val);
-                      if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-                        return `"${str.replace(/"/g, '""')}"`;
-                      }
-                      return str;
-                    };
 
-                    const csvRows = formattedSales.map((s: any) => 
-                      headers.map(h => escapeCSV(s[h as keyof typeof s])).join(',')
+                    const csvRows = formattedSales.map((s: Record<string, unknown>) => 
+                      headers.map(h => escapeCSV(s[h])).join(',')
                     );
                     const csv = [headers.join(','), ...csvRows].join('\n');
 
@@ -567,7 +601,7 @@ const SettingsPage = () => {
                     URL.revokeObjectURL(url);
 
                     alert(`Exportadas ${formattedSales.length} ventas`);
-                  } catch (err) {
+                  } catch {
                     alert("Error al exportar ventas");
                   } finally {
                     setCleaning(false);
@@ -592,9 +626,9 @@ const SettingsPage = () => {
                   setCleaning(true);
                   try {
                     const res = await movementService.getAll();
-                    const movements = res.data.movements || res.data || [];
+                    const movements: ExportMovement[] = res.data.movements || res.data || [];
                     
-                    const formattedMovements = movements.map((m: any) => ({
+                    const formattedMovements = movements.map((m: ExportMovement) => ({
                       FECHA: m.createdAt ? new Date(m.createdAt).toLocaleDateString() : '',
                       HORA: m.createdAt ? new Date(m.createdAt).toLocaleTimeString() : '',
                       TIPO: m.type === 'in' ? 'Entrada' : 
@@ -611,18 +645,9 @@ const SettingsPage = () => {
                     }));
 
                     const headers = ['FECHA', 'HORA', 'TIPO', 'PRODUCTO', 'SKU', 'CANTIDAD', 'STOCK ANTERIOR', 'STOCK NUEVO', 'MOTIVO', 'USUARIO', 'NOTAS'];
-                    
-                    const escapeCSV = (val: any) => {
-                      if (val === null || val === undefined) return '';
-                      const str = String(val);
-                      if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-                        return `"${str.replace(/"/g, '""')}"`;
-                      }
-                      return str;
-                    };
 
-                    const csvRows = formattedMovements.map((m: any) => 
-                      headers.map(h => escapeCSV(m[h as keyof typeof m])).join(',')
+                    const csvRows = formattedMovements.map((m: Record<string, unknown>) => 
+                      headers.map(h => escapeCSV(m[h])).join(',')
                     );
                     const csv = [headers.join(','), ...csvRows].join('\n');
 
@@ -635,7 +660,7 @@ const SettingsPage = () => {
                     URL.revokeObjectURL(url);
 
                     alert(`Exportados ${formattedMovements.length} movimientos`);
-                  } catch (err) {
+                  } catch {
                     alert("Error al exportar movimientos");
                   } finally {
                     setCleaning(false);

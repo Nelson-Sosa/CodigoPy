@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { saleService, productService, clientService, authService } from "../services/api";
 import { BarChart3, FileText, Download, TrendingUp, Users, Package, DollarSign, ShoppingCart } from "lucide-react";
 import { format } from "date-fns";
@@ -74,18 +74,12 @@ const ReportsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [invPage, setInvPage] = useState(1);
-  const [invTotalPages, setInvTotalPages] = useState(1);
-  const [salesTotal, setSalesTotal] = useState(0);
   const pageSize = 20;
 
-  useEffect(() => {
-    fetchData();
-  }, [selectedUserId, startDate, endDate, currentPage]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const params: any = { limit: 500 };
+      const params: Record<string, string | number> = { limit: 500 };
       if (selectedUserId) params.userId = selectedUserId;
       if (startDate) params.startDate = startDate;
       if (endDate) params.endDate = endDate;
@@ -106,12 +100,16 @@ const ReportsPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedUserId, startDate, endDate, pageSize]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const filteredSales = sales.filter(s => s.status !== "cancelled");
   const paginatedSales = filteredSales.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
-  const exportToCSV = (data: any[], filename: string, headers: string[]) => {
+  const exportToCSV = (data: Record<string, unknown>[], filename: string, headers: string[]) => {
     const csvContent = [
       headers.join(","),
       ...data.map(row => Object.values(row).join(","))

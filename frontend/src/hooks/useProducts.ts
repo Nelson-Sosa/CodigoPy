@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { productService } from "../services/api";
 
 export interface Product {
@@ -21,20 +21,30 @@ export interface Product {
   updatedAt: string;
 }
 
+interface RawApiProduct extends Partial<Product> {
+  salePrice?: number;
+  costPrice?: number;
+}
+
 export const useProducts = (params?: { search?: string; category?: string; status?: string; lowStock?: boolean }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchProducts = async () => {
+  const search = params?.search;
+  const category = params?.category;
+  const status = params?.status;
+  const lowStock = params?.lowStock;
+
+  const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await productService.getAll(params);
-      const mapped = res.data.map((p: any) => ({
+      const res = await productService.getAll({ search, category, status, lowStock });
+      const mapped = res.data.map((p: RawApiProduct) => ({
         ...p,
-        id: p._id,
-        price: p.salePrice,
-        cost: p.costPrice,
-        categoryId: p.category?._id || p.category,
+        id: p.id || p._id || "",
+        price: p.salePrice ?? p.price ?? 0,
+        cost: p.costPrice ?? p.cost ?? 0,
+        categoryId: typeof p.category === "object" ? p.category?._id : (p.category || p.categoryId),
       }));
       setProducts(mapped);
     } catch (err) {
@@ -42,11 +52,11 @@ export const useProducts = (params?: { search?: string; category?: string; statu
     } finally {
       setLoading(false);
     }
-  };
+  }, [search, category, status, lowStock]);
 
   useEffect(() => {
     fetchProducts();
-  }, [params?.search, params?.category, params?.status, params?.lowStock]);
+  }, [fetchProducts]);
 
   const createProduct = async (product: Omit<Product, "_id" | "id" | "createdAt" | "updatedAt">) => {
     const data = {

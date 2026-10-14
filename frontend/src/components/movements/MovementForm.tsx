@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
+import { AxiosError } from "axios";
 import { productService } from "../../services/api";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../context/useAuth";
 import { Package, ArrowDownCircle, ArrowUpCircle, Settings, Plus, Minus, Lock, Search } from "lucide-react";
 
 interface Props {
@@ -13,6 +14,7 @@ interface Product {
   sku: string;
   name: string;
   stock: number;
+  description?: string;
   salePrice?: number;
   costPrice?: number;
   category?: { name: string };
@@ -59,9 +61,9 @@ const MovementForm = ({ onMovementSaved }: Props) => {
     const fetchProducts = async () => {
       try {
         const res = await productService.getAll();
-        const mapped = res.data.map((p: any) => ({
+        const mapped = res.data.map((p: Product) => ({
           ...p,
-          id: p._id,
+          id: p.id || p._id || "",
         }));
         setProducts(mapped);
       } catch (err) {
@@ -135,8 +137,9 @@ const MovementForm = ({ onMovementSaved }: Props) => {
       setNotes("");
 
       onMovementSaved();
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Error al registrar movimiento");
+    } catch (err: unknown) {
+      const errorMsg = (err instanceof AxiosError && (err.response?.data as { message?: string })?.message) || "Error al registrar movimiento";
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }

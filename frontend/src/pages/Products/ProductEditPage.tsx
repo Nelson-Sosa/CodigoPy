@@ -2,8 +2,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { productService, categoryService } from "../../services/api";
 import type { Product } from "../../types/Product";
+import type { Category } from "../../types/category";
 import { Package, Tag, Info } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../context/useAuth";
 
 const ProductEditPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -12,7 +13,7 @@ const ProductEditPage = () => {
   const isAdmin = user?.role === "admin";
 
   const [form, setForm] = useState<Partial<Product>>({});
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

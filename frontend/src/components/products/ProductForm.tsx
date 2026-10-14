@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { AxiosError } from "axios";
 import { productService, categoryService } from "../../services/api";
 import type { Product } from "../../types/Product";
+import type { Category } from "../../types/category";
 import { Package, Tag, Info } from "lucide-react";
 
 const ProductForm = () => {
   const navigate = useNavigate();
 
   const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
@@ -35,9 +37,9 @@ const ProductForm = () => {
           productService.getAll(),
           categoryService.getAll(),
         ]);
-        const mappedProducts = prodRes.data.map((p: any) => ({
+        const mappedProducts = prodRes.data.map((p: Product) => ({
           ...p,
-          id: p._id,
+          id: p.id || p._id || "",
         }));
         setProducts(mappedProducts);
         setCategories(catRes.data);
@@ -91,8 +93,9 @@ const ProductForm = () => {
         status: "active",
       });
       navigate("/products");
-    } catch (err: any) {
-      setErrors({ submit: err.response?.data?.message || "Error al crear producto" });
+    } catch (err: unknown) {
+      const msg = (err instanceof AxiosError && (err.response?.data as { message?: string })?.message) || "Error al crear producto";
+      setErrors({ submit: msg });
     } finally {
       setLoading(false);
     }

@@ -3,12 +3,19 @@ import { purchaseService } from "../services/api";
 import { Truck, Clock, CheckCircle, DollarSign } from "lucide-react";
 import { format } from "date-fns";
 
+interface PurchaseItem {
+  productName: string;
+  quantity: number;
+  unitCost: number;
+  subtotal: number;
+}
+
 interface Purchase {
   _id: string;
   purchaseNumber: string;
   supplier?: { name: string };
   supplierName: string;
-  items: any[];
+  items: PurchaseItem[];
   total: number;
   status: string;
   paymentMethod: string;
@@ -234,7 +241,7 @@ const PurchasesViewPage = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {selectedPurchase.items.map((item: any, idx: number) => (
+                      {selectedPurchase.items.map((item: PurchaseItem, idx: number) => (
                         <tr key={idx} className="border-t">
                           <td className="p-3">{item.productName}</td>
                           <td className="p-3 text-right">{item.quantity}</td>

@@ -49,7 +49,7 @@ export const printTicket = async (sale: TicketData) => {
     finVigencia = res.data?.finVigencia || "";
     footerMessage = res.data?.footerMessage || "¡Gracias por su compra!";
     exchangeRate = res.data?.exchangeRate || 6600;
-  } catch (e) {
+  } catch {
     console.log("Using default settings");
   }
 

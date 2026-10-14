@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import type { AxiosError } from "axios";
 import { purchaseService, productService, supplierService, categoryService } from "../services/api";
 import { Package, Plus, Search, Eye, X, Trash2, CheckCircle, Clock, Truck, DollarSign } from "lucide-react";
 import { format } from "date-fns";
@@ -265,8 +266,9 @@ const PurchasesPage = () => {
       resetForm();
       fetchData();
       alert("¡Orden de compra creada exitosamente!");
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Error al crear orden");
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      setError(axiosErr.response?.data?.message || "Error al crear orden");
     } finally {
       setSaving(false);
     }
@@ -290,8 +292,9 @@ const PurchasesPage = () => {
       setSelectedPurchase(null);
       window.dispatchEvent(new Event('inventoryUpdate'));
       alert(res.data?.message || "¡Mercancía recibida y stock actualizado!");
-    } catch (err: any) {
-      alert(err.response?.data?.message || "Error al recibir mercancía");
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      alert(axiosErr.response?.data?.message || "Error al recibir mercancía");
     }
   };
 
@@ -303,8 +306,9 @@ const PurchasesPage = () => {
       fetchData();
       setSelectedPurchase(null);
       alert("Orden cancelada");
-    } catch (err: any) {
-      alert(err.response?.data?.message || "Error al cancelar orden");
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      alert(axiosErr.response?.data?.message || "Error al cancelar orden");
     }
   };
 
@@ -695,7 +699,7 @@ const PurchasesPage = () => {
               <div className="border-t pt-4">
                 <h3 className="font-medium mb-2 text-gray-700">Productos</h3>
                 <div className="space-y-2">
-                  {selectedPurchase.items.map((item: any, i: number) => (
+                  {selectedPurchase.items.map((item: PurchaseItem, i: number) => (
                     <div key={i} className="flex justify-between items-center py-2 border-b last:border-b-0">
                       <div>
                         <span className="font-medium">{item.productName}</span>

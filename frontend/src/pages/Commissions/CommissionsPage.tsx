@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { commissionService, authService, saleService } from "../../services/api";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../context/useAuth";
 import { DollarSign, TrendingUp, Users, Target, Award, X, Calendar, Trophy, ShoppingCart } from "lucide-react";
 
 interface CommissionData {
@@ -16,6 +16,52 @@ interface CommissionData {
     percentTarget: number;
     commission: number;
   };
+}
+
+interface MyStats {
+  salesCount: number;
+  totalSales: number;
+  totalCost: number;
+  profit: number;
+  percentTarget: number;
+  commission: number;
+}
+
+interface MyCommission {
+  monthlyTarget: number;
+  commissionPercent: number;
+}
+
+interface UserItem {
+  id: string;
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+}
+
+interface SaleSummaryItem {
+  _id: string;
+  invoiceNumber?: string;
+  clientName?: string;
+  total?: number;
+  profit?: number;
+  paymentMethod?: string;
+  dateKey?: number | string;
+}
+
+interface HistoryItem {
+  monthName: string;
+  year: number;
+  salesCount: number;
+  profit: number;
+  percentTarget: number;
+  commission: number;
+}
+
+interface HistoryData {
+  history?: HistoryItem[];
+  [key: string]: unknown;
 }
 
 const getMonthInfo = () => {
@@ -37,29 +83,41 @@ const CommissionsPage = () => {
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
   const [commissions, setCommissions] = useState<CommissionData[]>([]);
-  const [myStats, setMyStats] = useState<any>(null);
-  const [myCommission, setMyCommission] = useState<any>(null);
-  const [users, setUsers] = useState<any[]>([]);
+  const [myStats, setMyStats] = useState<MyStats | null>(null);
+  const [myCommission, setMyCommission] = useState<MyCommission | null>(null);
+  const [users, setUsers] = useState<UserItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({ monthlyTarget: 0, commissionPercent: 0 });
   const [showHistory, setShowHistory] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<any>(null);
-  const [historyData, setHistoryData] = useState<any>(null);
-  const [monthSalesData, setMonthSalesData] = useState<any[]>([]);
+  const [selectedUser, setSelectedUser] = useState<{ _id: string; name: string } | null>(null);
+  const [historyData, setHistoryData] = useState<HistoryData | null>(null);
+  const [monthSalesData, setMonthSalesData] = useState<SaleSummaryItem[]>([]);
   const [showMonthSales, setShowMonthSales] = useState(false);
   const [salesUserName, setSalesUserName] = useState<string>("");
-  const [mySales, setMySales] = useState<any[]>([]);
+  const [mySales, setMySales] = useState<SaleSummaryItem[]>([]);
   const monthInfo = getMonthInfo();
 
-  useEffect(() => {
-    fetchData();
-    if (isAdmin) {
-      fetchUsers();
+  const fetchUsers = useCallback(async () => {
+    try {
+      const res = await authService.getUsers();
+      const filtered = res.data.filter((u: UserItem) => u.role === "vendedor");
+      setUsers(filtered.map((u: UserItem) => ({ ...u, id: u._id || u.id })));
+    } catch (err) {
+      console.error("Error fetching users:", err);
     }
   }, []);
 
-  const fetchData = async () => {
+  const fetchCommissions = useCallback(async () => {
+    try {
+      const res = await commissionService.getAll();
+      setCommissions(res.data);
+    } catch (err) {
+      console.error("Error fetching commissions:", err);
+    }
+  }, []);
+
+  const fetchData = useCallback(async () => {
     try {
       const statsRes = await commissionService.getMyStats();
       setMyStats(statsRes.data.stats);
@@ -70,12 +128,11 @@ const CommissionsPage = () => {
           const salesRes = await saleService.getMySales();
           const allSales = salesRes.data.recentSales || [];
           
-          // Filtrar solo ventas del mes actual (Mayo 2026 = 202605)
           const now = new Date();
           const currentYear = now.getFullYear();
           const currentMonth = now.getMonth();
           
-          const monthSales = allSales.filter((sale: any) => {
+          const monthSales = allSales.filter((sale: SaleSummaryItem) => {
             if (!sale.dateKey) return false;
             const str = sale.dateKey.toString();
             const saleYear = parseInt(str.slice(0, 4));
@@ -93,32 +150,15 @@ const CommissionsPage = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const fetchUsers = async () => {
-    try {
-      const res = await authService.getUsers();
-      const filtered = res.data.filter((u: any) => u.role === "vendedor");
-      setUsers(filtered.map((u: any) => ({ ...u, id: u._id })));
-    } catch (err) {
-      console.error("Error fetching users:", err);
-    }
-  };
+  }, [isAdmin]);
 
   useEffect(() => {
+    fetchData();
     if (isAdmin) {
+      fetchUsers();
       fetchCommissions();
     }
-  }, []);
-
-  const fetchCommissions = async () => {
-    try {
-      const res = await commissionService.getAll();
-      setCommissions(res.data);
-    } catch (err) {
-      console.error("Error fetching commissions:", err);
-    }
-  };
+  }, [fetchData, fetchUsers, fetchCommissions, isAdmin]);
 
   const handleSave = async (userId: string) => {
     try {
@@ -129,7 +169,7 @@ const CommissionsPage = () => {
       });
       setEditingId(null);
       fetchCommissions();
-    } catch (err) {
+    } catch {
       alert("Error al guardar configuración");
     }
   };
@@ -140,7 +180,7 @@ const CommissionsPage = () => {
       setSelectedUser({ _id: userId, name: userName });
       setHistoryData(res.data);
       setShowHistory(true);
-    } catch (err) {
+    } catch {
       alert("Error al cargar historial");
     }
   };
@@ -153,7 +193,7 @@ const CommissionsPage = () => {
       const currentYear = now.getFullYear();
       const currentMonth = now.getMonth();
       
-      const monthSales = allSales.filter((sale: any) => {
+      const monthSales = allSales.filter((sale: SaleSummaryItem) => {
         if (!sale.dateKey) return false;
         const str = sale.dateKey.toString();
         const saleYear = parseInt(str.slice(0, 4));
@@ -164,7 +204,7 @@ const CommissionsPage = () => {
       setSalesUserName(userName);
       setMonthSalesData(monthSales);
       setShowMonthSales(true);
-    } catch (err) {
+    } catch {
       alert("Error al cargar ventas");
     }
   };
@@ -292,7 +332,7 @@ const CommissionsPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {mySales.map((sale: any) => (
+                {mySales.map((sale: SaleSummaryItem) => (
                   <tr key={sale._id} className="border-b hover:bg-gray-50">
                     <td className="py-2 px-3 font-medium">{sale.invoiceNumber || '-'}</td>
                     <td className="py-2 px-3">{sale.clientName || 'Cliente General'}</td>
@@ -470,7 +510,7 @@ const CommissionsPage = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {historyData?.history?.map((h: any, idx: number) => (
+                        {historyData?.history?.map((h: HistoryItem, idx: number) => (
                           <tr key={idx} className="border-b hover:bg-gray-50">
                             <td className="py-2 px-3 font-medium">{h.monthName} {h.year}</td>
                             <td className="py-2 px-3">{h.salesCount}</td>
@@ -521,7 +561,7 @@ const CommissionsPage = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {monthSalesData.map((sale: any) => (
+                        {monthSalesData.map((sale: SaleSummaryItem) => (
                           <tr key={sale._id} className="border-b hover:bg-gray-50">
                             <td className="py-2 px-3 font-medium">{sale.invoiceNumber || '-'}</td>
                             <td className="py-2 px-3">{sale.clientName || 'Cliente General'}</td>
