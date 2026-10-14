@@ -24,11 +24,13 @@ connectDB();
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
-  'https://codigo-py-flax.vercel.app',
-  'https://codigo-py-frontend.onrender.com'
+  'https://codigopy-pos.web.app',        // Firebase Hosting (producción)
+  'https://codigo-py-flax.vercel.app',   // Vercel (legado)
+  'https://codigo-py-frontend.onrender.com' // Render frontend (legado)
 ];
 
-// Si CLIENT_URL está definido (por ejemplo, el dominio de Firebase Hosting en Koyeb), agregarlo
+// CLIENT_URL permite agregar orígenes adicionales desde variables de entorno de Render
+// Ejemplo: CLIENT_URL=https://codigopy-pos.web.app,https://otro-dominio.com
 if (process.env.CLIENT_URL) {
   process.env.CLIENT_URL.split(',').forEach((url) => {
     const trimmed = url.trim().replace(/\/+$/, '');
