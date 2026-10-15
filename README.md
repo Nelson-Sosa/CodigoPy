@@ -1,222 +1,209 @@
-# 🚀 CodigoPy - Sistema de Gestión de Inventario
+# 🛒 CodigoPy POS - Sistema de Gestión Comercial y Punto de Venta
 
+![React](https://img.shields.io/badge/React_18-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
-![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
-![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB_Atlas-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
+![Firebase](https://img.shields.io/badge/Firebase_Hosting-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
 ![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)
 
-> **Sistema completo de gestión de inventario y punto de venta**, diseñado para negocios en Paraguay con soporte para moneda dual (USD/Gs.) y facturación profesional.
+> **Solución integral de punto de venta (POS), control de stock y administración de caja** desarrollada para optimizar las operaciones de comercios y pequeñas/medianas empresas (PyMEs), con soporte para moneda dual (**USD / Guaraníes Gs.**), emisión de tickets térmicos y control de márgenes de ganancia.
 
 ---
 
-## 🎯 Características Principales
+## 🌐 Demo en Vivo & Acceso de Prueba
 
-### 💰 Gestión de Caja
-- Apertura y cierre de caja diario
-- Control de efectivo en mano
-- Verificación de cierre con previsualización
-- Reapertura de caja (mismo día)
-- Resumen mensual con ventas reales
-- Conversión automática USD → Guaraníes (Gs. 6.600)
-- **Cierre automático de caja** (cuando se abre una nueva)
-- **Corrección de cierres automáticos** en mantenimiento
+El sistema se encuentra desplegado y 100% operativo en la nube para evaluación técnica y demostración comercial:
 
-### 🛒 Punto de Ventas
-- Ventas rápidas con búsqueda de productos
-- Múltiples métodos de pago: Efectivo, Tarjeta, Transferencia, Crédito
-- Descuentos por porcentaje
-- Generación de tickets para impresoras térmicas (80mm)
-- Cancelación de ventas con reversión de stock
-- **Validación automática de margen** (15% mínimo)
-- **Indicador visual de margen (%)** en tiempo real
-- **Modal profesional** cuando el precio está bajo el margen
-- **Exclusión de ventas canceladas** en estadísticas
+| Servicio | Enlace | Estado |
+| :--- | :--- | :--- |
+| **Frontend Web (App)** | [https://codigopy-pos.web.app](https://codigopy-pos.web.app/) | ![Online](https://img.shields.io/badge/Estado-Online-brightgreen) |
+| **API Backend** | [https://sistemapos-cs2d.onrender.com](https://sistemapos-cs2d.onrender.com/) | ![Active](https://img.shields.io/badge/API-Active-blue) |
+| **Health Check** | [Ver Estado del Servidor](https://sistemapos-cs2d.onrender.com/health) | `{"status":"ok","database":"connected"}` |
 
-### 📦 Inventario
-- CRUD completo de productos
-- Control de stock con alertas de mínimo/máximo
-- Historial de movimientos (entradas, salidas, ajustes)
-- Categorización de productos con colores
-- Búsqueda por SKU, nombre o descripción
+### 🔑 Credenciales de Demostración (Acceso Total para Reclutadores y Clientes)
 
-### 👥 Gestión de Clientes y Proveedores
-- Registro completo de clientes y proveedores
-- Historial de compras por cliente
-- Información de contacto y datos fiscales (RUC para Paraguay)
+Para explorar todas las funcionalidades administrativas, reportes y configuraciones del sistema:
 
-### 📊 Reportes y Dashboard
-- Dashboard en tiempo real con métricas clave
-- Reporte de ventas por período
-- Productos más vendidos
-- Inventario valorizado
-- Productos con stock bajo
-- Exportación a CSV
+```yaml
+Rol: Administrador (Admin)
+Email: admin@codigopy.com
+Contraseña: Admin2025!
+```
 
-### 🔐 Seguridad
-- Autenticación con JWT
-- Roles: Administrador, Vendedor
-- Rutas protegidas según rol
-- Tokens con expiración automática
-
-### 📱 Responsive Design
-- Interfaz completamente responsive
-- Optimizado para desktop, tablet y móvil
-- Menú lateral adaptable con botón hamburguesa en móviles
+> 💡 **Nota de prueba:** La base de datos es de demostración en tiempo real. Si el servidor backend en Render lleva unos minutos inactivo, la primera petición puede tardar unos segundos en despertar (instancia free-tier).
 
 ---
 
-## 🛠️ Stack Tecnológico
+## 💼 ¿Por qué CodigoPy POS? (Valor para Negocios)
 
-### Frontend
-| Tecnología | Propósito |
-|------------|-----------|
-| React 18 | Librería principal |
-| TypeScript | Tipado estático |
-| Vite | Build tool |
-| Tailwind CSS | Estilos |
-| React Router | Navegación |
-| Axios | Comunicación HTTP |
-| Lucide React | Iconos |
-| date-fns | Formateo de fechas |
+CodigoPy POS resuelve los problemas diarios más críticos de un comercio minorista o distribuidor:
 
-### Backend
-| Tecnología | Propósito |
-|------------|-----------|
-| Node.js | Runtime |
-| Express | Framework REST API |
-| MongoDB + Mongoose | Base de datos |
-| JWT | Autenticación |
-| bcryptjs | Encriptación de contraseñas |
-| CORS | Seguridad |
-
-### Despliegue
-| Servicio | Uso |
-|----------|-----|
-| Render | Frontend (CDN global) |
-| Render | Backend API |
-| MongoDB Atlas | Base de datos en la nube |
+1. **Evita pérdidas en caja:** Flujo estricto de apertura, arqueo y cierre diario con previsualización de ventas reales en efectivo, tarjetas y transferencias.
+2. **Protege tu margen de ganancia:** Alerta y bloquea ventas si el precio aplicado cae por debajo del margen mínimo de rentabilidad configurado (15%).
+3. **Control real del stock:** Kardex de movimientos (entradas, salidas, ajustes de inventario) con alerta de stock mínimo para evitar roturas.
+4. **Moneda Dual (Gs. / USD):** Diseñado especialmente para la dinámica comercial de Paraguay y la región con cotización diaria configurable.
+5. **Tickets Profesionales:** Generación de recibos listos para impresión térmica de 80mm / 58mm.
 
 ---
 
-## 📁 Estructura del Proyecto
+## 🚀 Módulos y Funcionalidades
+
+### 💰 1. Control y Gestión de Caja
+- Apertura diaria con registro de saldo inicial.
+- Arqueo y cierre de caja con cálculo automático de sobrante/faltante.
+- Historial de cierres de caja con detalle por medio de pago.
+- Soporte para reapertura de caja y cierres de seguridad.
+
+### 🛒 2. Punto de Venta (POS) Ágil
+- Búsqueda instantánea de productos por código de barras, SKU o nombre.
+- Carrito de compras reactivo con cálculo de subtotales, IVA y descuentos.
+- Múltiples medios de pago: **Efectivo, Tarjeta de Débito/Crédito, Transferencia Bancaria y Crédito**.
+- Indicador visual del margen de rentabilidad (%) en tiempo real en cada ítem.
+- Cancelación y anulación de ventas con restitución automática de stock.
+
+### 📦 3. Inventario y Catálogo de Productos
+- Catálogo de productos con categorías, códigos, precios de costo y venta.
+- Gestión de stock actual, stock mínimo y punto de reposición.
+- Historial completo de movimientos de almacén con motivos de ajuste.
+- Clasificación visual por categorías y etiquetas de colores.
+
+### 👥 4. Clientes y Proveedores
+- Libreta de clientes con RUC / Cédula, teléfono y dirección.
+- Historial de compras por cliente.
+- Directorio de proveedores para compras y reposición de mercaderías.
+
+### 📈 5. Dashboard y Reportes Gerenciales
+- Métricas clave en tiempo real: ventas del día, ticket promedio y ganancia estimada.
+- Reporte de productos más vendidos y productos con bajo stock.
+- Valorización total del inventario (precio costo vs. precio venta).
+- Exportación de reportes a formato CSV / Excel.
+
+### 🔒 6. Seguridad y Control de Acceso
+- Autenticación segura mediante JSON Web Tokens (JWT) almacenados en sesión.
+- Control de acceso basado en roles (**RBAC**):
+  - **Administrador:** Acceso completo a finanzas, costos, reportes, usuarios y ajustes del sistema.
+  - **Vendedor:** Enfocado exclusivamente en ventas rápidas, consulta de catálogo y apertura/cierre de su caja.
+
+---
+
+## 🏗️ Arquitectura Técnica
 
 ```
-CodigoPy/
-├── frontend/                 # React + Vite
-│   ├── src/
-│   │   ├── components/      # Componentes reutilizables
-│   │   │   ├── common/      # Componentes comunes (Price, etc.)
-│   │   │   ├── layout/      # Layout principal (Sidebar, Header)
-│   │   │   ├── movements/    # Formulario y tabla de movimientos
-│   │   │   ├── navigation/   # Navegación
-│   │   │   ├── products/     # Gestión de productos
-│   │   │   ├── reports/      # Componentes de reportes
-│   │   │   └── users/        # Gestión de usuarios
-│   │   ├── context/          # Contextos de React (Auth)
-│   │   ├── hooks/            # Hooks personalizados
-│   │   ├── pages/            # Páginas de la aplicación
-│   │   │   ├── Products/     # CRUD de productos
-│   │   │   ├── Categories/  # Gestión de categorías
-│   │   │   └── movements/    # Historial de movimientos
-│   │   ├── router/           # Configuración de rutas
-│   │   ├── services/         # Servicios API (Axios)
-│   │   ├── types/           # Definiciones TypeScript
-│   │   └── utils/           # Utilidades (formatters, ticket printer)
-│   └── package.json
-│
-├── server/                  # Node.js + Express
-│   ├── config/              # Configuración de BD
-│   ├── controllers/         # Lógica de negocio
-│   ├── middleware/          # Auth middleware
-│   ├── models/              # Modelos Mongoose
-│   ├── routes/              # Rutas de la API
-│   └── index.js             # Entry point
-│
-└── package.json             # Scripts para ejecutar ambos
+                         ┌────────────────────────────────────────┐
+                         │           Cliente / Navegador          │
+                         └───────────────────┬────────────────────┘
+                                             │ HTTPS
+                                             ▼
+                         ┌────────────────────────────────────────┐
+                         │   Frontend (SPA en React 18 + Vite)    │
+                         │       Firebase Hosting (CDN Global)    │
+                         └───────────────────┬────────────────────┘
+                                             │ REST API / JSON + Bearer JWT
+                                             ▼
+                         ┌────────────────────────────────────────┐
+                         │   Backend (Node.js 20+ / Express)      │
+                         │       Desplegado en Render             │
+                         └───────────────────┬────────────────────┘
+                                             │ Mongoose Driver (TLS/SSL)
+                                             ▼
+                         ┌────────────────────────────────────────┐
+                         │      Base de Datos Cloud               │
+                         │         MongoDB Atlas                  │
+                         └────────────────────────────────────────┘
 ```
 
 ---
 
-## 🚀 Despliegue en Producción
+## 🛠️ Stack Tecnológico Detallado
 
 ### Frontend
-- **URL**: https://codigo-py-frontend.onrender.com
-- Despliegue automático desde GitHub
+- **Framework:** React 18 con TypeScript
+- **Tooling:** Vite 7 (Hot Module Replacement de ultra alta velocidad)
+- **Estilos:** Tailwind CSS (diseño responsive móvil, tablet y escritorio)
+- **Enrutamiento:** React Router DOM v6 con guardias de autenticación
+- **Cliente HTTP:** Axios con interceptores para inyección de token JWT y manejo de errores 401
+- **Iconografía:** Lucide React
 
-### Backend
-- **URL**: https://codigo-py.onrender.com
-- Base de datos: MongoDB Atlas
+### Backend & Base de Datos
+- **Entorno:** Node.js v20+ / Express 4.x
+- **Base de Datos:** MongoDB Atlas (Cluster Cloud)
+- **ODM:** Mongoose 8.x con esquemas fuertemente tipados
+- **Seguridad:** `bcryptjs` para hashing unidireccional de contraseñas + `jsonwebtoken` (JWT)
+- **CORS:** Políticas configuradas para dominios autorizados de producción y desarrollo
+
+### Infraestructura & Despliegue
+- **Frontend Hosting:** Firebase Hosting (Google Cloud CDN)
+- **Backend Hosting:** Render Web Service (Node.js)
+- **Base de Datos:** MongoDB Atlas Replica Set
 
 ---
 
-## 📋 Gestión de Credenciales y Seguridad
+## 💻 Instalación y Ejecución Local
 
-> ⚠️ **Aviso de Seguridad**: Nunca almacene contraseñas en texto claro en repositorios ni use contraseñas por defecto en entornos accesibles públicamente.
+Si deseas clonar el proyecto y levantarlo en tu entorno local:
 
-### Cuentas Iniciales en Entorno Local
-Para inicializar usuarios de prueba en un entorno local de desarrollo controlado, ejecute:
+### 1. Clonar el repositorio
+```bash
+git clone https://github.com/Nelson-Sosa/CodigoPy.git
+cd CodigoPy
+```
+
+### 2. Configurar el Backend (`/server`)
 ```bash
 cd server
+npm install
+```
+
+Crea un archivo `.env` dentro de `server/`:
+```env
+PORT=5000
+MONGO_URI=mongodb://localhost:27017/codigopy_pos
+JWT_SECRET=tu_secreto_super_seguro_de_desarrollo
+NODE_ENV=development
+```
+
+Inicializa datos de prueba (opcional):
+```bash
 npm run seed
 ```
 
-### Procedimiento de Rotación de Contraseña de Administrador
-Si se utilizaron contraseñas iniciales o por defecto en una base de datos desplegada, deben rotarse inmediatamente:
-1. **Desde la Interfaz Web**: Iniciar sesión como Administrador, acceder a **Gestión de Usuarios** (`/users`), seleccionar el usuario administrador y hacer clic en **Cambiar contraseña**.
-2. **Vía API**: Enviar una solicitud autenticada con token de administrador:
-   ```http
-   PUT /api/auth/users/:id/password
-   Authorization: Bearer <TOKEN_ADMIN>
-   Content-Type: application/json
+Inicia el servidor en modo desarrollo:
+```bash
+npm run dev
+```
 
-   { "password": "<NUEVA_CONTRASENA_ROBUSTA>" }
-   ```
-3. **Variables de Entorno**: Configure siempre `JWT_SECRET` con un valor secreto de alta entropía (mínimo 32 caracteres) en las variables de entorno de producción.
+### 3. Configurar el Frontend (`/frontend`)
+En otra terminal:
+```bash
+cd frontend
+npm install
+```
 
----
+Crea un archivo `.env.local` dentro de `frontend/`:
+```env
+VITE_API_URL=http://localhost:5000
+```
 
-## 🎨 Funcionalidades por Rol
-
-| Funcionalidad | Admin | Supervisor | Operador |
-|---------------|-------|------------|----------|
-| Dashboard | ✅ | ✅ | ✅ |
-| Apertura/Cierre de Caja | ✅ | ✅ | ✅ |
-| Ventas | ✅ | ✅ | ✅ |
-| Productos (CRUD) | ✅ | ✅ | ❌ |
-| Movimientos | ✅ | ✅ | ✅ |
-| Categorías | ✅ | ✅ | ❌ |
-| Clientes | ✅ | ✅ | ✅ |
-| Proveedores | ✅ | ✅ | ❌ |
-| Reportes | ✅ | ✅ | ✅ |
-| Configuración | ✅ | ✅ | ❌ |
-| Gestión de Usuarios | ✅ | ❌ | ❌ |
+Ejecuta el servidor de desarrollo Vite:
+```bash
+npm run dev
+```
+Accede en tu navegador a `http://localhost:5173`.
 
 ---
 
-## 🔮 Próximas Funcionalidades
+## 👨‍💻 Sobre el Desarrollador
 
-- [ ] Integración con facturación electrónica SET Paraguay (e-Kuatia)
-- [ ] Notificaciones push
-- [ ] Multi-sucursal
-- [ ] Reportes avanzados con gráficos interactivos
+**Nelson Sosa**  
+*Desarrollador Full Stack | Especialista en soluciones comerciales y software empresarial.*
 
----
-
-## 📝 Licencia
-
-Este proyecto es software propietario. Todos los derechos reservados.
+- **Portafolio / GitHub:** [@Nelson-Sosa](https://github.com/Nelson-Sosa)
+- **LinkedIn:** [Nelson Sosa en LinkedIn](https://www.linkedin.com/in/nelson-sosa-b9b901398/)
+- **Contacto comercial:** ¿Te interesa implementar este sistema en tu negocio o requieres personalizaciones? Contáctame a través de LinkedIn.
 
 ---
 
-## 👨‍💻 Autor
-
-**Nelson Sosa**
-
-- GitHub: [@Nelson-Sosa](https://github.com/Nelson-Sosa)
-- LinkedIn: [Nelson Sosa](https://www.linkedin.com/in/nelson-sosa-b9b901398/?skipRedirect=true)
-
----
-
-⭐ ¿Te gusta el proyecto? Dale una estrella en GitHub
+⭐ **Si este proyecto te resulta interesante o útil, no dudes en dejar una estrella en el repositorio.**
