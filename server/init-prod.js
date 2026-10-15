@@ -7,8 +7,12 @@
  * ✅ Crea categorías base si no hay ninguna
  * ✅ Muestra resumen de lo encontrado y lo creado
  *
- * Uso:
+ * Uso (cambia ADMIN_EMAIL y ADMIN_PASS por tus valores reales):
  *   node init-prod.js                  (usa el .env local → BD local/dev)
+ * Variables opcionales para sobrescribir el admin por defecto:
+ *   ADMIN_EMAIL  →  email del admin a crear  (default: admin@codigopy.com)
+ *   ADMIN_PASS   →  contraseña del admin      (default: Admin2025!)
+ *   ADMIN_NAME   →  nombre del admin          (default: Admin CodigoPy)
  *   MONGO_URI=mongodb+srv://... node init-prod.js   (apunta a Atlas producción)
  *
  * IMPORTANTE: cambiar las contraseñas desde el panel admin después de ejecutar.
@@ -50,14 +54,17 @@ const run = async () => {
     console.log(`✅ Ya existe un administrador: ${adminExists.email}`);
   } else {
     console.log('⚠️  No hay ningún administrador activo. Creando uno...');
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@codigopy.com';
+    const adminPass  = process.env.ADMIN_PASS  || 'Admin2025!';
+    const adminName  = process.env.ADMIN_NAME  || 'Admin CodigoPy';
     await User.create({
-      name:     'Admin CodigoPy',
-      email:    'admin@codigopy.com',
-      password: 'Admin2025!',
+      name:     adminName,
+      email:    adminEmail,
+      password: adminPass,
       role:     'admin',
     });
-    console.log('✅ Administrador creado: admin@codigopy.com / Admin2025!');
-    console.log('⚠️  IMPORTANTE: Cambia esta contraseña desde el panel admin después de ingresar.');
+    console.log(`✅ Administrador creado: ${adminEmail}`);
+    console.log('⚠️  IMPORTANTE: Cambia la contraseña desde el panel admin después de ingresar.');
   }
 
   // ── 2. Verificar categorías existentes ───────────────────────────────────

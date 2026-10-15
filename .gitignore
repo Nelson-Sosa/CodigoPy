@@ -32,3 +32,6 @@ Thumbs.db
 # Misc
 *.local
 .vite/
+
+# Scripts de inicialización (pueden contener credenciales por defecto)
+server/init-prod.js
